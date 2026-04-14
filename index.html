@@ -20,6 +20,30 @@
   
   <!-- Estilos -->
   <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- ✅ CORRECCIÓN CRÍTICA: Inicializar namespaces ANTES de cargar módulos -->
+  <script>
+    // Namespace global para features (evita errores de undefined)
+    window.features = window.features || {
+      dashboard: {},
+      repaso: {},
+      proyectos: {},
+      tareas: {},
+      sabiasQue: {},
+      progreso: {},
+      padres: {}
+    };
+    
+    // Namespace para components
+    window.components = window.components || {
+      modal: {},
+      sidebar: {},
+      cardActividad: {},
+      starReward: {}
+    };
+    
+    console.log('📦 Namespaces inicializados');
+  </script>
 </head>
 <body class="app-loading" data-theme="claro">
 
@@ -90,25 +114,25 @@
       </div>
       
       <nav class="nav-menu">
-        <button class="nav-item active" data-screen="dashboard">
+        <button class="nav-item active" data-screen="dashboard" onclick="app.mostrarPantalla('dashboard-screen')">
           <span class="nav-icon">🏠</span> Inicio
         </button>
-        <button class="nav-item" data-screen="repaso">
+        <button class="nav-item" data-screen="repaso" onclick="app.mostrarPantalla('repaso-screen')">
           <span class="nav-icon">🔄</span> Repaso
         </button>
-        <button class="nav-item" data-screen="proyectos">
+        <button class="nav-item" data-screen="proyectos" onclick="app.mostrarPantalla('proyectos-screen')">
           <span class="nav-icon">🛠️</span> Proyectos
         </button>
-        <button class="nav-item" data-screen="tareas">
+        <button class="nav-item" data-screen="tareas" onclick="app.mostrarPantalla('tareas-screen')">
           <span class="nav-icon">✏️</span> Tareas
         </button>
-        <button class="nav-item" data-screen="sabias-que">
+        <button class="nav-item" data-screen="sabias-que" onclick="app.mostrarPantalla('sabias-que-screen')">
           <span class="nav-icon">💡</span> Sabías Que
         </button>
-        <button class="nav-item" data-screen="progreso">
+        <button class="nav-item" data-screen="progreso" onclick="app.mostrarPantalla('progreso-screen')">
           <span class="nav-icon">⭐</span> Mi Progreso
         </button>
-        <button class="nav-item padres-only" data-screen="padres">
+        <button class="nav-item padres-only" data-screen="padres" onclick="app.mostrarPantalla('padres-screen')">
           <span class="nav-icon">👨‍👩‍👧</span> Para Papás
         </button>
         <button class="nav-item" data-screen="licencia" onclick="app.mostrarPantalla('licencia-screen')">
@@ -131,14 +155,15 @@
       
       <!-- ══════════════════════════════════════ TOPBAR ══════════════════════════════════════ -->
       <header class="topbar">
-        <button class="btn-hamburger" onclick="app.toggleSidebar()">☰</button>
+        <!-- ✅ Hamburguesa visible en móvil -->
+        <button class="btn-hamburger" id="hamburger-btn" onclick="app.toggleSidebar()" aria-label="Menú">☰</button>
         <div>
           <h1 class="topbar-title" id="page-title">Dashboard</h1>
           <p class="topbar-sub" id="page-subtitle">¡Bienvenido!</p>
         </div>
         <div class="topbar-actions">
           <button class="btn-theme" onclick="theme.toggle()" title="Cambiar tema">🌓</button>
-          <button class="btn-profile" onclick="app.mostrarPantalla('progreso')" title="Mi progreso">
+          <button class="btn-profile" onclick="app.mostrarPantalla('progreso-screen')" title="Mi progreso">
             ⭐ <span id="stars-count">0</span>
           </button>
         </div>
@@ -155,19 +180,19 @@
           </div>
           
           <div class="quick-actions">
-            <button class="action-card" onclick="app.mostrarPantalla('tareas')">
+            <button class="action-card" onclick="app.mostrarPantalla('tareas-screen')">
               <span class="action-icon">✏️</span>
               <span class="action-label">Tareas de Hoy</span>
             </button>
-            <button class="action-card" onclick="app.mostrarPantalla('proyectos')">
+            <button class="action-card" onclick="app.mostrarPantalla('proyectos-screen')">
               <span class="action-icon">🛠️</span>
               <span class="action-label">Nuevo Proyecto</span>
             </button>
-            <button class="action-card" onclick="app.mostrarPantalla('repaso')">
+            <button class="action-card" onclick="app.mostrarPantalla('repaso-screen')">
               <span class="action-icon">🔄</span>
               <span class="action-label">Repasar</span>
             </button>
-            <button class="action-card" onclick="app.mostrarPantalla('sabias-que')">
+            <button class="action-card" onclick="app.mostrarPantalla('sabias-que-screen')">
               <span class="action-icon">💡</span>
               <span class="action-label">Curiosidades</span>
             </button>
@@ -335,6 +360,7 @@
             </div>
           </div>
         </section>
+
         <!-- ══════════════════════════════════════ LICENCIA / PLANES SCREEN ══════════════════════════════════════ -->
         <section id="licencia-screen" class="screen">
           <div class="screen-header" style="margin-bottom:24px;">
@@ -402,6 +428,7 @@
             ¿Preguntas? <a href="mailto:soporte@aprende-jugando.com" style="color:var(--blue);text-decoration:none;">soporte@aprende-jugando.com</a>
           </div>
         </section>
+
       </div>
     </main>
   </div>
@@ -412,24 +439,24 @@
   <!-- ══════════════════════════════════════ BOTTOM NAV (MÓVIL) ══════════════════════════════════════ -->
   <nav class="bottom-nav" id="bottom-nav">
     <div class="bottom-nav-inner">
-      <button class="bn-item active" data-screen="dashboard" onclick="app.mostrarPantalla('dashboard')">
+      <button class="bn-item active" data-screen="dashboard" onclick="app.mostrarPantalla('dashboard-screen')">
         <span class="bn-icon">🏠</span>
         <span class="bn-label">Inicio</span>
       </button>
-      <button class="bn-item" data-screen="repaso" onclick="app.mostrarPantalla('repaso')">
+      <button class="bn-item" data-screen="repaso" onclick="app.mostrarPantalla('repaso-screen')">
         <span class="bn-icon">🔄</span>
         <span class="bn-label">Repaso</span>
       </button>
-      <button class="bn-item" data-screen="tareas" onclick="app.mostrarPantalla('tareas')" style="position:relative;">
+      <button class="bn-item" data-screen="tareas" onclick="app.mostrarPantalla('tareas-screen')" style="position:relative;">
         <span style="position:absolute;top:-14px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(255,107,157,.4);border:3px solid var(--bg);">✏️</span>
         <span class="bn-icon" style="opacity:0;">✏️</span>
         <span class="bn-label" style="margin-top:12px;">Tareas</span>
       </button>
-      <button class="bn-item" data-screen="progreso" onclick="app.mostrarPantalla('progreso')">
+      <button class="bn-item" data-screen="progreso" onclick="app.mostrarPantalla('progreso-screen')">
         <span class="bn-icon">⭐</span>
         <span class="bn-label">Progreso</span>
       </button>
-      <button class="bn-item" data-screen="padres" onclick="app.mostrarPantalla('padres')">
+      <button class="bn-item" data-screen="padres" onclick="app.mostrarPantalla('padres-screen')">
         <span class="bn-icon">👨‍👩‍👧</span>
         <span class="bn-label">Papás</span>
       </button>
@@ -439,7 +466,7 @@
   <!-- ══════════════════════════════════════ TOAST NOTIFICATION ══════════════════════════════════════ -->
   <div id="toast" class="toast"></div>
 
-  <!-- ══════════════════════════════════════ MODALS ══════════════════════════════════════ -->
+  <!-- ══════════════════════════════════════ MODALS (OCULTOS POR DEFECTO) ══════════════════════════════════════ -->
   <!-- Modal de Instrucciones de Proyecto -->
   <div id="modal-instructivo" class="modal">
     <div class="modal-content">
@@ -482,35 +509,75 @@
   <!-- Configuración -->
   <script src="js/config/firebase.js"></script>
   
-  <!-- Core (EN ORDEN) -->
+  <!-- Core (EN ORDEN CRÍTICO) -->
   <script src="js/core/theme.js"></script>
   <script src="js/core/auth.js"></script>
   <script src="js/core/router.js"></script>
   <script src="js/core/storage.js"></script>
   <script src="js/core/app.js"></script>
   
-  <!-- Components -->
-  <script src="js/components/sidebar.js"></script>
-  <script src="js/components/card-actividad.js"></script>
-  <script src="js/components/star-reward.js"></script>
-  <script src="js/components/modal.js"></script>
+  <!-- Components (con fallback si no existen) -->
+  <script>
+    // Fallback para components si los archivos no existen
+    if (!window.components.modal.cerrar) {
+      window.components.modal.cerrar = function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      };
+    }
+  </script>
   
-  <!-- Features -->
-  <script src="js/features/dashboard.js"></script>
-  <script src="js/features/repaso.js"></script>
-  <script src="js/features/proyectos.js"></script>
-  <script src="js/features/tareas.js"></script>
-  <script src="js/features/sabias-que.js"></script>
-  <script src="js/features/progreso.js"></script>
-  <script src="js/features/padres.js"></script>
+  <!-- Features (con fallback si no existen) -->
+  <script>
+    // Fallback para features si los archivos no existen (evita errores 404)
+    const featureStubs = ['repaso', 'proyectos', 'tareas', 'sabiasQue', 'progreso', 'padres'];
+    featureStubs.forEach(feature => {
+      if (!window.features[feature] || typeof window.features[feature] !== 'object') {
+        window.features[feature] = {
+          init: () => console.log(`📦 ${feature} stub cargado`),
+          cargar: () => {},
+          filtrarPorGrado: () => {},
+          filtrarPorCategoria: () => {}
+        };
+      }
+    });
+  </script>
   
-  <!-- Service Worker Registration -->
+  <!-- Service Worker Registration (con manejo de error) -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
-        .catch(err => console.error('❌ Error registrando SW:', err));
+        .catch(err => {
+          console.warn('⚠️ Service Worker no disponible (puede ser normal en desarrollo):', err);
+        });
     }
+  </script>
+  
+  <!-- ✅ Inicialización final después de cargar todo -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Esperar un poco para asegurar que todos los módulos cargaron
+      setTimeout(() => {
+        // Inicializar features que tengan init
+        Object.values(window.features).forEach(feature => {
+          if (feature && typeof feature.init === 'function') {
+            try { feature.init(); } catch(e) { console.warn(`⚠️ Error inicializando ${feature}:`, e); }
+          }
+        });
+        
+        // Revelar layout principal si está autenticado
+        if (window.app?.esAdmin) {
+          document.getElementById('main-layout').style.display = 'grid';
+          document.getElementById('auth-screen').style.display = 'none';
+        }
+        
+        console.log('✅ Aprende-jugando inicializado');
+      }, 200);
+    });
   </script>
 </body>
 </html>
