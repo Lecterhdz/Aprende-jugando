@@ -1194,10 +1194,182 @@ window.features.tareas = {
     this.simularCompletado(tarea);
   },
   
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR JUEGO DE CONTEO (IMPLEMENTACIÓN REAL)
+  // ─────────────────────────────────────────────────────────────
   iniciarJuegoConteo: function(tarea) {
     console.log('🔢 Iniciando juego de conteo:', tarea.titulo);
-    // Implementar interfaz de selección múltiple con feedback
-    this.simularCompletado(tarea);
+    
+    // Validar que la tarea tenga los datos necesarios
+    if (!tarea.elementos || !tarea.opciones || tarea.respuestaCorrecta === undefined) {
+      console.error('❌ Tarea de conteo sin datos válidos:', tarea.id);
+      window.app?.mostrarToast('⚠️ Actividad no disponible', 'error');
+      this.simularCompletado(tarea);
+      return;
+    }
+    
+    // Crear contenedor de juego
+    const juegoContainer = document.createElement('div');
+    juegoContainer.className = 'modal active';
+    juegoContainer.id = 'modal-juego-conteo';
+    juegoContainer.setAttribute('role', 'dialog');
+    juegoContainer.setAttribute('aria-modal', 'true');
+    juegoContainer.setAttribute('aria-labelledby', 'juego-conteo-title');
+    
+    // Generar elementos visuales (emojis para demo)
+    const elementosVisuales = tarea.elementos.map((emoji, i) => `
+      <span style="font-size:48px;margin:4px;animation:bounce 0.5s ease ${i * 0.1}s infinite;" 
+            aria-hidden="true">${emoji}</span>
+    `).join('');
+    
+    // Generar botones de opciones
+    const opcionesHTML = tarea.opciones.map(opcion => `
+      <button class="opcion-btn" 
+              data-respuesta="${opcion}"
+              style="min-width:60px;min-height:60px;font-size:24px;font-weight:700;
+                     background:var(--surface);border:2px solid var(--border);
+                     border-radius:var(--radius-sm);cursor:pointer;
+                     transition:all 0.2s ease;"
+              onmouseover="this.style.borderColor='var(--primary)';this.style.transform='scale(1.05)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">
+        ${opcion}
+      </button>
+    `).join('');
+    
+    juegoContainer.innerHTML = `
+      <style>
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes pulse-success {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(149, 225, 211, 0.7); }
+          50% { box-shadow: 0 0 0 12px rgba(149, 225, 211, 0); }
+        }
+        @keyframes pulse-error {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(243, 129, 129, 0.7); }
+          50% { box-shadow: 0 0 0 12px rgba(243, 129, 129, 0); }
+        }
+        .opcion-btn.correcta {
+          background: var(--success) !important;
+          border-color: var(--success-dark) !important;
+          color: white !important;
+          animation: pulse-success 1s ease;
+        }
+        .opcion-btn.incorrecta {
+          background: var(--warning) !important;
+          border-color: var(--warning-dark) !important;
+          color: white !important;
+          animation: pulse-error 1s ease;
+        }
+      </style>
+      
+      <div class="modal-content" style="max-width:500px;" role="document">
+        <div class="modal-header">
+          <h2 id="juego-conteo-title" class="modal-title" style="font-size:18px;">
+            🔢 ${tarea.titulo}
+          </h2>
+          <button class="modal-close" onclick="features.tareas.cerrarJuegoActivo()" 
+                  aria-label="Cerrar actividad" style="min-width:44px;min-height:44px;">✕</button>
+        </div>
+        
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">
+            ${tarea.descripcion}
+          </p>
+          
+          <!-- Área de elementos para contar -->
+          <div id="conteo-elementos" 
+               style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
+                      padding:20px;background:var(--bg2);border-radius:var(--radius-sm);
+                      margin-bottom:24px;min-height:80px;"
+               aria-label="Elementos para contar">
+            ${elementosVisuales}
+          </div>
+          
+          <!-- Pregunta -->
+          <p style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px;">
+            ¿Cuántos hay? 👇
+          </p>
+          
+          <!-- Opciones de respuesta -->
+          <div id="conteo-opciones" 
+               style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:20px;"
+               role="radiogroup"
+               aria-label="Selecciona tu respuesta">
+            ${opcionesHTML}
+          </div>
+          
+          <!-- Feedback -->
+          <div id="conteo-feedback" 
+               style="min-height:24px;font-weight:600;" 
+               aria-live="polite"
+               aria-atomic="true"></div>
+          
+          <!-- Pista -->
+          ${tarea.hint ? `
+            <button id="btn-hint-conteo" 
+                    class="topbar-btn ghost" 
+                    onclick="features.tareas.mostrarHintConteo()"
+                    style="margin-top:12px;min-height:44px;"
+                    aria-label="Obtener pista">
+              💡 ¿Necesitas ayuda?
+            </button>
+          ` : ''}
+        </div>
+        
+        <div class="modal-footer" style="justify-content:center;gap:12px;">
+          <button onclick="features.tareas.cerrarJuegoActivo()" 
+                  class="topbar-btn ghost"
+                  style="min-width:120px;min-height:48px;">
+            ❌ Salir
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(juegoContainer);
+    
+    // Configurar eventos de las opciones
+    const opciones = juegoContainer.querySelectorAll('.opcion-btn');
+    opciones.forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.verificarRespuestaConteo(btn, tarea);
+      });
+      
+      // Accesibilidad: Enter/Space para seleccionar
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.verificarRespuestaConteo(btn, tarea);
+        }
+      });
+      
+      // Accesibilidad: role y tabindex
+      btn.setAttribute('role', 'radio');
+      btn.setAttribute('tabindex', '0');
+      btn.setAttribute('aria-label', `Opción ${btn.dataset.respuesta}`);
+    });
+    
+    // Enfocar primera opción para accesibilidad
+    setTimeout(() => {
+      opciones[0]?.focus();
+    }, 100);
+    
+    // Guardar referencia para cerrar desde fuera
+    this.estado.juegoActivo = {
+      modal: juegoContainer,
+      tipo: 'conteo',
+      tareaId: tarea.id,
+      intentos: 0
+    };
+    
+    // Analytics
+    this.registrarEvento('juego_conteo_iniciado', { 
+      tareaId: tarea.id,
+      elementos: tarea.elementos.length,
+      opciones: tarea.opciones.length
+    });
   },
   
   iniciarJuegoColorear: function(tarea) {
