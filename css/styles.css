@@ -148,7 +148,40 @@ input, select, textarea {
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
 }
+/* ══════════════════════════════════════ HAMBURGER BUTTON ══════════════════════════════════════ */
+.hamburger-btn {
+  display: none !important; /* Oculto en desktop */
+  padding: 8px !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: var(--ink) !important;
+  font-size: 24px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: var(--radius-sm) !important;
+  transition: background 0.2s !important;
+}
 
+.hamburger-btn:hover {
+  background: var(--bg2) !important;
+}
+/* ══════════════════════════════════════ MODALES - OCULTOS POR DEFECTO ══════════════════════════════════════ */
+.modal {
+  display: none !important; /* ← OCULTO por defecto */
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px) !important;
+  z-index: 1000 !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.modal.active {
+  display: flex !important; /* ← Solo visible con clase .active */
+  animation: fadeIn 0.2s ease !important;
+}
 /* ══════════════════════════════════════ SIDEBAR ══════════════════════════════════════ */
 .sidebar {
   background: var(--surface);
@@ -577,7 +610,11 @@ input, select, textarea {
   .layout {
     grid-template-columns: 1fr !important;
   }
-  
+   .hamburger-btn {
+    display: flex !important; /* ← CLAVE: visible en móvil */
+    align-items: center !important;
+    justify-content: center !important;
+  } 
   /* Sidebar: oculto por defecto */
   .sidebar {
     display: none !important;
