@@ -1,31 +1,43 @@
 /* ═══════════════════════════════════════════════════════════════
-   KINDERAULA - ESTILOS PRINCIPALES
+   APRENDE-JUGANDO - ESTILOS PRINCIPALES (PREESCOLAR)
    ═══════════════════════════════════════════════════════════════ */
 
-/* ══════════════════════════════════════ VARIABLES - TEMA CLARO ══════════════════════════════════════ */
+/* ══════════════════════════════════════ VARIABLES - TEMA CLARO (DEFAULT) ══════════════════════════════════════ */
 :root[data-theme="claro"] {
-  /* Colores principales - pasteles vibrantes */
-  --primary: #FF6B9D;
+  /* Colores principales - pasteles vibrantes para niños */
+  --primary: #FF6B9D;        /* Rosa vibrante */
   --primary-light: #FFB3C6;
-  --secondary: #4ECDC4;
+  --primary-dark: #E04A7C;
+  
+  --secondary: #4ECDC4;      /* Turquesa suave */
   --secondary-light: #A0E7E0;
-  --accent: #FFE66D;
+  --secondary-dark: #3DBDB4;
+  
+  --accent: #FFE66D;         /* Amarillo sol */
   --accent-light: #FFF4B3;
+  --accent-dark: #E6D45C;
+  
+  --purple: #C780E8;         /* Morado creativo */
+  --purple-light: #E8C7F5;
   
   /* Fondos */
-  --bg: #FFF9FB;
-  --bg2: #F0F9FF;
+  --bg: #FFF9FB;             /* Rosa muy claro */
+  --bg2: #F0F9FF;            /* Azul muy claro */
   --surface: #FFFFFF;
   
   /* Texto */
-  --ink: #2D3142;
-  --ink2: #4F5D75;
-  --ink3: #7B8FA3;
+  --ink: #2D3142;            /* Gris oscuro suave */
+  --ink2: #4F5D75;           /* Gris medio */
+  --ink3: #7B8FA3;           /* Gris claro */
+  --ink4: #A8B5C5;           /* Gris muy claro */
   
   /* Estados */
-  --success: #95E1D3;
-  --warning: #F38181;
-  --error: #AA96DA;
+  --success: #95E1D3;        /* Verde menta */
+  --success-dark: #7BD4C3;
+  --warning: #F38181;        /* Coral suave */
+  --warning-dark: #E06B6B;
+  --error: #AA96DA;          /* Lavanda */
+  --error-dark: #9580C7;
   
   /* UI */
   --border: #E8E8E8;
@@ -36,7 +48,7 @@
   --radius-sm: 12px;
   --radius-lg: 24px;
   
-  /* Tipografía */
+  /* Tipografía amigable */
   --font: 'Nunito', 'Quicksand', sans-serif;
   --font-size-base: 18px;
   --font-size-sm: 16px;
@@ -44,30 +56,42 @@
   --font-size-xl: 28px;
 }
 
-/* ══════════════════════════════════════ VARIABLES - TEMA OSCURO ══════════════════════════════════════ */
+/* ══════════════════════════════════════ VARIABLES - TEMA OSCURO (NOCHE) ══════════════════════════════════════ */
 :root[data-theme="oscuro"] {
   /* Colores principales - suaves, bajo brillo */
   --primary: #FF8FAB;
   --primary-light: #FFB3C6;
+  --primary-dark: #E06B8A;
+  
   --secondary: #7DD3C0;
   --secondary-light: #A0E7E0;
+  --secondary-dark: #6BC4B0;
+  
   --accent: #FFD97A;
   --accent-light: #FFE9A3;
+  --accent-dark: #E6C86A;
+  
+  --purple: #D89BF0;
+  --purple-light: #E8C7F5;
   
   /* Fondos oscuros pero no negros */
-  --bg: #1A1A2E;
-  --bg2: #16213E;
-  --surface: #0F3460;
+  --bg: #1A1A2E;           /* Azul noche suave */
+  --bg2: #16213E;          /* Azul profundo */
+  --surface: #0F3460;      /* Azul acero */
   
   /* Texto claro pero no blanco puro */
   --ink: #E8E8E8;
   --ink2: #B8B8D1;
   --ink3: #8A8AB8;
+  --ink4: #5A5A78;
   
   /* Estados - versión oscura */
   --success: #5DBEA8;
+  --success-dark: #4AA895;
   --warning: #D16B7A;
+  --warning-dark: #B85A6A;
   --error: #8B7AB8;
+  --error-dark: #7565A0;
   
   /* UI */
   --border: #2A2A4A;
@@ -97,6 +121,25 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ══════════════════════════════════════ SCROLLBAR ══════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+input, select, textarea {
+  color-scheme: light;
 }
 
 /* ══════════════════════════════════════ LAYOUT ══════════════════════════════════════ */
@@ -279,6 +322,11 @@ body {
   font-size: 20px;
   font-weight: 700;
   color: var(--ink);
+}
+
+.topbar-sub {
+  font-size: 11px;
+  color: var(--ink3);
 }
 
 .topbar-actions {
