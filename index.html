@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>KinderPlay - Aprende Jugando</title>
+  <title>Aprende-jugando - Kinder 1,2,3</title>
   <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#FFB74D">
+  <meta name="description" content="Actividades, tareas y proyectos educativos para preescolar">
   <!-- Iconos para PWA -->
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/869/869636.png">
   <!-- Fuente amigable -->
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome 6 (gratis) -->
+  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * {
@@ -28,7 +29,7 @@
       padding-bottom: 80px;
     }
 
-    /* TEMAS */
+    /* TEMAS: claro (default) y oscuro */
     :root {
       --bg-primary: #FFF9E6;
       --bg-secondary: #FFF3D1;
@@ -81,6 +82,7 @@
     }
     .logo p {
       font-size: 0.8rem;
+      font-weight: 600;
     }
 
     .theme-toggle, .plan-badge {
@@ -95,7 +97,7 @@
       box-shadow: 0 2px 6px var(--shadow);
     }
 
-    /* Grid de secciones */
+    /* Secciones */
     .section {
       margin: 32px 0;
     }
@@ -138,6 +140,7 @@
       cursor: pointer;
       color: #2D1F12;
       display: inline-block;
+      font-size: 0.9rem;
     }
 
     /* Planes */
@@ -157,6 +160,10 @@
       text-align: center;
       border: 2px solid var(--border);
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .plan-card:hover {
+      transform: scale(1.02);
     }
     .plan-card.popular {
       border-color: var(--accent);
@@ -193,6 +200,7 @@
       text-align: center;
       margin-top: 40px;
       color: var(--text-secondary);
+      font-weight: 500;
     }
 
     /* responsive tablet/laptop */
@@ -225,8 +233,8 @@
 <body>
 <div class="header">
   <div class="logo">
-    <h1>🐣 KinderPlay</h1>
-    <p>aprende, juega, crece</p>
+    <h1>🎈 Aprende-jugando</h1>
+    <p>kinder 1 • 2 • 3</p>
   </div>
   <div style="display: flex; gap: 12px;">
     <div class="plan-badge" id="planStatus">🎁 Plan: Demo</div>
@@ -246,19 +254,19 @@
     </div>
   </div>
 
-  <!-- Material de repaso (sugerencias) -->
+  <!-- Material de repaso (sugerencias de temas) -->
   <div class="section">
     <div class="section-title"><i class="fas fa-book-open"></i> 📚 Material de repaso</div>
     <div class="cards-grid" id="repasoGrid"></div>
   </div>
 
-  <!-- Proyectos (instructivo + materiales) -->
+  <!-- Proyectos (instructivo claro + materiales) -->
   <div class="section">
     <div class="section-title"><i class="fas fa-drafting-compass"></i> 🎨 Proyectos divertidos</div>
     <div class="cards-grid" id="proyectosGrid"></div>
   </div>
 
-  <!-- Tareas: dibujar letras, patrones, colorear -->
+  <!-- Tareas: dibujar letras, patrones, colorear, etc -->
   <div class="section">
     <div class="section-title"><i class="fas fa-pencil-alt"></i> ✏️ Tareas creativas</div>
     <div class="cards-grid" id="tareasGrid"></div>
@@ -273,7 +281,7 @@
     </div>
   </div>
   <footer>
-    <p>🌈 Aprendizaje mágico para kinder 1,2,3 | Juega y descubre</p>
+    <p>🌈 Aprende-jugando | Actividades para kinder 1, 2 y 3 | Diversión y aprendizaje</p>
   </footer>
 </div>
 
@@ -294,23 +302,28 @@
     { titulo: "Colores primarios", descripcion: "Rojo, azul y amarillo. Mezclas divertidas: naranja, verde y morado." },
     { titulo: "Figuras geométricas", descripcion: "Círculo, cuadrado, triángulo. Identifica objetos en casa con esas formas." },
     { titulo: "Emociones", descripcion: "Alegría, tristeza, enojo, miedo. Juego de mímica y dibujo de caritas." },
-    { titulo: "Días de la semana", descripcion: "Canción de los días, rutina mañanera y calendario visual." }
+    { titulo: "Días de la semana", descripcion: "Canción de los días, rutina mañanera y calendario visual." },
+    { titulo: "Los animales de la granja", descripcion: "Conoce la vaca, el pato, la gallina, el cerdo. Sonidos y onomatopeyas." },
+    { titulo: "Las estaciones del año", descripcion: "Primavera, verano, otoño e invierno. Ropa y clima para cada una." }
   ];
 
   const proyectosData = [
-    { nombre: "🌱 Mi planta en algodón", instructivo: "1. Coloca algodón húmedo en un frasco. 2. Pon semillas de lenteja. 3. Riega cada 2 días y observa crecer.", materiales: "Algodón, frasco de vidrio, semillas de lenteja, agua." },
-    { nombre: "🎭 Títeres de calcetín", instructivo: "Decora un calcetín con botones, lana y ojos móviles. Inventa una historia.", materiales: "Calcetín blanco, botones, pegamento textil, lana, tijeras." },
-    { nombre: "🌌 Galaxia en frasco", instructivo: "Mezcla agua, purpurina y colorante azul en un frasco. Agrega algodón imitando nubes.", materiales: "Frasco, purpurina, colorante, algodón, agua." },
-    { nombre: "🎨 Pintura con hielos", instructivo: "Congela agua con colorante vegetal. Pinta sobre papel mientras se derrite.", materiales: "Cubetera, colorantes, palitos, papel grueso." }
+    { nombre: "🌱 Mi planta en algodón", instructivo: "1. Coloca algodón húmedo en un frasco. 2. Pon semillas de lenteja. 3. Riega cada 2 días y observa crecer durante una semana.", materiales: "Algodón, frasco de vidrio, semillas de lenteja, agua." },
+    { nombre: "🎭 Títeres de calcetín", instructivo: "Decora un calcetín con botones, lana y ojos móviles. Inventa una historia corta con tu títere.", materiales: "Calcetín blanco, botones, pegamento textil, lana, tijeras." },
+    { nombre: "🌌 Galaxia en frasco", instructivo: "Mezcla agua, purpurina y colorante azul en un frasco. Agrega algodón imitando nubes. Tapa y agita.", materiales: "Frasco, purpurina, colorante, algodón, agua." },
+    { nombre: "🎨 Pintura con hielos", instructivo: "Congela agua con colorante vegetal. Pinta sobre papel mientras se derrite. ¡Crea texturas divertidas!", materiales: "Cubetera, colorantes, palitos, papel grueso." },
+    { nombre: "🐚 Móvil de la naturaleza", instructivo: "Recoge hojas, palitos y flores. Pégalos en un cartón con forma de móvil y cuélgalo.", materiales: "Cartón, hojas secas, pegamento, cuerda." }
   ];
 
   const tareasData = [
-    { titulo: "Dibuja la letra 'M'", tipo: "Letras", instruccion: "Traza la M mayúscula y minúscula. Decora con stickers de montañas." },
-    { titulo: "Patrón de colores", tipo: "Patrones", instruccion: "Completa la secuencia: 🔴🔵🔴🔵 ? (pinta la siguiente figura)" },
-    { titulo: "Colorea el número 3", tipo: "Colorear", instruccion: "Imprime o dibuja 3 manzanas y colorea de rojo." },
-    { titulo: "Dibuja tu familia", tipo: "Creatividad", instruccion: "Haz un dibujo de tu familia y explica quiénes son." },
+    { titulo: "Dibuja la letra 'M'", tipo: "Letras", instruccion: "Traza la M mayúscula y minúscula. Decora con stickers de montañas o colorea." },
+    { titulo: "Patrón de colores", tipo: "Patrones", instruccion: "Completa la secuencia: 🔴🔵🔴🔵 ? (pinta la siguiente figura del mismo color)." },
+    { titulo: "Colorea el número 3", tipo: "Colorear", instruccion: "Dibuja 3 manzanas y colorea de rojo, también 3 estrellas amarillas." },
+    { titulo: "Dibuja tu familia", tipo: "Creatividad", instruccion: "Haz un dibujo de tu familia y explica quiénes son a tu maestra o padres." },
     { titulo: "Laberinto de formas", tipo: "Motricidad", instruccion: "Ayuda al conejito a llegar a la zanahoria siguiendo solo círculos." },
-    { titulo: "Trazo de líneas onduladas", tipo: "Pre-escritura", instruccion: "Practica ondas como el agua, de izquierda a derecha." }
+    { titulo: "Trazo de líneas onduladas", tipo: "Pre-escritura", instruccion: "Practica ondas como el agua, de izquierda a derecha, en una hoja." },
+    { titulo: "Mi nombre en letras grandes", tipo: "Escritura", instruccion: "Escribe tu nombre con letras de colores y pégalo en tu cuaderno." },
+    { titulo: "Completa el patrón de frutas", tipo: "Patrones", instruccion: "🍎🍌🍎🍌? ¿Qué sigue? Dibuja la fruta que falta." }
   ];
 
   const sabiasQueList = [
@@ -318,16 +331,18 @@
     "El cerebro de un niño de 3 años tiene el doble de conexiones que el de un adulto.",
     "Dibujar mejora la coordinación ojo-mano y ayuda a expresar emociones.",
     "Los patrones y rimas facilitan la memorización temprana.",
-    "Aprender dos idiomas desde pequeño fortalece la flexibilidad cognitiva."
+    "Aprender dos idiomas desde pequeño fortalece la flexibilidad cognitiva.",
+    "Reír junto a tus hijos libera oxitocina y fortalece el vínculo afectivo.",
+    "Los niños que cantan todos los días desarrollan mejor su memoria auditiva."
   ];
 
-  // Sistema de planes (demo por defecto)
-  let currentPlan = "demo"; // demo, basico, pro, elite
-  let planExpiry = null; // timestamp
+  // Sistema de planes
+  let currentPlan = "demo";
+  let planExpiry = null;
 
   function initPlan() {
-    const stored = localStorage.getItem("kinderPlan");
-    const storedExpiry = localStorage.getItem("kinderExpiry");
+    const stored = localStorage.getItem("aprendeJugandoPlan");
+    const storedExpiry = localStorage.getItem("aprendeJugandoExpiry");
     if(stored && storedExpiry) {
       if(Date.now() < parseInt(storedExpiry)) {
         currentPlan = stored;
@@ -345,16 +360,16 @@
 
   function setPlanExpiry(daysFromNow) {
     planExpiry = Date.now() + daysFromNow * 24 * 60 * 60 * 1000;
-    localStorage.setItem("kinderExpiry", planExpiry);
+    localStorage.setItem("aprendeJugandoExpiry", planExpiry);
   }
 
   function activatePlan(plan, days) {
     currentPlan = plan;
     setPlanExpiry(days);
-    localStorage.setItem("kinderPlan", plan);
+    localStorage.setItem("aprendeJugandoPlan", plan);
     updatePlanUI();
-    mostrarMensajePlan(`🎉 Plan ${plan.toUpperCase()} activado por ${days} días.`);
-    renderAllSections(); // refrescar contenido según plan
+    mostrarMensajePlan(`🎉 ¡Plan ${plan.toUpperCase()} activado por ${days} días! Disfruta todo el contenido.`);
+    renderAllSections();
   }
 
   function updatePlanUI() {
@@ -363,12 +378,9 @@
     if(planExpiry) diasRest = Math.ceil((planExpiry - Date.now())/(1000*60*60*24));
     if(diasRest < 0) diasRest = 0;
     planStatusDiv.innerHTML = `🎁 ${currentPlan.toUpperCase()}  |  ${diasRest} días restantes`;
-    if(currentPlan === "demo" && diasRest <=0) {
-      // auto renovar demo 7 dias si expiró y es demo
-      if(diasRest <=0) {
-        setPlanExpiry(7);
-        updatePlanUI();
-      }
+    if(currentPlan === "demo" && diasRest <= 0) {
+      setPlanExpiry(7);
+      updatePlanUI();
     }
   }
 
@@ -384,11 +396,11 @@
     notif.style.borderRadius = "40px";
     notif.style.zIndex = "999";
     notif.style.fontWeight = "bold";
+    notif.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
     document.body.appendChild(notif);
-    setTimeout(() => notif.remove(), 2500);
+    setTimeout(() => notif.remove(), 3000);
   }
 
-  // Renderizado según plan (demo limita contenidos)
   function canAccessPremium() {
     return currentPlan !== "demo";
   }
@@ -405,7 +417,7 @@
     let proyectos = [...proyectosData];
     if(!canAccessPremium() && proyectos.length > 2) proyectos = proyectos.slice(0,2);
     const grid = document.getElementById("proyectosGrid");
-    grid.innerHTML = proyectos.map(p => `<div class="card"><h3>🧪 ${p.nombre}</h3><p><strong>Materiales:</strong> ${p.materiales}</p><p><strong>Instructivo:</strong> ${p.instructivo.substring(0,80)}...</p><button class="btn ver-detalle" data-tipo="proyecto" data-nombre="${p.nombre}" data-instructivo="${p.instructivo}" data-materiales="${p.materiales}">Instrucción completa</button></div>`).join('');
+    grid.innerHTML = proyectos.map(p => `<div class="card"><h3>🧪 ${p.nombre}</h3><p><strong>Materiales:</strong> ${p.materiales}</p><p><strong>Instructivo:</strong> ${p.instructivo.substring(0,80)}...</p><button class="btn ver-detalle" data-tipo="proyecto" data-nombre="${p.nombre}" data-instructivo="${p.instructivo}" data-materiales="${p.materiales}">Ver instructivo completo</button></div>`).join('');
     attachDetailEvents();
   }
 
@@ -418,7 +430,6 @@
   }
 
   function renderSabiasQue() {
-    // se maneja con botón aparte
     const randomIndex = Math.floor(Math.random() * sabiasQueList.length);
     document.getElementById("sabiasTexto").innerText = sabiasQueList[randomIndex];
   }
@@ -438,18 +449,17 @@
     const modalBody = document.getElementById("modalBody");
     if(tipo === "repaso") {
       modalTitle.innerText = btn.dataset.titulo;
-      modalBody.innerHTML = `<p>${btn.dataset.desc}</p><br><p>🎯 Actividad sugerida: dibuja algo relacionado y cuéntalo en casa.</p>`;
+      modalBody.innerHTML = `<p>${btn.dataset.desc}</p><br><p>🎯 Actividad sugerida: dibuja algo relacionado y cuéntalo en casa o con tu maestra.</p>`;
     } else if(tipo === "proyecto") {
       modalTitle.innerText = btn.dataset.nombre;
-      modalBody.innerHTML = `<p><strong>🧰 Materiales:</strong> ${btn.dataset.materiales}</p><p><strong>📋 Instructivo paso a paso:</strong> ${btn.dataset.instructivo}</p>`;
+      modalBody.innerHTML = `<p><strong>🧰 Materiales:</strong> ${btn.dataset.materiales}</p><p><strong>📋 Instructivo paso a paso:</strong> ${btn.dataset.instructivo}</p><p><i class="fas fa-child"></i> ¡Siempre con ayuda de un adulto!</p>`;
     } else if(tipo === "tarea") {
       modalTitle.innerText = btn.dataset.titulo;
-      modalBody.innerHTML = `<p>📝 ${btn.dataset.instruccion}</p><p>🎨 ¡Usa tus colores favoritos y comparte tu trabajo con tu maestra o familia!</p>`;
+      modalBody.innerHTML = `<p>📝 ${btn.dataset.instruccion}</p><p>🎨 ¡Usa tus colores favoritos y comparte tu trabajo con tu familia!</p><i class="fas fa-star"></i> Puedes tomar una foto de tu tarea.`;
     }
     modal.style.display = "flex";
   }
 
-  // Planes click
   function setupPlans() {
     const plans = document.querySelectorAll(".plan-card");
     plans.forEach(card => {
@@ -465,15 +475,14 @@
     });
   }
 
-  // Tema claro/oscuro
   function setupTheme() {
     const toggle = document.getElementById("themeToggle");
-    const isDark = localStorage.getItem("kinderTheme") === "dark";
+    const isDark = localStorage.getItem("aprendeJugandoTheme") === "dark";
     if(isDark) document.body.classList.add("dark");
     toggle.addEventListener("click", () => {
       document.body.classList.toggle("dark");
       const isDarkNow = document.body.classList.contains("dark");
-      localStorage.setItem("kinderTheme", isDarkNow ? "dark" : "light");
+      localStorage.setItem("aprendeJugandoTheme", isDarkNow ? "dark" : "light");
       toggle.innerHTML = isDarkNow ? "☀️ Tema claro" : "🌙 Tema oscuro";
     });
     toggle.innerHTML = isDark ? "☀️ Tema claro" : "🌙 Tema oscuro";
@@ -486,13 +495,12 @@
     renderSabiasQue();
   }
 
-  // Evento nuevo dato sabias que
+  // Event listeners
   document.getElementById("nuevoDatoBtn")?.addEventListener("click", () => {
     const randomIdx = Math.floor(Math.random() * sabiasQueList.length);
     document.getElementById("sabiasTexto").innerText = sabiasQueList[randomIdx];
   });
 
-  // Modal close
   document.getElementById("closeModal")?.addEventListener("click", () => {
     document.getElementById("modal").style.display = "none";
   });
@@ -501,29 +509,19 @@
     if(e.target === modal) modal.style.display = "none";
   };
 
-  // Inicializar todo
+  // Inicialización
   initPlan();
   setupTheme();
   setupPlans();
   renderAllSections();
 
-  // PWA service worker registro (básico)
+  // PWA: Service Worker básico para instalación y caché simple
   if('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(reg => console.log("SW registrado", reg)).catch(err => console.log("SW error", err));
-  }
-</script>
-
-<!-- Service worker (sw.js) básico para PWA -->
-<script>
-  // Creamos sw.js dinámicamente porque es un solo archivo, pero en entorno real se sirve aparte.
-  // Simulamos la escritura del sw si no existe, para que la demo funcione offline básico.
-  if(!document.querySelector('#dynamicSW')) {
+    // Generamos un sw básico si no existe
     const swCode = `self.addEventListener('fetch', event => { event.respondWith(fetch(event.request).catch(() => caches.match(event.request))); }); self.addEventListener('install', e => e.waitUntil(skipWaiting())); self.addEventListener('activate', e => e.waitUntil(clients.claim()));`;
     const blob = new Blob([swCode], {type: 'application/javascript'});
-    const url = URL.createObjectURL(blob);
-    if('serviceWorker' in navigator) {
-      navigator.serviceWorker.register(url).catch(e=>console.log("fallback"));
-    }
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).then(reg => console.log("✅ Service Worker listo para Aprende-jugando")).catch(err => console.log("⚠️ SW no registrado", err));
   }
 </script>
 </body>
