@@ -2,527 +2,171 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Aprende-jugando - Kinder 1,2,3</title>
-  <!-- PWA manifest -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FF6B9D">
+  <title>KinderAula - Aprende Jugando 🎨</title>
+  
+  <!-- Fuentes amigables para niños -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#FFB74D">
-  <meta name="description" content="Actividades, tareas y proyectos educativos para preescolar">
-  <!-- Iconos para PWA -->
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/869/869636.png">
-  <!-- Fuente amigable -->
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      transition: background-color 0.3s, color 0.2s;
-    }
-
-    body {
-      font-family: 'Quicksand', sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      padding-bottom: 80px;
-    }
-
-    /* TEMAS: claro (default) y oscuro */
-    :root {
-      --bg-primary: #FFF9E6;
-      --bg-secondary: #FFF3D1;
-      --card-bg: #FFFFFF;
-      --text-primary: #3E2A1F;
-      --text-secondary: #7B5E3C;
-      --accent: #FFA726;
-      --accent-dark: #FB8C00;
-      --border: #FFE0A3;
-      --shadow: rgba(0,0,0,0.05);
-      --header-bg: #FFE0A3;
-    }
-
-    body.dark {
-      --bg-primary: #2A2418;
-      --bg-secondary: #3E3524;
-      --card-bg: #4A3E2C;
-      --text-primary: #F9EEC1;
-      --text-secondary: #E6D5A8;
-      --accent: #FFB347;
-      --accent-dark: #FFA01E;
-      --border: #5E503A;
-      --shadow: rgba(0,0,0,0.3);
-      --header-bg: #3E3524;
-    }
-
-    /* Layout responsivo */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    /* Header */
-    .header {
-      background: var(--header-bg);
-      padding: 16px 20px;
-      border-radius: 0 0 28px 28px;
-      box-shadow: 0 4px 12px var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .logo h1 {
-      font-size: 1.8rem;
-      color: var(--accent-dark);
-    }
-    .logo p {
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    .theme-toggle, .plan-badge {
-      background: var(--card-bg);
-      padding: 8px 16px;
-      border-radius: 40px;
-      cursor: pointer;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 2px 6px var(--shadow);
-    }
-
-    /* Secciones */
-    .section {
-      margin: 32px 0;
-    }
-    .section-title {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-left: 8px solid var(--accent);
-      padding-left: 16px;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 32px;
-      padding: 20px;
-      box-shadow: 0 8px 20px var(--shadow);
-      border: 1px solid var(--border);
-      transition: transform 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-
-    .btn {
-      background: var(--accent);
-      border: none;
-      padding: 10px 18px;
-      border-radius: 60px;
-      font-weight: bold;
-      font-family: 'Quicksand';
-      margin-top: 12px;
-      cursor: pointer;
-      color: #2D1F12;
-      display: inline-block;
-      font-size: 0.9rem;
-    }
-
-    /* Planes */
-    .plans {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: center;
-      margin: 20px 0;
-    }
-    .plan-card {
-      background: var(--card-bg);
-      border-radius: 28px;
-      padding: 18px;
-      flex: 1;
-      min-width: 150px;
-      text-align: center;
-      border: 2px solid var(--border);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .plan-card:hover {
-      transform: scale(1.02);
-    }
-    .plan-card.popular {
-      border-color: var(--accent);
-      background: var(--bg-secondary);
-    }
-    .price {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: var(--accent-dark);
-    }
-
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .modal-content {
-      background: var(--card-bg);
-      border-radius: 40px;
-      padding: 24px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-
-    /* responsive tablet/laptop */
-    @media (min-width: 768px) {
-      .container {
-        padding: 24px;
-      }
-      .section-title {
-        font-size: 2rem;
-      }
-    }
-    @media (min-width: 1024px) {
-      .cards-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    .tarea-item, .proyecto-item, .dato-item {
-      margin-bottom: 16px;
-      padding: 12px;
-      background: var(--bg-secondary);
-      border-radius: 24px;
-    }
-    i {
-      margin-right: 8px;
-      color: var(--accent);
-    }
-  </style>
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  
+  <!-- Estilos -->
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-<div class="header">
-  <div class="logo">
-    <h1>🎈 Aprende-jugando</h1>
-    <p>kinder 1 • 2 • 3</p>
-  </div>
-  <div style="display: flex; gap: 12px;">
-    <div class="plan-badge" id="planStatus">🎁 Plan: Demo</div>
-    <div class="theme-toggle" id="themeToggle">🌙 Tema oscuro</div>
-  </div>
-</div>
+<body class="app-loading" data-theme="claro">
 
-<div class="container">
-  <!-- Sección Planes -->
-  <div class="section">
-    <div class="section-title"><i class="fas fa-crown"></i> Elige tu plan</div>
-    <div class="plans" id="plansContainer">
-      <div class="plan-card" data-plan="demo" data-days="7"><h3>Demo</h3><div class="price">Gratis</div><p>7 días</p><i class="fas fa-smile"></i> acceso básico</div>
-      <div class="plan-card" data-plan="basico" data-days="90"><h3>Básico</h3><div class="price">$4.99</div><p>3 meses</p><i class="fas fa-star"></i> + repaso</div>
-      <div class="plan-card popular" data-plan="pro" data-days="365"><h3>Pro 🌟</h3><div class="price">$12.99</div><p>1 año</p><i class="fas fa-gem"></i> todo incluido</div>
-      <div class="plan-card" data-plan="elite" data-days="365"><h3>Elite 👑</h3><div class="price">$24.99</div><p>1 año + proyectos extra</p><i class="fas fa-trophy"></i></div>
+  <!-- Login/Selección de Plan -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-container">
+      <div class="auth-logo">🎨 KinderAula</div>
+      <p class="auth-subtitle">Aprende jugando, crece sonriendo ✨</p>
+      
+      <div class="plan-cards">
+        <button class="plan-card demo" onclick="auth.iniciarDemo()">
+          <span class="plan-icon">🆓</span>
+          <span class="plan-name">Demo</span>
+          <span class="plan-duration">7 días</span>
+        </button>
+        <button class="plan-card basico" onclick="auth.mostrarPlanes()">
+          <span class="plan-icon">🌟</span>
+          <span class="plan-name">Básico</span>
+          <span class="plan-duration">3 meses</span>
+        </button>
+        <button class="plan-card pro active" onclick="auth.mostrarPlanes()">
+          <span class="plan-icon">🚀</span>
+          <span class="plan-name">Pro</span>
+          <span class="plan-duration">1 año</span>
+        </button>
+        <button class="plan-card elite" onclick="auth.mostrarPlanes()">
+          <span class="plan-icon">👑</span>
+          <span class="plan-name">Elite</span>
+          <span class="plan-duration">1 año +</span>
+        </button>
+      </div>
+      
+      <button class="btn-toggle-theme" onclick="theme.toggle()">🌓 Tema</button>
     </div>
   </div>
 
-  <!-- Material de repaso (sugerencias de temas) -->
-  <div class="section">
-    <div class="section-title"><i class="fas fa-book-open"></i> 📚 Material de repaso</div>
-    <div class="cards-grid" id="repasoGrid"></div>
+  <!-- Layout Principal -->
+  <div class="layout">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">🎨 KinderAula</div>
+        <button class="btn-close-sidebar" onclick="app.toggleSidebar()">✕</button>
+      </div>
+      
+      <nav class="nav-menu">
+        <button class="nav-item active" data-screen="dashboard">
+          <span class="nav-icon">🏠</span> Inicio
+        </button>
+        <button class="nav-item" data-screen="repaso">
+          <span class="nav-icon">🔄</span> Repaso
+        </button>
+        <button class="nav-item" data-screen="proyectos">
+          <span class="nav-icon">🛠️</span> Proyectos
+        </button>
+        <button class="nav-item" data-screen="tareas">
+          <span class="nav-icon">✏️</span> Tareas
+        </button>
+        <button class="nav-item" data-screen="sabias-que">
+          <span class="nav-icon">💡</span> Sabías Que
+        </button>
+        <button class="nav-item" data-screen="progreso">
+          <span class="nav-icon">⭐</span> Mi Progreso
+        </button>
+        <button class="nav-item padres-only" data-screen="padres">
+          <span class="nav-icon">👨‍👩‍👧</span> Para Papás
+        </button>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <span class="user-avatar">🧒</span>
+          <span class="user-name" id="user-name">Pequeño Explorador</span>
+        </div>
+        <button class="btn-logout" onclick="auth.cerrarSesion()">🚪 Salir</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <button class="btn-hamburger" onclick="app.toggleSidebar()">☰</button>
+        <h1 class="topbar-title" id="page-title">Dashboard</h1>
+        <div class="topbar-actions">
+          <button class="btn-theme" onclick="theme.toggle()">🌓</button>
+          <button class="btn-profile" onclick="app.mostrarScreen('progreso')">⭐ <span id="stars-count">0</span></button>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content">
+        
+        <!-- Dashboard Screen -->
+        <section id="dashboard-screen" class="screen active">
+          <div class="welcome-banner">
+            <h2>¡Hola, <span id="welcome-name">Explorador</span>! 👋</h2>
+            <p>¿Qué quieres aprender hoy?</p>
+          </div>
+          
+          <div class="quick-actions">
+            <button class="action-card" onclick="app.mostrarScreen('tareas')">
+              <span class="action-icon">✏️</span>
+              <span class="action-label">Tareas de Hoy</span>
+            </button>
+            <button class="action-card" onclick="app.mostrarScreen('proyectos')">
+              <span class="action-icon">🛠️</span>
+              <span class="action-label">Nuevo Proyecto</span>
+            </button>
+            <button class="action-card" onclick="app.mostrarScreen('repaso')">
+              <span class="action-icon">🔄</span>
+              <span class="action-label">Repasar</span>
+            </button>
+            <button class="action-card" onclick="app.mostrarScreen('sabias-que')">
+              <span class="action-icon">💡</span>
+              <span class="action-label">Curiosidades</span>
+            </button>
+          </div>
+          
+          <div class="progress-section">
+            <h3>🌟 Tu Progreso esta Semana</h3>
+            <div class="progress-chart" id="weekly-progress"></div>
+          </div>
+        </section>
+
+        <!-- Otras screens se cargarán dinámicamente -->
+        <section id="repaso-screen" class="screen"></section>
+        <section id="proyectos-screen" class="screen"></section>
+        <section id="tareas-screen" class="screen"></section>
+        <section id="sabias-que-screen" class="screen"></section>
+        <section id="progreso-screen" class="screen"></section>
+        <section id="padres-screen" class="screen"></section>
+
+      </div>
+    </main>
   </div>
 
-  <!-- Proyectos (instructivo claro + materiales) -->
-  <div class="section">
-    <div class="section-title"><i class="fas fa-drafting-compass"></i> 🎨 Proyectos divertidos</div>
-    <div class="cards-grid" id="proyectosGrid"></div>
-  </div>
+  <!-- Overlay para sidebar en móvil -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="app.toggleSidebar()"></div>
 
-  <!-- Tareas: dibujar letras, patrones, colorear, etc -->
-  <div class="section">
-    <div class="section-title"><i class="fas fa-pencil-alt"></i> ✏️ Tareas creativas</div>
-    <div class="cards-grid" id="tareasGrid"></div>
-  </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
 
-  <!-- Sabías que -->
-  <div class="section">
-    <div class="section-title"><i class="fas fa-lightbulb"></i> 🤔 ¿Sabías que...?</div>
-    <div class="card" id="sabiasQueCard">
-      <i class="fas fa-brain"></i> <span id="sabiasTexto">Los niños que dibujan a diario mejoran su motricidad fina un 40%.</span>
-      <button class="btn" id="nuevoDatoBtn">📖 Nuevo dato</button>
-    </div>
-  </div>
-  <footer>
-    <p>🌈 Aprende-jugando | Actividades para kinder 1, 2 y 3 | Diversión y aprendizaje</p>
-  </footer>
-</div>
-
-<!-- Modal de detalles -->
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <h3 id="modalTitle">Detalles</h3>
-    <div id="modalBody"></div>
-    <button class="btn" id="closeModal">Cerrar</button>
-  </div>
-</div>
-
-<script>
-  // -------------------- DATOS SUGERIDOS (temas para kinder) --------------------
-  const temasRepaso = [
-    { titulo: "Vocales mágicas", descripcion: "Repasa A E I O U con canciones y trazos. Asocia cada vocal con un animal: Abeja, Elefante, Iguana, Oso, Uva." },
-    { titulo: "Números del 1 al 10", descripcion: "Cuenta frutas, une puntos y juega con dedos. Actividad: contar juguetes en casa." },
-    { titulo: "Colores primarios", descripcion: "Rojo, azul y amarillo. Mezclas divertidas: naranja, verde y morado." },
-    { titulo: "Figuras geométricas", descripcion: "Círculo, cuadrado, triángulo. Identifica objetos en casa con esas formas." },
-    { titulo: "Emociones", descripcion: "Alegría, tristeza, enojo, miedo. Juego de mímica y dibujo de caritas." },
-    { titulo: "Días de la semana", descripcion: "Canción de los días, rutina mañanera y calendario visual." },
-    { titulo: "Los animales de la granja", descripcion: "Conoce la vaca, el pato, la gallina, el cerdo. Sonidos y onomatopeyas." },
-    { titulo: "Las estaciones del año", descripcion: "Primavera, verano, otoño e invierno. Ropa y clima para cada una." }
-  ];
-
-  const proyectosData = [
-    { nombre: "🌱 Mi planta en algodón", instructivo: "1. Coloca algodón húmedo en un frasco. 2. Pon semillas de lenteja. 3. Riega cada 2 días y observa crecer durante una semana.", materiales: "Algodón, frasco de vidrio, semillas de lenteja, agua." },
-    { nombre: "🎭 Títeres de calcetín", instructivo: "Decora un calcetín con botones, lana y ojos móviles. Inventa una historia corta con tu títere.", materiales: "Calcetín blanco, botones, pegamento textil, lana, tijeras." },
-    { nombre: "🌌 Galaxia en frasco", instructivo: "Mezcla agua, purpurina y colorante azul en un frasco. Agrega algodón imitando nubes. Tapa y agita.", materiales: "Frasco, purpurina, colorante, algodón, agua." },
-    { nombre: "🎨 Pintura con hielos", instructivo: "Congela agua con colorante vegetal. Pinta sobre papel mientras se derrite. ¡Crea texturas divertidas!", materiales: "Cubetera, colorantes, palitos, papel grueso." },
-    { nombre: "🐚 Móvil de la naturaleza", instructivo: "Recoge hojas, palitos y flores. Pégalos en un cartón con forma de móvil y cuélgalo.", materiales: "Cartón, hojas secas, pegamento, cuerda." }
-  ];
-
-  const tareasData = [
-    { titulo: "Dibuja la letra 'M'", tipo: "Letras", instruccion: "Traza la M mayúscula y minúscula. Decora con stickers de montañas o colorea." },
-    { titulo: "Patrón de colores", tipo: "Patrones", instruccion: "Completa la secuencia: 🔴🔵🔴🔵 ? (pinta la siguiente figura del mismo color)." },
-    { titulo: "Colorea el número 3", tipo: "Colorear", instruccion: "Dibuja 3 manzanas y colorea de rojo, también 3 estrellas amarillas." },
-    { titulo: "Dibuja tu familia", tipo: "Creatividad", instruccion: "Haz un dibujo de tu familia y explica quiénes son a tu maestra o padres." },
-    { titulo: "Laberinto de formas", tipo: "Motricidad", instruccion: "Ayuda al conejito a llegar a la zanahoria siguiendo solo círculos." },
-    { titulo: "Trazo de líneas onduladas", tipo: "Pre-escritura", instruccion: "Practica ondas como el agua, de izquierda a derecha, en una hoja." },
-    { titulo: "Mi nombre en letras grandes", tipo: "Escritura", instruccion: "Escribe tu nombre con letras de colores y pégalo en tu cuaderno." },
-    { titulo: "Completa el patrón de frutas", tipo: "Patrones", instruccion: "🍎🍌🍎🍌? ¿Qué sigue? Dibuja la fruta que falta." }
-  ];
-
-  const sabiasQueList = [
-    "Los niños en edad preescolar aprenden mejor jugando que con lecciones rígidas.",
-    "El cerebro de un niño de 3 años tiene el doble de conexiones que el de un adulto.",
-    "Dibujar mejora la coordinación ojo-mano y ayuda a expresar emociones.",
-    "Los patrones y rimas facilitan la memorización temprana.",
-    "Aprender dos idiomas desde pequeño fortalece la flexibilidad cognitiva.",
-    "Reír junto a tus hijos libera oxitocina y fortalece el vínculo afectivo.",
-    "Los niños que cantan todos los días desarrollan mejor su memoria auditiva."
-  ];
-
-  // Sistema de planes
-  let currentPlan = "demo";
-  let planExpiry = null;
-
-  function initPlan() {
-    const stored = localStorage.getItem("aprendeJugandoPlan");
-    const storedExpiry = localStorage.getItem("aprendeJugandoExpiry");
-    if(stored && storedExpiry) {
-      if(Date.now() < parseInt(storedExpiry)) {
-        currentPlan = stored;
-        planExpiry = parseInt(storedExpiry);
-      } else {
-        currentPlan = "demo";
-        setPlanExpiry(7);
-      }
-    } else {
-      currentPlan = "demo";
-      setPlanExpiry(7);
-    }
-    updatePlanUI();
-  }
-
-  function setPlanExpiry(daysFromNow) {
-    planExpiry = Date.now() + daysFromNow * 24 * 60 * 60 * 1000;
-    localStorage.setItem("aprendeJugandoExpiry", planExpiry);
-  }
-
-  function activatePlan(plan, days) {
-    currentPlan = plan;
-    setPlanExpiry(days);
-    localStorage.setItem("aprendeJugandoPlan", plan);
-    updatePlanUI();
-    mostrarMensajePlan(`🎉 ¡Plan ${plan.toUpperCase()} activado por ${days} días! Disfruta todo el contenido.`);
-    renderAllSections();
-  }
-
-  function updatePlanUI() {
-    const planStatusDiv = document.getElementById("planStatus");
-    let diasRest = 0;
-    if(planExpiry) diasRest = Math.ceil((planExpiry - Date.now())/(1000*60*60*24));
-    if(diasRest < 0) diasRest = 0;
-    planStatusDiv.innerHTML = `🎁 ${currentPlan.toUpperCase()}  |  ${diasRest} días restantes`;
-    if(currentPlan === "demo" && diasRest <= 0) {
-      setPlanExpiry(7);
-      updatePlanUI();
-    }
-  }
-
-  function mostrarMensajePlan(msg) {
-    const notif = document.createElement("div");
-    notif.innerText = msg;
-    notif.style.position = "fixed";
-    notif.style.bottom = "20px";
-    notif.style.left = "20px";
-    notif.style.backgroundColor = "var(--accent)";
-    notif.style.color = "#2D1F12";
-    notif.style.padding = "12px 20px";
-    notif.style.borderRadius = "40px";
-    notif.style.zIndex = "999";
-    notif.style.fontWeight = "bold";
-    notif.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
-    document.body.appendChild(notif);
-    setTimeout(() => notif.remove(), 3000);
-  }
-
-  function canAccessPremium() {
-    return currentPlan !== "demo";
-  }
-
-  function renderRepaso() {
-    let items = [...temasRepaso];
-    if(!canAccessPremium() && items.length > 3) items = items.slice(0,3);
-    const grid = document.getElementById("repasoGrid");
-    grid.innerHTML = items.map(t => `<div class="card"><h3>📖 ${t.titulo}</h3><p>${t.descripcion}</p><button class="btn ver-detalle" data-tipo="repaso" data-titulo="${t.titulo}" data-desc="${t.descripcion}">Ver más</button></div>`).join('');
-    attachDetailEvents();
-  }
-
-  function renderProyectos() {
-    let proyectos = [...proyectosData];
-    if(!canAccessPremium() && proyectos.length > 2) proyectos = proyectos.slice(0,2);
-    const grid = document.getElementById("proyectosGrid");
-    grid.innerHTML = proyectos.map(p => `<div class="card"><h3>🧪 ${p.nombre}</h3><p><strong>Materiales:</strong> ${p.materiales}</p><p><strong>Instructivo:</strong> ${p.instructivo.substring(0,80)}...</p><button class="btn ver-detalle" data-tipo="proyecto" data-nombre="${p.nombre}" data-instructivo="${p.instructivo}" data-materiales="${p.materiales}">Ver instructivo completo</button></div>`).join('');
-    attachDetailEvents();
-  }
-
-  function renderTareas() {
-    let tareas = [...tareasData];
-    if(!canAccessPremium() && tareas.length > 3) tareas = tareas.slice(0,3);
-    const grid = document.getElementById("tareasGrid");
-    grid.innerHTML = tareas.map(t => `<div class="card"><h3>✏️ ${t.titulo}</h3><p>${t.tipo} - ${t.instruccion}</p><button class="btn ver-detalle" data-tipo="tarea" data-titulo="${t.titulo}" data-instruccion="${t.instruccion}">Hacer actividad</button></div>`).join('');
-    attachDetailEvents();
-  }
-
-  function renderSabiasQue() {
-    const randomIndex = Math.floor(Math.random() * sabiasQueList.length);
-    document.getElementById("sabiasTexto").innerText = sabiasQueList[randomIndex];
-  }
-
-  function attachDetailEvents() {
-    document.querySelectorAll(".ver-detalle").forEach(btn => {
-      btn.removeEventListener("click", handleDetail);
-      btn.addEventListener("click", handleDetail);
-    });
-  }
-
-  function handleDetail(e) {
-    const btn = e.currentTarget;
-    const tipo = btn.dataset.tipo;
-    const modal = document.getElementById("modal");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalBody = document.getElementById("modalBody");
-    if(tipo === "repaso") {
-      modalTitle.innerText = btn.dataset.titulo;
-      modalBody.innerHTML = `<p>${btn.dataset.desc}</p><br><p>🎯 Actividad sugerida: dibuja algo relacionado y cuéntalo en casa o con tu maestra.</p>`;
-    } else if(tipo === "proyecto") {
-      modalTitle.innerText = btn.dataset.nombre;
-      modalBody.innerHTML = `<p><strong>🧰 Materiales:</strong> ${btn.dataset.materiales}</p><p><strong>📋 Instructivo paso a paso:</strong> ${btn.dataset.instructivo}</p><p><i class="fas fa-child"></i> ¡Siempre con ayuda de un adulto!</p>`;
-    } else if(tipo === "tarea") {
-      modalTitle.innerText = btn.dataset.titulo;
-      modalBody.innerHTML = `<p>📝 ${btn.dataset.instruccion}</p><p>🎨 ¡Usa tus colores favoritos y comparte tu trabajo con tu familia!</p><i class="fas fa-star"></i> Puedes tomar una foto de tu tarea.`;
-    }
-    modal.style.display = "flex";
-  }
-
-  function setupPlans() {
-    const plans = document.querySelectorAll(".plan-card");
-    plans.forEach(card => {
-      card.addEventListener("click", (e) => {
-        const plan = card.dataset.plan;
-        let days = 7;
-        if(plan === "basico") days = 90;
-        if(plan === "pro") days = 365;
-        if(plan === "elite") days = 365;
-        if(plan === "demo") days = 7;
-        activatePlan(plan, days);
-      });
-    });
-  }
-
-  function setupTheme() {
-    const toggle = document.getElementById("themeToggle");
-    const isDark = localStorage.getItem("aprendeJugandoTheme") === "dark";
-    if(isDark) document.body.classList.add("dark");
-    toggle.addEventListener("click", () => {
-      document.body.classList.toggle("dark");
-      const isDarkNow = document.body.classList.contains("dark");
-      localStorage.setItem("aprendeJugandoTheme", isDarkNow ? "dark" : "light");
-      toggle.innerHTML = isDarkNow ? "☀️ Tema claro" : "🌙 Tema oscuro";
-    });
-    toggle.innerHTML = isDark ? "☀️ Tema claro" : "🌙 Tema oscuro";
-  }
-
-  function renderAllSections() {
-    renderRepaso();
-    renderProyectos();
-    renderTareas();
-    renderSabiasQue();
-  }
-
-  // Event listeners
-  document.getElementById("nuevoDatoBtn")?.addEventListener("click", () => {
-    const randomIdx = Math.floor(Math.random() * sabiasQueList.length);
-    document.getElementById("sabiasTexto").innerText = sabiasQueList[randomIdx];
-  });
-
-  document.getElementById("closeModal")?.addEventListener("click", () => {
-    document.getElementById("modal").style.display = "none";
-  });
-  window.onclick = function(e) {
-    const modal = document.getElementById("modal");
-    if(e.target === modal) modal.style.display = "none";
-  };
-
-  // Inicialización
-  initPlan();
-  setupTheme();
-  setupPlans();
-  renderAllSections();
-
-  // PWA: Service Worker básico para instalación y caché simple
-  if('serviceWorker' in navigator) {
-    // Generamos un sw básico si no existe
-    const swCode = `self.addEventListener('fetch', event => { event.respondWith(fetch(event.request).catch(() => caches.match(event.request))); }); self.addEventListener('install', e => e.waitUntil(skipWaiting())); self.addEventListener('activate', e => e.waitUntil(clients.claim()));`;
-    const blob = new Blob([swCode], {type: 'application/javascript'});
-    const swUrl = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(swUrl).then(reg => console.log("✅ Service Worker listo para Aprende-jugando")).catch(err => console.log("⚠️ SW no registrado", err));
-  }
-</script>
+  <!-- Scripts -->
+  <script src="src/core/theme.js"></script>
+  <script src="src/core/auth.js"></script>
+  <script src="src/core/storage.js"></script>
+  <script src="src/core/app.js"></script>
+  <script src="src/features/dashboard.js"></script>
+  <!-- ... otros módulos ... -->
 </body>
 </html>
