@@ -487,25 +487,23 @@ window.features.tareas = {
             </div>
           ` : ''}
           
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="topbar-btn primary" 
-                    data-accion="jugar"
-                    data-tarea-id="${tarea.id}"
-                    style="flex:1;min-height:48px;font-size:15px;"
-                    ${completada ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}
-                    aria-label="${completada ? 'Tarea ya completada' : `Jugar: ${tarea.titulo}`}">
-              ${completada ? '🔄 Repetir' : '🎮 Jugar'}
-            </button>
-            
-            <button class="topbar-btn ghost" 
-                    data-accion="hint"
-                    data-tarea-id="${tarea.id}"
-                    style="min-width:48px;padding:0 12px;"
-                    aria-label="Obtener pista para ${tarea.titulo}"
-                    title="Pista">
-              💡
-            </button>
-          </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="topbar-btn primary" 
+                  data-accion="jugar"
+                  data-tarea-id="${tarea.id}"
+                  style="flex:1;min-height:48px;font-size:15px;"
+                  aria-label="${completada ? `Repetir: ${tarea.titulo}` : `Jugar: ${tarea.titulo}`}">
+            ${completada ? '🔄 Repetir' : '🎮 Jugar'}
+          </button>
+          
+          <button class="topbar-btn ghost" 
+                  data-accion="hint"
+                  data-tarea-id="${tarea.id}"
+                  style="min-width:48px;padding:0 12px;"
+                  aria-label="Obtener pista para ${tarea.titulo}"
+                  title="Pista">
+            💡
+          </button>
         </div>
         
         ${tarea.mejorPuntuacion > 0 ? `
