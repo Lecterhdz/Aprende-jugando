@@ -1,0 +1,16 @@
+{
+  "name": "KinderPlay - Aprende Jugando",
+  "short_name": "KinderPlay",
+  "description": "Actividades, tareas y proyectos para niños de kinder 1,2,3",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#FFB74D",
+  "background_color": "#FFF9E6",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/869/869636.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
