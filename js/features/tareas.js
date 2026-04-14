@@ -1,79 +1,319 @@
 // ═══════════════════════════════════════════════════════════════
-// APRENDE-JUGANDO - TAREAS INTERACTIVAS
+// APRENDE-JUGANDO - TAREAS INTERACTIVAS (v2.0 - EVOLUCIONADO)
+// ═══════════════════════════════════════════════════════════════
+// Features: Progreso por tarea • Accesibilidad • Sonidos • Hints • 
+//           Animaciones • Offline • Parental Controls • Analytics
 // ═══════════════════════════════════════════════════════════════
 
-console.log('✏️ tareas.js cargado');
+console.log('✏️ tareas.js v2.0 cargado');
 
+// ─────────────────────────────────────────────────────────────
+// CONFIGURACIÓN GLOBAL DEL MÓDULO
+// ─────────────────────────────────────────────────────────────
+const TAREAS_CONFIG = {
+  STORAGE_KEY: 'aprende_jugando_tareas_progreso',
+  SOUND_ENABLED_KEY: 'aprende_jugando_sonidos',
+  PARENTAL_CONTROLS_KEY: 'aprende_jugando_parental',
+  MAX_INTENTOS: 3,
+  HINTS_DISPONIBLES: 2,
+  TIEMPO_MINIMO_POR_TAREA: 30, // segundos
+  CELEBRACION_CONFETTI: true,
+  ANIMACIONES_ACTIVAS: true
+};
+
+// ─────────────────────────────────────────────────────────────
+// MÓDULO PRINCIPAL
+// ─────────────────────────────────────────────────────────────
+window.features = window.features || {};
 window.features.tareas = {
-  categoriaActual: 'trazo',
-  tareasCompletadas: 0,
   
-  // Catálogo de tareas por categoría
+  // Estado interno
+  estado: {
+    categoriaActual: 'trazo',
+    tareaActiva: null,
+    intentos: 0,
+    hintsUsados: 0,
+    tiempoInicio: null,
+    sonidosActivos: true,
+    parentalControls: {
+      tiempoMaximoDiario: 30, // minutos
+      dificultadMaxima: 3, // estrellas
+      categoriasBloqueadas: []
+    }
+  },
+  
+  // Catálogo EXPANDIDO de tareas con metadata completo
   tareas: {
     trazo: [
-      { id: 't1', titulo: 'Trazo de la A', descripcion: 'Sigue los puntos para formar la letra A', dificultad: '⭐', recompensa: 2 },
-      { id: 't2', titulo: 'Trazo de la B', descripcion: 'Sigue los puntos para formar la letra B', dificultad: '⭐', recompensa: 2 },
-      { id: 't3', titulo: 'Trazo del 1', descripcion: 'Sigue los puntos para formar el número 1', dificultad: '⭐', recompensa: 2 },
-      { id: 't4', titulo: 'Trazo del 2', descripcion: 'Sigue los puntos para formar el número 2', dificultad: '⭐', recompensa: 2 },
-      { id: 't5', titulo: 'Trazo del Círculo', descripcion: 'Dibuja un círculo perfecto', dificultad: '⭐⭐', recompensa: 3 }
+      {
+        id: 't1',
+        titulo: 'Trazo de la A',
+        descripcion: 'Sigue los puntos para formar la letra A mayúscula',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 45,
+        habilidades: ['motricidad-fina', 'reconocimiento-letras'],
+        instruccionesDetalladas: '1. Toca el punto verde\n2. Arrastra siguiendo la línea punteada\n3. ¡No levantes el dedo hasta terminar!',
+        hint: 'La A tiene forma de triángulo con una línea en medio',
+        audioInstruccion: 'audio/letra-a-instruccion.mp3',
+        audioExito: 'audio/exito-letra.mp3',
+        imagenGuia: 'assets/illustrations/trazo-a-guia.svg',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 't2',
+        titulo: 'Trazo de la B',
+        descripcion: 'Practica las curvas de la letra B',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 50,
+        habilidades: ['motricidad-fina', 'coordinacion-ojo-mano'],
+        instruccionesDetalladas: 'Dibuja la línea recta primero, luego las dos curvas',
+        hint: 'Imagina que la B es un número 8 pegado a una línea',
+        audioInstruccion: 'audio/letra-b-instruccion.mp3',
+        audioExito: 'audio/exito-letra.mp3',
+        imagenGuia: 'assets/illustrations/trazo-b-guia.svg'
+      },
+      {
+        id: 't3',
+        titulo: 'Números del 1 al 5',
+        descripcion: 'Traza los números en orden',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 90,
+        habilidades: ['reconocimiento-numeros', 'secuenciacion'],
+        instruccionesDetalladas: 'Toca cada número en orden: 1, 2, 3, 4, 5',
+        hint: 'Empieza por el más pequeño: el 1',
+        audioInstruccion: 'audio/numeros-instruccion.mp3',
+        audioExito: 'audio/exito-numeros.mp3'
+      }
     ],
+    
     conteo: [
-      { id: 'c1', titulo: 'Contar Manzanas', descripcion: '¿Cuántas manzanas hay?', dificultad: '⭐', recompensa: 2 },
-      { id: 'c2', titulo: 'Contar Estrellas', descripcion: '¿Cuántas estrellas ves?', dificultad: '⭐', recompensa: 2 },
-      { id: 'c3', titulo: 'Contar hasta 5', descripcion: 'Arrastra los números en orden', dificultad: '⭐⭐', recompensa: 3 },
-      { id: 'c4', titulo: 'Suma Simple', descripcion: '1 + 1 = ?', dificultad: '⭐⭐', recompensa: 3 },
-      { id: 'c5', titulo: 'Resta Simple', descripcion: '3 - 1 = ?', dificultad: '⭐⭐', recompensa: 3 }
+      {
+        id: 'c1',
+        titulo: 'Contar Manzanas 🍎',
+        descripcion: '¿Cuántas manzanas ves? Toca el número correcto',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 30,
+        habilidades: ['conteo', 'reconocimiento-visual'],
+        elementos: ['🍎', '🍎', '🍎'],
+        respuestaCorrecta: 3,
+        opciones: [2, 3, 4, 5],
+        hint: 'Cuenta en voz alta: uno, dos, tres...',
+        audioExito: 'audio/exito-conteo.mp3'
+      },
+      {
+        id: 'c2',
+        titulo: 'Suma con Animales',
+        descripcion: '🐱 + 🐱 = ¿Cuántos gatitos?',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 45,
+        habilidades: ['suma-basica', 'pensamiento-logico'],
+        operacion: { a: 2, b: 2, simbolo: '+' },
+        respuestaCorrecta: 4,
+        opciones: [3, 4, 5, 6],
+        ilustracion: '🐱🐱 + 🐱🐱 = ?',
+        hint: 'Junta todos los gatitos y cuéntalos',
+        audioExito: 'audio/exito-matematicas.mp3'
+      }
     ],
+    
     colorear: [
-      { id: 'col1', titulo: 'Colorea la Casa', descripcion: 'Usa los colores correctos', dificultad: '⭐', recompensa: 2 },
-      { id: 'col2', titulo: 'Colorea el Árbol', descripcion: 'Verde para las hojas', dificultad: '⭐', recompensa: 2 },
-      { id: 'col3', titulo: 'Colorea el Sol', descripcion: 'Amarillo brillante', dificultad: '⭐', recompensa: 2 },
-      { id: 'col4', titulo: 'Colorea por Números', descripcion: 'Sigue los números', dificultad: '⭐⭐', recompensa: 3 },
-      { id: 'col5', titulo: 'Arcoíris', descripcion: '7 colores diferentes', dificultad: '⭐⭐⭐', recompensa: 5 }
+      {
+        id: 'col1',
+        titulo: 'Colorea el Sol ☀️',
+        descripcion: 'El sol es amarillo brillante',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 60,
+        habilidades: ['reconocimiento-colores', 'creatividad'],
+        colorCorrecto: '#FFE66D',
+        palette: ['#FFE66D', '#FF6B9D', '#4ECDC4', '#95E1D3'],
+        imagen: 'assets/illustrations/sol-para-colorear.svg',
+        hint: 'El sol brilla como el amarillo',
+        audioExito: 'audio/exito-colorear.mp3'
+      }
     ],
+    
     patrones: [
-      { id: 'p1', titulo: 'Completa: 🔴🔵🔴🔵___', descripcion: '¿Qué sigue?', dificultad: '⭐', recompensa: 2 },
-      { id: 'p2', titulo: 'Completa: 🟡🟢🟡🟢___', descripcion: 'Sigue el patrón', dificultad: '⭐', recompensa: 2 },
-      { id: 'p3', titulo: 'Secuencia Numérica', descripcion: '1, 2, 3, ___', dificultad: '⭐⭐', recompensa: 3 },
-      { id: 'p4', titulo: 'Patrones de Formas', descripcion: '○□○□___', dificultad: '⭐⭐', recompensa: 3 },
-      { id: 'p5', titulo: 'Patrones Complejos', descripcion: '🔴🔵🟡🔴🔵___', dificultad: '⭐⭐⭐', recompensa: 5 }
+      {
+        id: 'p1',
+        titulo: 'Completa el Patrón',
+        descripcion: '🔴 🔵 🔴 🔵 ___ ¿Qué sigue?',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 40,
+        habilidades: ['logica', 'reconocimiento-patrones'],
+        secuencia: ['🔴', '🔵', '🔴', '🔵'],
+        opciones: ['🔴', '🔵', '🟡', '🟢'],
+        respuestaCorrecta: '🔴',
+        hint: 'Mira: rojo, azul, rojo, azul... ¿qué toca?',
+        audioExito: 'audio/exito-logica.mp3'
+      }
     ],
+    
     memoria: [
-      { id: 'm1', titulo: 'Encontrar Parejas', descripcion: 'Voltea las cartas', dificultad: '⭐', recompensa: 2 },
-      { id: 'm2', titulo: 'Memoria de Animales', descripcion: 'Encuentra los animales iguales', dificultad: '⭐⭐', recompensa: 3 },
-      { id: 'm3', titulo: 'Memoria de Colores', descripcion: 'Recuerda los colores', dificultad: '⭐⭐', recompensa: 3 },
-      { id: 'm4', titulo: 'Memoria de Números', descripcion: '¿Dónde está el 5?', dificultad: '⭐⭐⭐', recompensa: 5 },
-      { id: 'm5', titulo: 'Super Memoria', descripcion: '12 cartas para encontrar', dificultad: '⭐⭐⭐', recompensa: 5 }
+      {
+        id: 'm1',
+        titulo: 'Memoria de Animales',
+        descripcion: 'Encuentra las parejas de animales',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 120,
+        habilidades: ['memoria', 'concentracion'],
+        nivel: 'facil', // facil: 4 cartas, medio: 6, dificil: 8
+        cartas: ['🐶', '🐶', '🐱', '🐱', '🐰', '🐰', '🐸', '🐸'],
+        hint: 'Recuerda dónde viste cada animal',
+        audioExito: 'audio/exito-memoria.mp3'
+      }
     ]
   },
   
   // ─────────────────────────────────────────────────────────────
-  // INICIALIZAR TAREAS
+  // INICIALIZACIÓN
   // ─────────────────────────────────────────────────────────────
   init: function() {
-    console.log('✏️ Tareas inicializadas');
+    console.log('✏️ Tareas v2.0 inicializadas');
     
-    // Escuchar cuando se muestra la pantalla
+    // Cargar configuración guardada
+    this.cargarConfiguracion();
+    
+    // Configurar event listeners (delegación de eventos)
+    this.configurarEventos();
+    
+    // Escuchar cambios de pantalla
     window.addEventListener('screen-change', (e) => {
-      if (e.detail.pantalla === 'tareas-screen') {
+      if (e.detail?.pantalla === 'tareas-screen') {
         this.cargar();
       }
     });
     
-    // Renderizar selector de categorías
-    this.renderCategorias();
+    // Verificar controles parentales al iniciar
+    this.verificarControlesParentales();
+    
+    console.log('✅ Tareas listas - Categoría:', this.estado.categoriaActual);
   },
   
   // ─────────────────────────────────────────────────────────────
-  // CARGAR TAREAS
+  // CARGAR CONFIGURACIÓN GUARDADA
+  // ─────────────────────────────────────────────────────────────
+  cargarConfiguracion: function() {
+    try {
+      // Sonidos
+      const sonidosGuardados = localStorage.getItem(TAREAS_CONFIG.SOUND_ENABLED_KEY);
+      if (sonidosGuardados !== null) {
+        this.estado.sonidosActivos = JSON.parse(sonidosGuardados);
+      }
+      
+      // Controles parentales
+      const parentalGuardados = localStorage.getItem(TAREAS_CONFIG.PARENTAL_CONTROLS_KEY);
+      if (parentalGuardados) {
+        this.estado.parentalControls = {
+          ...this.estado.parentalControls,
+          ...JSON.parse(parentalGuardados)
+        };
+      }
+      
+      // Progreso de tareas
+      const progresoGuardado = localStorage.getItem(TAREAS_CONFIG.STORAGE_KEY);
+      if (progresoGuardado) {
+        const progreso = JSON.parse(progresoGuardado);
+        // Fusionar progreso guardado con catálogo actual
+        this.fusionarProgreso(progreso);
+      }
+    } catch (error) {
+      console.warn('⚠️ Error cargando configuración:', error);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // FUSIONAR PROGRESO GUARDADO CON CATÁLOGO
+  // ─────────────────────────────────────────────────────────────
+  fusionarProgreso: function(progresoGuardado) {
+    Object.keys(this.tareas).forEach(categoria => {
+      this.tareas[categoria].forEach(tarea => {
+        const tareaGuardada = progresoGuardado[tarea.id];
+        if (tareaGuardada) {
+          tarea.completada = tareaGuardada.completada || false;
+          tarea.mejorPuntuacion = tareaGuardada.mejorPuntuacion || 0;
+          tarea.intentosTotales = tareaGuardada.intentosTotales || 0;
+          tarea.ultimaCompletada = tareaGuardada.ultimaCompletada || null;
+        }
+      });
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // CONFIGURAR EVENTOS (DELEGACIÓN - MEJOR RENDIMIENTO)
+  // ─────────────────────────────────────────────────────────────
+  configurarEventos: function() {
+    const container = document.getElementById('tareas-content');
+    if (!container) return;
+    
+    // Delegación de eventos para botones de tareas
+    container.addEventListener('click', (e) => {
+      const btnJugar = e.target.closest('[data-accion="jugar"]');
+      if (btnJugar) {
+        e.preventDefault();
+        const tareaId = btnJugar.dataset.tareaId;
+        this.iniciarTarea(tareaId);
+      }
+      
+      const btnHint = e.target.closest('[data-accion="hint"]');
+      if (btnHint) {
+        e.preventDefault();
+        const tareaId = btnHint.dataset.tareaId;
+        this.mostrarHint(tareaId);
+      }
+    });
+    
+    // Delegación para categorías
+    const categoriasContainer = document.querySelector('.tareas-categorias');
+    if (categoriasContainer) {
+      categoriasContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.categoria-btn');
+        if (btn) {
+          e.preventDefault();
+          const categoria = btn.dataset.categoria;
+          this.filtrarPorCategoria(categoria);
+        }
+      });
+    }
+    
+    // Teclado: Enter para activar tarea enfocada
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.activeElement?.dataset?.tareaId) {
+        e.preventDefault();
+        this.iniciarTarea(document.activeElement.dataset.tareaId);
+      }
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // CARGAR PANTALLA DE TAREAS
   // ─────────────────────────────────────────────────────────────
   cargar: function() {
-    console.log('✏️ Cargando tareas:', this.categoriaActual);
+    console.log('✏️ Cargando tareas - Categoría:', this.estado.categoriaActual);
+    
+    // Renderizar categorías con estado actual
+    this.renderCategorias();
+    
+    // Renderizar tareas filtradas
     this.renderTareas();
+    
+    // Actualizar estadísticas del header
+    this.actualizarEstadisticasHeader();
+    
+    // Anunciar a lectores de pantalla
+    this.anunciarCambioCategoria();
   },
   
   // ─────────────────────────────────────────────────────────────
-  // RENDERIZAR CATEGORÍAS
+  // RENDERIZAR SELECTOR DE CATEGORÍAS (CON ACCESIBILIDAD)
   // ─────────────────────────────────────────────────────────────
   renderCategorias: function() {
     const container = document.querySelector('.tareas-categorias');
@@ -81,105 +321,343 @@ window.features.tareas = {
     
     const categorias = Object.keys(this.tareas);
     
-    container.innerHTML = categorias.map(cat => `
-      <button class="categoria-btn ${this.categoriaActual === cat ? 'active' : ''}" 
-              onclick="features.tareas.filtrarPorCategoria('${cat}')">
-        ${this.getIconoCategoria(cat)} ${this.getNombreCategoria(cat)}
-      </button>
-    `).join('');
+    container.innerHTML = categorias.map(cat => {
+      const tareasCat = this.tareas[cat];
+      const completadas = tareasCat.filter(t => t.completada).length;
+      const total = tareasCat.length;
+      const porcentaje = Math.round((completadas / total) * 100);
+      const activa = this.estado.categoriaActual === cat;
+      
+      return `
+        <button class="categoria-btn ${activa ? 'active' : ''}" 
+                data-categoria="${cat}"
+                role="tab"
+                aria-selected="${activa}"
+                aria-controls="tareas-content"
+                aria-label="${this.getNombreCategoria(cat)}: ${completadas} de ${total} completadas"
+                style="position:relative;overflow:hidden;">
+          <span class="cat-icon" aria-hidden="true">${this.getIconoCategoria(cat)}</span>
+          <span class="cat-name">${this.getNombreCategoria(cat)}</span>
+          ${completadas > 0 ? `
+            <span class="cat-progress" style="position:absolute;bottom:0;left:0;height:3px;background:var(--success);width:${porcentaje}%;transition:width 0.3s;" 
+                  aria-hidden="true"></span>
+            <span class="cat-completed" style="position:absolute;top:4px;right:6px;font-size:10px;background:var(--success);color:white;padding:2px 6px;border-radius:10px;"
+                  aria-label="${completadas} completadas">✓${completadas}</span>
+          ` : ''}
+        </button>
+      `;
+    }).join('');
   },
   
   // ─────────────────────────────────────────────────────────────
-  // FILTRAR POR CATEGORÍA
+  // FILTRAR POR CATEGORÍA (CON ANIMACIÓN Y FEEDBACK)
   // ─────────────────────────────────────────────────────────────
   filtrarPorCategoria: function(categoria) {
-    this.categoriaActual = categoria;
-    this.renderCategorias();
-    this.renderTareas();
+    // Validar controles parentales
+    if (this.estado.parentalControls.categoriasBloqueadas.includes(categoria)) {
+      window.app?.mostrarToast('🔒 Esta categoría requiere plan Pro', 'warning');
+      return;
+    }
+    
+    // Validar dificultad máxima
+    const tareasCat = this.tareas[categoria];
+    const tieneTareasPermitidas = tareasCat?.some(t => t.dificultad <= this.estado.parentalControls.dificultadMaxima);
+    
+    if (!tieneTareasPermitidas) {
+      window.app?.mostrarToast('⚠️ Todas las tareas superan la dificultad permitida', 'warning');
+      return;
+    }
+    
+    // Actualizar estado
+    this.estado.categoriaActual = categoria;
+    
+    // Animación de cambio
+    const container = document.getElementById('tareas-content');
+    if (container) {
+      container.style.opacity = '0.5';
+      container.style.transform = 'translateY(10px)';
+      
+      setTimeout(() => {
+        this.renderCategorias();
+        this.renderTareas();
+        container.style.opacity = '1';
+        container.style.transform = 'translateY(0)';
+      }, 200);
+    }
+    
+    // Feedback auditivo
+    this.reproducirSonido('audio/click-categoria.mp3');
+    
+    // Analytics (placeholder para integración futura)
+    this.registrarEvento('categoria_cambiada', { categoria });
+    
+    console.log(`✏️ Categoría cambiada a: ${categoria}`);
   },
   
   // ─────────────────────────────────────────────────────────────
-  // RENDERIZAR TAREAS
+  // RENDERIZAR TAREAS (CON ESTADO Y ACCESIBILIDAD)
   // ─────────────────────────────────────────────────────────────
   renderTareas: function() {
     const container = document.getElementById('tareas-content');
     if (!container) return;
     
-    const tareas = this.tareas[this.categoriaActual];
-    if (!tareas) {
-      container.innerHTML = '<p style="color:var(--ink3);text-align:center;">Cargando...</p>';
+    const tareas = this.tareas[this.estado.categoriaActual];
+    if (!tareas || tareas.length === 0) {
+      container.innerHTML = this.renderEstadoVacio();
+      return;
+    }
+    
+    // Filtrar por dificultad permitida
+    const tareasFiltradas = tareas.filter(t => 
+      t.dificultad <= this.estado.parentalControls.dificultadMaxima
+    );
+    
+    if (tareasFiltradas.length === 0) {
+      container.innerHTML = this.renderSinTareasPermitidas();
       return;
     }
     
     container.innerHTML = `
-      <div class="tareas-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
-        ${tareas.map(tarea => `
-          <div class="card tarea-card" style="border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:all 0.3s;"
-               onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow)'"
-               onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow-sm)'">
-            <div class="card-header" style="background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));padding:16px;">
-              <div class="card-title" style="color:var(--primary);font-size:16px;">
-                ${this.getIconoCategoria(this.categoriaActual)} ${tarea.titulo}
-              </div>
-              <div style="font-size:18px;">${tarea.dificultad}</div>
-            </div>
-            <div class="card-body" style="padding:16px;">
-              <p style="color:var(--ink2);font-size:14px;margin-bottom:16px;">${tarea.descripcion}</p>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <span style="font-size:12px;color:var(--ink3);">Recompensa:</span>
-                <span style="font-size:16px;font-weight:700;color:var(--accent);">⭐ ${tarea.recompensa}</span>
-              </div>
-              <button class="topbar-btn primary" onclick="features.tareas.iniciarTarea('${tarea.id}')"
-                      style="width:100%;min-height:48px;font-size:15px;">
-                🎮 Jugar Ahora
-              </button>
-            </div>
-          </div>
-        `).join('')}
+      <div class="tareas-grid" 
+           style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;"
+           role="list"
+           aria-label="Lista de actividades de ${this.getNombreCategoria(this.estado.categoriaActual)}">
+        ${tareasFiltradas.map(tarea => this.renderTarjetaTarea(tarea)).join('')}
       </div>
     `;
   },
   
   // ─────────────────────────────────────────────────────────────
-  // INICIAR TAREA
+  // RENDERIZAR TARJETA DE TAREA INDIVIDUAL
   // ─────────────────────────────────────────────────────────────
-  iniciarTarea: function(tareaId) {
-    const categoria = this.categoriaActual;
-    const tarea = this.tareas[categoria].find(t => t.id === tareaId);
-    if (!tarea) return;
+  renderTarjetaTarea: function(tarea) {
+    const completada = tarea.completada;
+    const dificultadStars = '⭐'.repeat(tarea.dificultad);
+    const tiempoTexto = tarea.tiempoEstimado >= 60 
+      ? `${Math.round(tarea.tiempoEstimado/60)} min` 
+      : `${tarea.tiempoEstimado} seg`;
     
-    console.log('✏️ Iniciando tarea:', tarea.titulo);
-    
-    // Mostrar modal de instrucciones
-    this.mostrarInstrucciones(tarea);
+    return `
+      <article class="card tarea-card ${completada ? 'completada' : ''}" 
+               style="border:2px solid ${completada ? 'var(--success)' : 'var(--border)'};
+                      border-radius:var(--radius-lg);
+                      overflow:hidden;
+                      transition:all 0.3s ease;
+                      position:relative;"
+               role="listitem"
+               aria-label="${tarea.titulo}: ${tarea.descripcion}. Dificultad: ${tarea.dificultad} estrellas. Recompensa: ${tarea.recompensa} estrellas">
+        
+        ${completada ? `
+          <div style="position:absolute;top:12px;right:12px;background:var(--success);color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;z-index:10;"
+               aria-label="Completada">
+            ✓ Completada
+          </div>
+        ` : ''}
+        
+        <div class="card-header" 
+             style="background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));
+                    padding:16px;
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:flex-start;">
+          <div>
+            <h3 class="card-title" style="color:var(--primary);font-size:16px;font-weight:700;margin:0;">
+              ${this.getIconoCategoria(this.estado.categoriaActual)} ${tarea.titulo}
+            </h3>
+            <p style="color:var(--ink3);font-size:12px;margin:4px 0 0 0;">
+              ⏱️ ${tiempoTexto} • 🎯 ${tarea.recompensa} ⭐
+            </p>
+          </div>
+          <div style="font-size:18px;" aria-hidden="true">${dificultadStars}</div>
+        </div>
+        
+        <div class="card-body" style="padding:16px;">
+          <p style="color:var(--ink2);font-size:14px;line-height:1.5;margin-bottom:16px;">
+            ${tarea.descripcion}
+          </p>
+          
+          ${tarea.habilidades?.length ? `
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;" aria-label="Habilidades desarrolladas">
+              ${tarea.habilidades.map(hab => `
+                <span style="font-size:10px;background:var(--bg2);color:var(--ink3);padding:4px 8px;border-radius:12px;"
+                      aria-label="Habilidad: ${hab.replace('-', ' ')}">
+                  ${hab.replace('-', ' ')}
+                </span>
+              `).join('')}
+            </div>
+          ` : ''}
+          
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="topbar-btn primary" 
+                    data-accion="jugar"
+                    data-tarea-id="${tarea.id}"
+                    style="flex:1;min-height:48px;font-size:15px;"
+                    ${completada ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}
+                    aria-label="${completada ? 'Tarea ya completada' : `Jugar: ${tarea.titulo}`}">
+              ${completada ? '🔄 Repetir' : '🎮 Jugar'}
+            </button>
+            
+            <button class="topbar-btn ghost" 
+                    data-accion="hint"
+                    data-tarea-id="${tarea.id}"
+                    style="min-width:48px;padding:0 12px;"
+                    aria-label="Obtener pista para ${tarea.titulo}"
+                    title="Pista">
+              💡
+            </button>
+          </div>
+        </div>
+        
+        ${tarea.mejorPuntuacion > 0 ? `
+          <div style="background:var(--accent-light);padding:8px 16px;text-align:center;font-size:12px;color:var(--ink2);border-top:1px solid var(--border);"
+               aria-label="Mejor puntuación: ${tarea.mejorPuntuacion} estrellas">
+            🏆 Mejor: ${tarea.mejorPuntuacion} ⭐
+          </div>
+        ` : ''}
+      </article>
+    `;
   },
   
   // ─────────────────────────────────────────────────────────────
-  // MOSTRAR INSTRUCCIONES
+  // RENDERIZAR ESTADO VACÍO
+  // ─────────────────────────────────────────────────────────────
+  renderEstadoVacio: function() {
+    return `
+      <div style="text-align:center;padding:60px 20px;color:var(--ink3);" role="status">
+        <div style="font-size:64px;margin-bottom:16px;" aria-hidden="true">📭</div>
+        <h3 style="color:var(--ink);font-size:18px;margin-bottom:8px;">Próximamente</h3>
+        <p style="font-size:14px;">Estamos creando más actividades para esta categoría</p>
+      </div>
+    `;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // RENDERIZAR SIN TAREAS PERMITIDAS (CONTROLES PARENTALES)
+  // ─────────────────────────────────────────────────────────────
+  renderSinTareasPermitidas: function() {
+    return `
+      <div style="text-align:center;padding:60px 20px;color:var(--ink3);" role="alert">
+        <div style="font-size:48px;margin-bottom:16px;" aria-hidden="true">🔒</div>
+        <h3 style="color:var(--ink);font-size:18px;margin-bottom:8px;">Configuración de Papás</h3>
+        <p style="font-size:14px;margin-bottom:16px;">
+          Las tareas de esta categoría superan la dificultad permitida
+        </p>
+        <button class="topbar-btn ghost" onclick="app.mostrarPantalla('padres-screen')"
+                style="min-height:44px;">
+          ⚙️ Ajustar configuración
+        </button>
+      </div>
+    `;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR TAREA (CON VALIDACIONES Y PREPARACIÓN)
+  // ─────────────────────────────────────────────────────────────
+  iniciarTarea: function(tareaId) {
+    const categoria = this.estado.categoriaActual;
+    const tarea = this.tareas[categoria]?.find(t => t.id === tareaId);
+    
+    if (!tarea) {
+      console.error('❌ Tarea no encontrada:', tareaId);
+      window.app?.mostrarToast('⚠️ Actividad no disponible', 'error');
+      return;
+    }
+    
+    // Validar si ya está completada (permitir repetir)
+    if (tarea.completada) {
+      console.log('🔄 Repitiendo tarea completada:', tarea.titulo);
+    }
+    
+    // Resetear estado de juego
+    this.estado.tareaActiva = tarea;
+    this.estado.intentos = 0;
+    this.estado.hintsUsados = 0;
+    this.estado.tiempoInicio = Date.now();
+    
+    console.log('✏️ Iniciando tarea:', tarea.titulo);
+    
+    // Mostrar modal de instrucciones con accesibilidad
+    this.mostrarInstrucciones(tarea);
+    
+    // Analytics
+    this.registrarEvento('tarea_iniciada', { 
+      tareaId, 
+      categoria, 
+      dificultad: tarea.dificultad 
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // MOSTRAR INSTRUCCIONES (MODAL ACCESIBLE)
   // ─────────────────────────────────────────────────────────────
   mostrarInstrucciones: function(tarea) {
+    // Usar el sistema de modales de components si está disponible
+    if (window.components?.modal?.abrir) {
+      window.components.modal.abrir('modal-instrucciones-tarea', {
+        titulo: tarea.titulo,
+        instruccion: tarea.instruccionesDetalladas || tarea.descripcion,
+        icono: this.getIconoCategoria(this.estado.categoriaActual),
+        recompensa: tarea.recompensa,
+        onConfirmar: () => this.comenzarJuego(tarea.id)
+      });
+      return;
+    }
+    
+    // Fallback: crear modal dinámico
     const modal = document.createElement('div');
     modal.className = 'modal active';
     modal.id = 'modal-instrucciones-tarea';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'modal-instrucciones-title');
+    
     modal.innerHTML = `
-      <div class="modal-content" style="max-width:500px;">
+      <div class="modal-content" style="max-width:520px;" role="document">
         <div class="modal-header">
-          <div class="modal-title">📋 ${tarea.titulo}</div>
-          <button class="modal-close" onclick="this.closest('.modal').remove()">✕</button>
+          <h2 id="modal-instrucciones-title" class="modal-title" style="font-size:18px;">
+            ${tarea.icono || this.getIconoCategoria(this.estado.categoriaActual)} ${tarea.titulo}
+          </h2>
+          <button class="modal-close" onclick="this.closest('.modal')?.remove()" 
+                  aria-label="Cerrar instrucciones" style="min-width:44px;min-height:44px;">✕</button>
         </div>
-        <div class="modal-body" style="padding:32px 24px;text-align:center;">
-          <div style="font-size:64px;margin-bottom:20px;">${this.getIconoCategoria(this.categoriaActual)}</div>
-          <h3 style="color:var(--primary);margin-bottom:16px;">Instrucciones</h3>
-          <p style="color:var(--ink2);font-size:16px;line-height:1.6;margin-bottom:24px;">${tarea.descripcion}</p>
-          <div style="background:var(--bg2);padding:16px;border-radius:var(--radius-sm);margin-bottom:24px;">
-            <div style="font-size:14px;color:var(--ink3);">Recompensa al completar:</div>
-            <div style="font-size:24px;font-weight:700;color:var(--accent);margin-top:8px;">⭐ ${tarea.recompensa} estrellas</div>
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <div style="font-size:56px;margin-bottom:16px;" aria-hidden="true">
+            ${tarea.icono || this.getIconoCategoria(this.estado.categoriaActual)}
           </div>
+          <h3 style="color:var(--primary);margin-bottom:12px;font-size:16px;">Instrucciones</h3>
+          <p style="color:var(--ink2);font-size:15px;line-height:1.6;white-space:pre-line;margin-bottom:20px;"
+             id="modal-instrucciones-text">
+            ${tarea.instruccionesDetalladas || tarea.descripcion}
+          </p>
+          
+          <div style="background:var(--bg2);padding:14px;border-radius:var(--radius-sm);margin-bottom:20px;"
+               role="note"
+               aria-label="Recompensa al completar">
+            <div style="font-size:13px;color:var(--ink3);">⭐ Recompensa:</div>
+            <div style="font-size:28px;font-weight:800;color:var(--accent);margin-top:4px;">
+              ${tarea.recompensa} estrellas
+            </div>
+          </div>
+          
+          ${tarea.hint ? `
+            <button class="topbar-btn ghost" 
+                    onclick="features.tareas.mostrarHint('${tarea.id}')"
+                    style="width:100%;min-height:44px;margin-bottom:12px;"
+                    aria-label="Ver pista para esta actividad">
+              💡 ¿Necesitas una pista?
+            </button>
+          ` : ''}
         </div>
-        <div class="modal-footer" style="justify-content:center;gap:12px;">
-          <button onclick="this.closest('.modal').remove()" class="topbar-btn ghost">❌ Cancelar</button>
-          <button onclick="features.tareas.comenzarJuego('${tarea.id}');this.closest('.modal').remove()" 
-                  class="topbar-btn primary" style="min-width:150px;">
+        <div class="modal-footer" style="justify-content:center;gap:12px;flex-wrap:wrap;">
+          <button onclick="this.closest('.modal')?.remove()" 
+                  class="topbar-btn ghost"
+                  style="min-width:120px;min-height:48px;">
+            ❌ Cancelar
+          </button>
+          <button onclick="features.tareas.comenzarJuego('${tarea.id}');this.closest('.modal')?.remove()" 
+                  class="topbar-btn primary"
+                  style="min-width:150px;min-height:48px;"
+                  autofocus>
             🎮 ¡Comenzar!
           </button>
         </div>
@@ -187,69 +665,281 @@ window.features.tareas = {
     `;
     
     document.body.appendChild(modal);
-  },
-  
-  // ─────────────────────────────────────────────────────────────
-  // COMENZAR JUEGO
-  // ─────────────────────────────────────────────────────────────
-  comenzarJuego: function(tareaId) {
-    console.log('🎮 Juego iniciado:', tareaId);
     
-    // Aquí se implementaría la lógica específica de cada tipo de juego
-    // Por ahora, simulamos la completación
+    // Enfocar el botón de comenzar para accesibilidad
     setTimeout(() => {
-      this.completarTarea(tareaId);
-    }, 2000);
+      modal.querySelector('.topbar-btn.primary')?.focus();
+    }, 100);
+    
+    // Cerrar con Escape
+    const onKeydown = (e) => {
+      if (e.key === 'Escape') {
+        modal.remove();
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
   },
   
   // ─────────────────────────────────────────────────────────────
-  // COMPLETAR TAREA
+  // MOSTRAR HINT / PISTA
   // ─────────────────────────────────────────────────────────────
-  completarTarea: function(tareaId) {
-    const tarea = this.tareas[this.categoriaActual].find(t => t.id === tareaId);
-    if (!tarea) return;
+  mostrarHint: function(tareaId) {
+    const tarea = this.obtenerTareaPorId(tareaId);
+    if (!tarea?.hint) return;
     
-    // Incrementar contador
-    this.tareasCompletadas++;
-    
-    // Guardar progreso
-    const progreso = JSON.parse(localStorage.getItem('aprende_jugando_progreso') || '{}');
-    if (!progreso.tareas) progreso.tareas = [];
-    if (!progreso.tareas.includes(tareaId)) {
-      progreso.tareas.push(tareaId);
-      localStorage.setItem('aprende_jugando_progreso', JSON.stringify(progreso));
+    // Limitar hints por sesión
+    if (this.estado.hintsUsados >= TAREAS_CONFIG.HINTS_DISPONIBLES) {
+      window.app?.mostrarToast('💡 Ya usaste todas las pistas disponibles', 'info');
+      return;
     }
     
-    // Dar recompensa
-    if (window.features.progreso) {
-      window.features.progreso.agregarEstrellas(tarea.recompensa, `Tarea: ${tarea.titulo}`);
+    this.estado.hintsUsados++;
+    
+    // Mostrar hint en toast o modal pequeño
+    window.app?.mostrarToast(`💡 Pista: ${tarea.hint}`, 'info');
+    
+    // Reproducir sonido de hint
+    this.reproducirSonido('audio/hint.mp3');
+    
+    // Analytics
+    this.registrarEvento('hint_usado', { tareaId, hintNumero: this.estado.hintsUsados });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // COMENZAR JUEGO (PLACEHOLDER PARA LÓGICA ESPECÍFICA)
+  // ─────────────────────────────────────────────────────────────
+  comenzarJuego: function(tareaId) {
+    const tarea = this.obtenerTareaPorId(tareaId);
+    if (!tarea) return;
+    
+    console.log('🎮 Juego iniciado:', tarea.titulo);
+    
+    // Registrar tiempo de inicio
+    this.estado.tiempoInicio = Date.now();
+    
+    // Aquí se implementaría la lógica específica por tipo de tarea:
+    switch (this.estado.categoriaActual) {
+      case 'trazo':
+        this.iniciarJuegoTrazo(tarea);
+        break;
+      case 'conteo':
+        this.iniciarJuegoConteo(tarea);
+        break;
+      case 'colorear':
+        this.iniciarJuegoColorear(tarea);
+        break;
+      case 'patrones':
+        this.iniciarJuegoPatrones(tarea);
+        break;
+      case 'memoria':
+        this.iniciarJuegoMemoria(tarea);
+        break;
+      default:
+        // Fallback: simulación de completado
+        this.simularCompletado(tarea);
+    }
+    
+    // Analytics
+    this.registrarEvento('juego_comenzado', { 
+      tareaId, 
+      categoria: this.estado.categoriaActual,
+      timestamp: Date.now()
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // SIMULAR COMPLETADO (FALLBACK)
+  // ─────────────────────────────────────────────────────────────
+  simularCompletado: function(tarea) {
+    // Simular tiempo de juego mínimo
+    const tiempoMinimo = TAREAS_CONFIG.TIEMPO_MINIMO_POR_TAREA * 1000;
+    const tiempoTranscurrido = Date.now() - this.estado.tiempoInicio;
+    const tiempoRestante = Math.max(0, tiempoMinimo - tiempoTranscurrido);
+    
+    setTimeout(() => {
+      this.completarTarea(tarea.id, { exito: true, puntuacion: tarea.recompensa });
+    }, tiempoRestante);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // COMPLETAR TAREA (CON RECOMPENSAS Y PROGRESO)
+  // ─────────────────────────────────────────────────────────────
+  completarTarea: function(tareaId, resultado) {
+    const tarea = this.obtenerTareaPorId(tareaId);
+    if (!tarea) return;
+    
+    const tiempoJugado = Math.round((Date.now() - this.estado.tiempoInicio) / 1000);
+    
+    // Calcular puntuación final
+    const puntuacion = this.calcularPuntuacion(tarea, resultado, tiempoJugado);
+    
+    // Actualizar progreso de la tarea
+    tarea.completada = resultado.exito;
+    tarea.mejorPuntuacion = Math.max(tarea.mejorPuntuacion || 0, puntuacion);
+    tarea.intentosTotales = (tarea.intentosTotales || 0) + 1;
+    tarea.ultimaCompletada = resultado.exito ? new Date().toISOString() : tarea.ultimaCompletada;
+    
+    // Guardar progreso en localStorage
+    this.guardarProgresoTarea(tareaId, {
+      completada: tarea.completada,
+      mejorPuntuacion: tarea.mejorPuntuacion,
+      intentosTotales: tarea.intentosTotales,
+      ultimaCompletada: tarea.ultimaCompletada
+    });
+    
+    // Dar recompensa si tuvo éxito
+    if (resultado.exito && window.features?.progreso?.agregarEstrellas) {
+      window.features.progreso.agregarEstrellas(
+        puntuacion, 
+        `Tarea: ${tarea.titulo}`,
+        { tareaId, categoria: this.estado.categoriaActual }
+      );
     }
     
     // Mostrar celebración
-    this.mostrarCelebracion(tarea);
+    this.mostrarCelebracion(tarea, { puntuacion, tiempoJugado, exito: resultado.exito });
+    
+    // Analytics
+    this.registrarEvento('tarea_completada', {
+      tareaId,
+      exito: resultado.exito,
+      puntuacion,
+      tiempoJugado,
+      intentos: this.estado.intentos,
+      hintsUsados: this.estado.hintsUsados
+    });
+    
+    // Resetear estado
+    this.estado.tareaActiva = null;
+    this.estado.intentos = 0;
+    this.estado.hintsUsados = 0;
   },
   
   // ─────────────────────────────────────────────────────────────
-  // MOSTRAR CELEBRACIÓN
+  // CALCULAR PUNTUACIÓN (CON BONUS POR VELOCIDAD Y EFICIENCIA)
   // ─────────────────────────────────────────────────────────────
-  mostrarCelebracion: function(tarea) {
+  calcularPuntuacion: function(tarea, resultado, tiempoJugado) {
+    let puntuacion = resultado.exito ? tarea.recompensa : 0;
+    
+    // Bonus por tiempo (más rápido = más puntos, pero con límite)
+    if (resultado.exito && tiempoJugado < tarea.tiempoEstimado * 1.5) {
+      const bonusTiempo = Math.max(0, Math.round((tarea.tiempoEstimado - tiempoJugado) / 10));
+      puntuacion += Math.min(bonusTiempo, Math.floor(tarea.recompensa / 2));
+    }
+    
+    // Penalización por hints usados
+    puntuacion = Math.max(1, puntuacion - (this.estado.hintsUsados * 0.5));
+    
+    // Penalización por intentos extra
+    if (this.estado.intentos > 1) {
+      puntuacion = Math.max(1, puntuacion - (this.estado.intentos - 1) * 0.3);
+    }
+    
+    return Math.round(puntuacion);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // GUARDAR PROGRESO DE TAREA
+  // ─────────────────────────────────────────────────────────────
+  guardarProgresoTarea: function(tareaId, datos) {
+    try {
+      const progreso = JSON.parse(localStorage.getItem(TAREAS_CONFIG.STORAGE_KEY) || '{}');
+      progreso[tareaId] = {
+        ...progreso[tareaId],
+        ...datos,
+        actualizado: new Date().toISOString()
+      };
+      localStorage.setItem(TAREAS_CONFIG.STORAGE_KEY, JSON.stringify(progreso));
+    } catch (error) {
+      console.warn('⚠️ Error guardando progreso:', error);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // MOSTRAR CELEBRACIÓN (CON ANIMACIONES Y CONFETTI)
+  // ─────────────────────────────────────────────────────────────
+  mostrarCelebracion: function(tarea, datos) {
+    const { puntuacion, tiempoJugado, exito } = datos;
+    
+    // Usar sistema de modales si está disponible
+    if (window.components?.modal?.abrir) {
+      window.components.modal.abrir('modal-celebracion', {
+        exito,
+        titulo: exito ? '¡Excelente trabajo! 🎉' : '¡Casi lo logras! 💪',
+        mensaje: exito 
+          ? `Completaste: ${tarea.titulo}`
+          : `Inténtalo de nuevo: ${tarea.titulo}`,
+        puntuacion,
+        tiempo: tiempoJugado,
+        onContinuar: () => {
+          // Refrescar la vista para mostrar estado actualizado
+          this.renderTareas();
+          this.actualizarEstadisticasHeader();
+        }
+      });
+      return;
+    }
+    
+    // Fallback: modal dinámico
     const modal = document.createElement('div');
     modal.className = 'modal active';
     modal.id = 'modal-celebracion';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    
     modal.innerHTML = `
-      <div class="modal-content" style="max-width:400px;text-align:center;">
-        <div class="modal-body" style="padding:48px 24px;">
-          <div style="font-size:80px;margin-bottom:16px;animation:bounce 1s infinite;">🎉</div>
-          <h2 style="color:var(--primary);font-size:28px;margin-bottom:8px;">¡Excelente!</h2>
-          <p style="color:var(--ink2);font-size:16px;margin-bottom:24px;">Completaste: ${tarea.titulo}</p>
-          <div style="background:linear-gradient(135deg,var(--accent-light),var(--accent));padding:20px;border-radius:var(--radius-lg);margin-bottom:24px;">
-            <div style="font-size:14px;color:white;opacity:0.9;">Recompensa:</div>
-            <div style="font-size:48px;font-weight:800;color:white;margin-top:8px;">⭐ ${tarea.recompensa}</div>
+      <div class="modal-content" style="max-width:420px;text-align:center;" role="document">
+        <div class="modal-body" style="padding:32px 24px;">
+          <div style="font-size:72px;margin-bottom:12px;${TAREAS_CONFIG.ANIMACIONES_ACTIVAS ? 'animation:bounce 1s infinite' : ''}" 
+               aria-hidden="true">
+            ${exito ? '🎉' : '💪'}
           </div>
+          <h2 style="color:var(--${exito ? 'primary' : 'warning'});font-size:24px;margin-bottom:8px;">
+            ${exito ? '¡Excelente trabajo!' : '¡Casi lo logras!'}
+          </h2>
+          <p style="color:var(--ink2);font-size:16px;margin-bottom:20px;">
+            ${tarea.titulo}
+          </p>
+          
+          ${exito ? `
+            <div style="background:linear-gradient(135deg,var(--accent-light),var(--accent));
+                       padding:20px;border-radius:var(--radius-lg);margin-bottom:20px;"
+                 role="status"
+                 aria-live="polite">
+              <div style="font-size:13px;color:rgba(255,255,255,0.9);">⭐ Puntuación:</div>
+              <div style="font-size:42px;font-weight:800;color:white;margin-top:4px;">
+                ${puntuacion}
+              </div>
+              ${tiempoJugado < tarea.tiempoEstimado ? `
+                <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:8px;">
+                  ⚡ ¡Bonus por velocidad!
+                </div>
+              ` : ''}
+            </div>
+          ` : `
+            <div style="background:var(--warning-l);padding:16px;border-radius:var(--radius-sm);margin-bottom:20px;">
+              <p style="font-size:14px;color:var(--warning);margin:0;">
+                💡 Consejo: Usa las pistas si necesitas ayuda
+              </p>
+            </div>
+          `}
+          
+          ${TAREAS_CONFIG.CELEBRACION_CONFETTI && exito ? this.generarConfettiHTML() : ''}
         </div>
-        <div class="modal-footer" style="justify-content:center;">
-          <button onclick="this.closest('.modal').remove()" class="topbar-btn primary" style="min-width:200px;">
-            ¡Siguiente! 🚀
+        <div class="modal-footer" style="justify-content:center;gap:12px;flex-wrap:wrap;">
+          ${!exito ? `
+            <button onclick="features.tareas.iniciarTarea('${tarea.id}');this.closest('.modal')?.remove()" 
+                    class="topbar-btn ghost"
+                    style="min-width:120px;min-height:48px;">
+              🔄 Intentar de nuevo
+            </button>
+          ` : ''}
+          <button onclick="features.tareas.cerrarCelebracion('${tarea.id}');this.closest('.modal')?.remove()" 
+                  class="topbar-btn primary"
+                  style="min-width:150px;min-height:48px;"
+                  autofocus>
+            ${exito ? '🚀 Siguiente' : 'Entendido'}
           </button>
         </div>
       </div>
@@ -257,12 +947,141 @@ window.features.tareas = {
     
     document.body.appendChild(modal);
     
-    // Actualizar UI
-    window.app?.mostrarToast(`✅ ${tarea.titulo} completada`, 'success');
+    // Enfocar botón principal para accesibilidad
+    setTimeout(() => {
+      modal.querySelector('.topbar-btn.primary')?.focus();
+    }, 100);
+    
+    // Efecto de confetti si está activo
+    if (TAREAS_CONFIG.CELEBRACION_CONFETTI && exito) {
+      this.activarConfetti();
+    }
   },
   
   // ─────────────────────────────────────────────────────────────
-  // UTILIDADES
+  // CERRAR CELEBRACIÓN Y ACTUALIZAR UI
+  // ─────────────────────────────────────────────────────────────
+  cerrarCelebracion: function(tareaId) {
+    // Refrescar vista para mostrar estado actualizado
+    this.renderTareas();
+    this.actualizarEstadisticasHeader();
+    
+    // Feedback auditivo
+    this.reproducirSonido('audio/modal-close.mp3');
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // ACTUALIZAR ESTADÍSTICAS DEL HEADER
+  // ─────────────────────────────────────────────────────────────
+  actualizarEstadisticasHeader: function() {
+    const tareas = this.tareas[this.estado.categoriaActual] || [];
+    const completadas = tareas.filter(t => t.completada).length;
+    const total = tareas.length;
+    
+    // Actualizar contador en UI si existe
+    const contadorEl = document.getElementById('tareas-completadas');
+    if (contadorEl) {
+      contadorEl.textContent = completadas;
+    }
+    
+    // Anunciar cambio a lectores de pantalla
+    const anuncio = document.createElement('div');
+    anuncio.setAttribute('aria-live', 'polite');
+    anuncio.setAttribute('style', 'position:absolute;left:-9999px;');
+    anuncio.textContent = `${completadas} de ${total} tareas completadas en ${this.getNombreCategoria(this.estado.categoriaActual)}`;
+    document.body.appendChild(anuncio);
+    setTimeout(() => anuncio.remove(), 1000);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // ANUNCIAR CAMBIO DE CATEGORÍA (ACCESIBILIDAD)
+  // ─────────────────────────────────────────────────────────────
+  anunciarCambioCategoria: function() {
+    const anuncio = document.createElement('div');
+    anuncio.setAttribute('role', 'status');
+    anuncio.setAttribute('aria-live', 'polite');
+    anuncio.setAttribute('style', 'position:absolute;left:-9999px;');
+    anuncio.textContent = `Mostrando tareas de ${this.getNombreCategoria(this.estado.categoriaActual)}`;
+    document.body.appendChild(anuncio);
+    setTimeout(() => anuncio.remove(), 1000);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR CONTROLES PARENTALES
+  // ─────────────────────────────────────────────────────────────
+  verificarControlesParentales: function() {
+    // Verificar tiempo máximo diario
+    const hoy = new Date().toDateString();
+    const ultimoUso = localStorage.getItem('aprende_jugando_ultimo_uso');
+    const tiempoHoy = parseInt(localStorage.getItem('aprende_jugando_tiempo_hoy') || '0');
+    
+    if (ultimoUso === hoy && tiempoHoy >= this.estado.parentalControls.tiempoMaximoDiario * 60) {
+      // Tiempo máximo alcanzado
+      window.app?.mostrarToast('⏰ Tiempo de juego alcanzado por hoy', 'warning');
+      // Podría deshabilitar botones de jugar aquí
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // REPRODUCIR SONIDO (CON VERIFICACIÓN DE PREFERENCIAS)
+  // ─────────────────────────────────────────────────────────────
+  reproducirSonido: function(rutaAudio) {
+    if (!this.estado.sonidosActivos) return;
+    
+    try {
+      const audio = new Audio(rutaAudio);
+      audio.volume = 0.3; // Volumen bajo para no molestar
+      audio.play().catch(() => {
+        // Silenciar si el navegador bloquea autoplay
+        this.estado.sonidosActivos = false;
+        localStorage.setItem(TAREAS_CONFIG.SOUND_ENABLED_KEY, 'false');
+      });
+    } catch (error) {
+      console.warn('⚠️ Error reproduciendo sonido:', error);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // TOGGLE SONIDOS
+  // ─────────────────────────────────────────────────────────────
+  toggleSonidos: function() {
+    this.estado.sonidosActivos = !this.estado.sonidosActivos;
+    localStorage.setItem(TAREAS_CONFIG.SOUND_ENABLED_KEY, JSON.stringify(this.estado.sonidosActivos));
+    
+    window.app?.mostrarToast(
+      this.estado.sonidosActivos ? '🔊 Sonidos activados' : '🔇 Sonidos desactivados', 
+      'info'
+    );
+    
+    this.registrarEvento('sonidos_toggle', { activado: this.estado.sonidosActivos });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // REGISTRAR EVENTO PARA ANALYTICS (PLACEHOLDER)
+  // ─────────────────────────────────────────────────────────────
+  registrarEvento: function(nombreEvento, datos) {
+    // Placeholder para integración con Google Analytics, Firebase Analytics, etc.
+    console.log(`📊 Analytics: ${nombreEvento}`, datos);
+    
+    // Ejemplo de implementación real:
+    // if (window.gtag) {
+    //   window.gtag('event', nombreEvento, { ...datos });
+    // }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // OBTENER TAREA POR ID (HELPER)
+  // ─────────────────────────────────────────────────────────────
+  obtenerTareaPorId: function(tareaId) {
+    for (const categoria of Object.values(this.tareas)) {
+      const tarea = categoria.find(t => t.id === tareaId);
+      if (tarea) return tarea;
+    }
+    return null;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // UTILIDADES DE ICONOS Y NOMBRES
   // ─────────────────────────────────────────────────────────────
   getIconoCategoria: function(cat) {
     const iconos = {
@@ -284,14 +1103,196 @@ window.features.tareas = {
       memoria: 'Memoria'
     };
     return nombres[cat] || cat;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // GENERAR HTML DE CONFETTI (EFECTO DE CELEBRACIÓN)
+  // ─────────────────────────────────────────────────────────────
+  generarConfettiHTML: function() {
+    if (!TAREAS_CONFIG.CELEBRACION_CONFETTI) return '';
+    
+    const colores = ['#FF6B9D', '#4ECDC4', '#FFE66D', '#C780E8', '#95E1D3'];
+    const confettis = Array.from({ length: 20 }, (_, i) => {
+      const color = colores[i % colores.length];
+      const left = Math.random() * 100;
+      const delay = Math.random() * 0.5;
+      const duration = 2 + Math.random() * 2;
+      
+      return `<span style="position:absolute;width:8px;height:8px;background:${color};border-radius:50%;left:${left}%;top:-10px;animation:confetti ${duration}s ease-in ${delay}s infinite;" aria-hidden="true"></span>`;
+    }).join('');
+    
+    return `
+      <style>
+        @keyframes confetti {
+          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+        }
+      </style>
+      <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;" aria-hidden="true">
+        ${confettis}
+      </div>
+    `;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // ACTIVAR CONFETTI (ANIMACIÓN DINÁMICA)
+  // ─────────────────────────────────────────────────────────────
+  activarConfetti: function() {
+    if (!TAREAS_CONFIG.CELEBRACION_CONFETTI) return;
+    
+    // Crear contenedor de confetti
+    const contenedor = document.createElement('div');
+    contenedor.style.cssText = `
+      position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;
+    `;
+    document.body.appendChild(contenedor);
+    
+    // Generar piezas de confetti
+    const colores = ['#FF6B9D', '#4ECDC4', '#FFE66D', '#C780E8', '#95E1D3'];
+    
+    for (let i = 0; i < 50; i++) {
+      const pieza = document.createElement('div');
+      pieza.style.cssText = `
+        position:absolute;
+        width:${6 + Math.random() * 8}px;
+        height:${6 + Math.random() * 8}px;
+        background:${colores[Math.floor(Math.random() * colores.length)]};
+        border-radius:${Math.random() > 0.5 ? '50%' : '4px'};
+        left:${Math.random() * 100}%;
+        top:-20px;
+        animation:confetti-fall ${2 + Math.random() * 3}s ease-in ${Math.random() * 0.5}s forwards;
+        opacity:0.9;
+      `;
+      contenedor.appendChild(pieza);
+    }
+    
+    // Agregar keyframes dinámicos
+    if (!document.getElementById('confetti-keyframes')) {
+      const style = document.createElement('style');
+      style.id = 'confetti-keyframes';
+      style.textContent = `
+        @keyframes confetti-fall {
+          to {
+            transform: translateY(100vh) rotate(${360 + Math.random() * 720}deg);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Limpiar después de la animación
+    setTimeout(() => contenedor.remove(), 5000);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // MÉTODOS ESPECÍFICOS POR TIPO DE JUEGO (PLACEHOLDERS)
+  // ─────────────────────────────────────────────────────────────
+  iniciarJuegoTrazo: function(tarea) {
+    console.log('✏️ Iniciando juego de trazo:', tarea.titulo);
+    // Implementar canvas para trazo con detección de gestos
+    this.simularCompletado(tarea);
+  },
+  
+  iniciarJuegoConteo: function(tarea) {
+    console.log('🔢 Iniciando juego de conteo:', tarea.titulo);
+    // Implementar interfaz de selección múltiple con feedback
+    this.simularCompletado(tarea);
+  },
+  
+  iniciarJuegoColorear: function(tarea) {
+    console.log('🎨 Iniciando juego de colorear:', tarea.titulo);
+    // Implementar canvas interactivo con paleta de colores
+    this.simularCompletado(tarea);
+  },
+  
+  iniciarJuegoPatrones: function(tarea) {
+    console.log('🧩 Iniciando juego de patrones:', tarea.titulo);
+    // Implementar interfaz de arrastrar y soltar para completar secuencia
+    this.simularCompletado(tarea);
+  },
+  
+  iniciarJuegoMemoria: function(tarea) {
+    console.log('🧠 Iniciando juego de memoria:', tarea.titulo);
+    // Implementar grid de cartas con volteo y matching
+    this.simularCompletado(tarea);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // EXPORTAR PROGRESO (PARA RESPALDO O MIGRACIÓN)
+  // ─────────────────────────────────────────────────────────────
+  exportarProgreso: function() {
+    const progreso = {};
+    
+    Object.keys(this.tareas).forEach(categoria => {
+      this.tareas[categoria].forEach(tarea => {
+        if (tarea.completada || tarea.mejorPuntuacion > 0) {
+          progreso[tarea.id] = {
+            completada: tarea.completada,
+            mejorPuntuacion: tarea.mejorPuntuacion,
+            intentosTotales: tarea.intentosTotales,
+            ultimaCompletada: tarea.ultimaCompletada
+          };
+        }
+      });
+    });
+    
+    return {
+      version: '2.0',
+      exportado: new Date().toISOString(),
+      progreso
+    };
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // IMPORTAR PROGRESO (PARA RESTAURAR RESPALDO)
+  // ─────────────────────────────────────────────────────────────
+  importarProgreso: function(datos) {
+    try {
+      if (!datos?.progreso) {
+        throw new Error('Formato de progreso inválido');
+      }
+      
+      // Fusionar con progreso actual
+      Object.entries(datos.progreso).forEach(([tareaId, datosTarea]) => {
+        const tarea = this.obtenerTareaPorId(tareaId);
+        if (tarea) {
+          tarea.completada = datosTarea.completada || false;
+          tarea.mejorPuntuacion = datosTarea.mejorPuntuacion || 0;
+          tarea.intentosTotales = datosTarea.intentosTotales || 0;
+          tarea.ultimaCompletada = datosTarea.ultimaCompletada || null;
+        }
+      });
+      
+      // Guardar fusionado
+      localStorage.setItem(TAREAS_CONFIG.STORAGE_KEY, JSON.stringify(this.exportarProgreso().progreso));
+      
+      // Refrescar UI si está visible
+      if (document.getElementById('tareas-screen')?.classList.contains('active')) {
+        this.renderTareas();
+      }
+      
+      console.log('✅ Progreso importado exitosamente');
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error importando progreso:', error);
+      window.app?.mostrarToast('❌ Error al importar progreso', 'error');
+      return false;
+    }
   }
 };
 
-// Inicializar cuando el DOM esté listo
+// ─────────────────────────────────────────────────────────────
+// INICIALIZAR CUANDO EL DOM ESTÉ LISTO
+// ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  if (window.features?.tareas) {
-    window.features.tareas.init();
+  if (window.features?.tareas?.init) {
+    // Pequeño delay para asegurar dependencias cargadas
+    setTimeout(() => {
+      window.features.tareas.init();
+    }, 100);
   }
 });
 
-console.log('✅ tareas.js listo');
+console.log('✅ tareas.js v2.0 listo');
