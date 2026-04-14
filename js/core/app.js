@@ -151,7 +151,8 @@ window.app = {
       'tareas-screen': ['Tareas', 'Actividades divertidas'],
       'sabias-que-screen': ['Sabías Que', 'Datos curiosos'],
       'progreso-screen': ['Mi Progreso', 'Tus logros y estrellas'],
-      'padres-screen': ['Para Papás', 'Configuración y reportes']
+      'padres-screen': ['Para Papás', 'Configuración y reportes'],
+      'licencia-screen': ['Planes', 'Elige tu plan ideal'],
     };
     
     const [titulo, subtitulo] = titulos[pantallaId] || ['Aprende-jugando', ''];
