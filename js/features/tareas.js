@@ -707,7 +707,7 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // COMENZAR JUEGO (PLACEHOLDER PARA LÓGICA ESPECÍFICA)
+  // COMENZAR JUEGO (ACTUALIZADO)
   // ─────────────────────────────────────────────────────────────
   comenzarJuego: function(tareaId) {
     const tarea = this.obtenerTareaPorId(tareaId);
@@ -715,28 +715,27 @@ window.features.tareas = {
     
     console.log('🎮 Juego iniciado:', tarea.titulo);
     
-    // Registrar tiempo de inicio
+    // Resetear estado de juego
+    this.estado.tareaActiva = tarea;
+    this.estado.intentos = 0;
+    this.estado.hintsUsados = 0;
+    this.estado.juegoRespondido = false;
     this.estado.tiempoInicio = Date.now();
     
-    // Aquí se implementaría la lógica específica por tipo de tarea:
+    // Ejecutar lógica específica por categoría
     switch (this.estado.categoriaActual) {
-      case 'trazo':
-        this.iniciarJuegoTrazo(tarea);
-        break;
       case 'conteo':
-        this.iniciarJuegoConteo(tarea);
+        this.iniciarJuegoConteo(tarea); // ← IMPLEMENTACIÓN REAL
         break;
+      
+      // Para las demás categorías, mantener simulación por ahora
+      case 'trazo':
       case 'colorear':
-        this.iniciarJuegoColorear(tarea);
-        break;
       case 'patrones':
-        this.iniciarJuegoPatrones(tarea);
-        break;
       case 'memoria':
-        this.iniciarJuegoMemoria(tarea);
-        break;
       default:
-        // Fallback: simulación de completado
+        console.log(`🎮 ${this.estado.categoriaActual}: simulación (próximamente)`);
+        window.app?.mostrarToast('🚧 Actividad en desarrollo', 'info');
         this.simularCompletado(tarea);
     }
     
@@ -1388,6 +1387,191 @@ window.features.tareas = {
     console.log('🧠 Iniciando juego de memoria:', tarea.titulo);
     // Implementar grid de cartas con volteo y matching
     this.simularCompletado(tarea);
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR RESPUESTA EN JUEGO DE CONTEO
+  // ─────────────────────────────────────────────────────────────
+  verificarRespuestaConteo: function(btnSeleccionado, tarea) {
+    // Prevenir múltiples clics
+    if (this.estado.juegoRespondido) return;
+    this.estado.juegoRespondido = true;
+    
+    const respuestaUsuario = parseInt(btnSeleccionado.dataset.respuesta);
+    const esCorrecta = respuestaUsuario === tarea.respuestaCorrecta;
+    
+    // Feedback visual inmediato
+    if (esCorrecta) {
+      btnSeleccionado.classList.add('correcta');
+      btnSeleccionado.setAttribute('aria-checked', 'true');
+      
+      // Sonido de éxito
+      this.reproducirSonido('audio/exito-conteo.mp3');
+      
+      // Feedback textual
+      const feedback = document.getElementById('conteo-feedback');
+      if (feedback) {
+        feedback.textContent = '¡Correcto! 🎉';
+        feedback.style.color = 'var(--success)';
+      }
+      
+      // Analytics
+      this.registrarEvento('respuesta_correcta', {
+        tareaId: tarea.id,
+        intentos: this.estado.juegoActivo?.intentos || 0
+      });
+      
+      // Completar tarea después de breve delay para que vea el feedback
+      setTimeout(() => {
+        this.completarTarea(tarea.id, { 
+          exito: true, 
+          puntuacion: tarea.recompensa 
+        });
+        this.cerrarJuegoActivo();
+      }, 1500);
+      
+    } else {
+      btnSeleccionado.classList.add('incorrecta');
+      
+      // Sonido de error suave
+      this.reproducirSonido('audio/error-suave.mp3');
+      
+      // Feedback textual
+      const feedback = document.getElementById('conteo-feedback');
+      if (feedback) {
+        feedback.textContent = 'Casi... intenta de nuevo 💪';
+        feedback.style.color = 'var(--warning)';
+      }
+      
+      // Incrementar intentos
+      if (this.estado.juegoActivo) {
+        this.estado.juegoActivo.intentos = (this.estado.juegoActivo.intentos || 0) + 1;
+      }
+      
+      // Permitir reintentar después de delay
+      setTimeout(() => {
+        this.estado.juegoRespondido = false;
+        
+        // Remover clases de feedback
+        btnSeleccionado.classList.remove('incorrecta');
+        if (feedback) {
+          feedback.textContent = '';
+        }
+        
+        // Si llegó al máximo de intentos, mostrar respuesta correcta
+        if (this.estado.juegoActivo?.intentos >= TAREAS_CONFIG.MAX_INTENTOS) {
+          this.mostrarRespuestaCorrecta(tarea);
+        }
+      }, 1200);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // MOSTRAR RESPUESTA CORRECTA (DESPUÉS DE MÁX. INTENTOS)
+  // ─────────────────────────────────────────────────────────────
+  mostrarRespuestaCorrecta: function(tarea) {
+    const feedback = document.getElementById('conteo-feedback');
+    if (feedback) {
+      feedback.innerHTML = `
+        <span style="color:var(--primary);font-size:16px;">
+          La respuesta era: <strong>${tarea.respuestaCorrecta}</strong> ✨
+        </span>
+      `;
+    }
+    
+    // Deshabilitar opciones
+    document.querySelectorAll('.opcion-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+      
+      // Resaltar la correcta
+      if (parseInt(btn.dataset.respuesta) === tarea.respuestaCorrecta) {
+        btn.classList.add('correcta');
+      }
+    });
+    
+    // Botón para continuar
+    setTimeout(() => {
+      const footer = document.querySelector('#modal-juego-conteo .modal-footer');
+      if (footer && !footer.querySelector('.btn-continuar')) {
+        const btnContinuar = document.createElement('button');
+        btnContinuar.className = 'topbar-btn primary btn-continuar';
+        btnContinuar.textContent = '✅ Entendido, continuar';
+        btnContinuar.style.minHeight = '48px';
+        btnContinuar.style.minWidth = '180px';
+        btnContinuar.onclick = () => {
+          // Completar con puntuación reducida por intentos
+          const puntuacion = Math.max(1, Math.round(tarea.recompensa * 0.5));
+          this.completarTarea(tarea.id, { exito: true, puntuacion });
+          this.cerrarJuegoActivo();
+        };
+        footer.appendChild(btnContinuar);
+        btnContinuar.focus();
+      }
+    }, 2000);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // MOSTRAR HINT EN JUEGO DE CONTEO
+  // ─────────────────────────────────────────────────────────────
+  mostrarHintConteo: function() {
+    const tarea = this.estado.tareaActiva;
+    if (!tarea?.hint) return;
+    
+    // Limitar hints
+    if (this.estado.hintsUsados >= TAREAS_CONFIG.HINTS_DISPONIBLES) {
+      window.app?.mostrarToast('💡 Ya usaste todas las pistas', 'info');
+      return;
+    }
+    
+    this.estado.hintsUsados++;
+    
+    // Mostrar hint en el feedback
+    const feedback = document.getElementById('conteo-feedback');
+    if (feedback) {
+      feedback.innerHTML = `
+        <span style="color:var(--accent);font-size:14px;">
+          💡 ${tarea.hint}
+        </span>
+      `;
+    }
+    
+    // Deshabilitar botón de hint
+    const btnHint = document.getElementById('btn-hint-conteo');
+    if (btnHint) {
+      btnHint.disabled = true;
+      btnHint.style.opacity = '0.5';
+      btnHint.textContent = '✓ Pista usada';
+    }
+    
+    // Sonido de hint
+    this.reproducirSonido('audio/hint.mp3');
+    
+    // Analytics
+    this.registrarEvento('hint_usado_conteo', { 
+      tareaId: tarea.id,
+      hintNumero: this.estado.hintsUsados 
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // CERRAR JUEGO ACTIVO (GENÉRICO)
+  // ─────────────────────────────────────────────────────────────
+  cerrarJuegoActivo: function() {
+    const juego = this.estado.juegoActivo;
+    if (juego?.modal) {
+      juego.modal.remove();
+    }
+    
+    // Resetear estado
+    this.estado.juegoActivo = null;
+    this.estado.juegoRespondido = false;
+    
+    // Restaurar scroll
+    document.body.style.overflow = '';
+    
+    console.log('🎮 Juego cerrado');
   },
   
   // ─────────────────────────────────────────────────────────────
