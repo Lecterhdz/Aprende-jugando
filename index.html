@@ -4,61 +4,88 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#FF6B9D">
-  <title>KinderAula - Aprende Jugando 🎨</title>
+  <meta name="description" content="Actividades educativas para preescolar (Kinder 1, 2, 3)">
+  <title>Aprende-jugando 🎨</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
   
   <!-- Fuentes amigables para niños -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- PWA -->
+  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icons/icon-192.png">
   
   <!-- Estilos -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="app-loading" data-theme="claro">
 
-  <!-- Login/Selección de Plan -->
+  <!-- ══════════════════════════════════════ PANTALLA DE AUTH / PLANES ══════════════════════════════════════ -->
   <div id="auth-screen" class="screen active">
     <div class="auth-container">
-      <div class="auth-logo">🎨 KinderAula</div>
-      <p class="auth-subtitle">Aprende jugando, crece sonriendo ✨</p>
+      <div class="auth-logo">🎨 Aprende-jugando</div>
+      <p class="auth-subtitle">Actividades educativas para preescolar ✨</p>
       
       <div class="plan-cards">
-        <button class="plan-card demo" onclick="auth.iniciarDemo()">
+        <button class="plan-card demo" onclick="app.iniciarDemo()">
           <span class="plan-icon">🆓</span>
           <span class="plan-name">Demo</span>
           <span class="plan-duration">7 días</span>
         </button>
-        <button class="plan-card basico" onclick="auth.mostrarPlanes()">
+        <button class="plan-card basico" onclick="app.mostrarPlanes()">
           <span class="plan-icon">🌟</span>
           <span class="plan-name">Básico</span>
           <span class="plan-duration">3 meses</span>
         </button>
-        <button class="plan-card pro active" onclick="auth.mostrarPlanes()">
+        <button class="plan-card pro active" onclick="app.mostrarPlanes()">
           <span class="plan-icon">🚀</span>
           <span class="plan-name">Pro</span>
           <span class="plan-duration">1 año</span>
         </button>
-        <button class="plan-card elite" onclick="auth.mostrarPlanes()">
+        <button class="plan-card elite" onclick="app.mostrarPlanes()">
           <span class="plan-icon">👑</span>
           <span class="plan-name">Elite</span>
           <span class="plan-duration">1 año +</span>
         </button>
       </div>
       
-      <button class="btn-toggle-theme" onclick="theme.toggle()">🌓 Tema</button>
+      <!-- Login Admin (oculto por defecto) -->
+      <div id="admin-login-section" style="display:none;margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+        <div class="form-group">
+          <label class="f-label">Email</label>
+          <input type="email" id="admin-email" class="f-input" placeholder="admin@aprende-jugando.com">
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label class="f-label">Contraseña</label>
+          <input type="password" id="admin-password" class="f-input" placeholder="••••••••">
+        </div>
+        <button onclick="app.verificarAdmin()" class="topbar-btn primary btn-full" style="margin-top:16px;min-height:48px;">
+          🔑 Iniciar Sesión Admin
+        </button>
+        <button onclick="document.getElementById('admin-login-section').style.display='none'" class="topbar-btn ghost btn-full" style="margin-top:8px;min-height:48px;">
+          ← Volver a Planes
+        </button>
+      </div>
+      
+      <button class="btn-toggle-theme" onclick="theme.toggle()" style="margin-top:16px;">🌓 Cambiar Tema</button>
+      
+      <p style="margin-top:24px;font-size:12px;color:var(--ink4);">
+        ¿Eres administrador? 
+        <a href="#" onclick="document.getElementById('admin-login-section').style.display='block';return false;" style="color:var(--blue);text-decoration:none;font-weight:600;">Inicia sesión aquí</a>
+      </p>
     </div>
   </div>
 
-  <!-- Layout Principal -->
-  <div class="layout">
+  <!-- ══════════════════════════════════════ LAYOUT PRINCIPAL ══════════════════════════════════════ -->
+  <div class="layout" id="main-layout" style="display:none;">
     
-    <!-- Sidebar -->
+    <!-- ══════════════════════════════════════ SIDEBAR ══════════════════════════════════════ -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="logo">🎨 KinderAula</div>
+        <div class="logo">🎨 Aprende-jugando</div>
         <button class="btn-close-sidebar" onclick="app.toggleSidebar()">✕</button>
       </div>
       
@@ -91,27 +118,32 @@
           <span class="user-avatar">🧒</span>
           <span class="user-name" id="user-name">Pequeño Explorador</span>
         </div>
-        <button class="btn-logout" onclick="auth.cerrarSesion()">🚪 Salir</button>
+        <button class="btn-logout" onclick="app.cerrarSesion()">🚪 Salir</button>
       </div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- ══════════════════════════════════════ MAIN CONTENT ══════════════════════════════════════ -->
     <main class="main">
       
-      <!-- Topbar -->
+      <!-- ══════════════════════════════════════ TOPBAR ══════════════════════════════════════ -->
       <header class="topbar">
         <button class="btn-hamburger" onclick="app.toggleSidebar()">☰</button>
-        <h1 class="topbar-title" id="page-title">Dashboard</h1>
+        <div>
+          <h1 class="topbar-title" id="page-title">Dashboard</h1>
+          <p class="topbar-sub" id="page-subtitle">¡Bienvenido!</p>
+        </div>
         <div class="topbar-actions">
-          <button class="btn-theme" onclick="theme.toggle()">🌓</button>
-          <button class="btn-profile" onclick="app.mostrarScreen('progreso')">⭐ <span id="stars-count">0</span></button>
+          <button class="btn-theme" onclick="theme.toggle()" title="Cambiar tema">🌓</button>
+          <button class="btn-profile" onclick="app.mostrarPantalla('progreso')" title="Mi progreso">
+            ⭐ <span id="stars-count">0</span>
+          </button>
         </div>
       </header>
 
-      <!-- Content Area -->
+      <!-- ══════════════════════════════════════ CONTENT AREA ══════════════════════════════════════ -->
       <div class="content">
         
-        <!-- Dashboard Screen -->
+        <!-- ══════════════════════════════════════ DASHBOARD SCREEN ══════════════════════════════════════ -->
         <section id="dashboard-screen" class="screen active">
           <div class="welcome-banner">
             <h2>¡Hola, <span id="welcome-name">Explorador</span>! 👋</h2>
@@ -119,19 +151,19 @@
           </div>
           
           <div class="quick-actions">
-            <button class="action-card" onclick="app.mostrarScreen('tareas')">
+            <button class="action-card" onclick="app.mostrarPantalla('tareas')">
               <span class="action-icon">✏️</span>
               <span class="action-label">Tareas de Hoy</span>
             </button>
-            <button class="action-card" onclick="app.mostrarScreen('proyectos')">
+            <button class="action-card" onclick="app.mostrarPantalla('proyectos')">
               <span class="action-icon">🛠️</span>
               <span class="action-label">Nuevo Proyecto</span>
             </button>
-            <button class="action-card" onclick="app.mostrarScreen('repaso')">
+            <button class="action-card" onclick="app.mostrarPantalla('repaso')">
               <span class="action-icon">🔄</span>
               <span class="action-label">Repasar</span>
             </button>
-            <button class="action-card" onclick="app.mostrarScreen('sabias-que')">
+            <button class="action-card" onclick="app.mostrarPantalla('sabias-que')">
               <span class="action-icon">💡</span>
               <span class="action-label">Curiosidades</span>
             </button>
@@ -139,34 +171,275 @@
           
           <div class="progress-section">
             <h3>🌟 Tu Progreso esta Semana</h3>
-            <div class="progress-chart" id="weekly-progress"></div>
+            <div class="progress-chart" id="weekly-progress">
+              <p style="color:var(--ink3);font-size:14px;">Cargando progreso...</p>
+            </div>
           </div>
         </section>
 
-        <!-- Otras screens se cargarán dinámicamente -->
-        <section id="repaso-screen" class="screen"></section>
-        <section id="proyectos-screen" class="screen"></section>
-        <section id="tareas-screen" class="screen"></section>
-        <section id="sabias-que-screen" class="screen"></section>
-        <section id="progreso-screen" class="screen"></section>
-        <section id="padres-screen" class="screen"></section>
+        <!-- ══════════════════════════════════════ REPASO SCREEN ══════════════════════════════════════ -->
+        <section id="repaso-screen" class="screen">
+          <div class="screen-header">
+            <h2>🔄 Material de Repaso</h2>
+            <p>Practica lo aprendido</p>
+          </div>
+          
+          <div class="grado-selector" style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+            <button class="grado-btn active" onclick="features.repaso.filtrarPorGrado('kinder1')">Kinder 1</button>
+            <button class="grado-btn" onclick="features.repaso.filtrarPorGrado('kinder2')">Kinder 2</button>
+            <button class="grado-btn" onclick="features.repaso.filtrarPorGrado('kinder3')">Kinder 3</button>
+          </div>
+          
+          <div id="repaso-content" class="actividades-grid">
+            <!-- Se carga dinámicamente -->
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════ PROYECTOS SCREEN ══════════════════════════════════════ -->
+        <section id="proyectos-screen" class="screen">
+          <div class="screen-header">
+            <h2>🛠️ Proyectos</h2>
+            <p>Crea y aprende</p>
+          </div>
+          
+          <div id="proyectos-content" class="proyectos-grid">
+            <!-- Se carga dinámicamente -->
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════ TAREAS SCREEN ══════════════════════════════════════ -->
+        <section id="tareas-screen" class="screen">
+          <div class="screen-header">
+            <h2>✏️ Tareas</h2>
+            <p>Actividades divertidas</p>
+          </div>
+          
+          <div class="tareas-categorias" style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+            <button class="categoria-btn active" onclick="features.tareas.filtrarPorCategoria('trazo')">🔤 Trazo</button>
+            <button class="categoria-btn" onclick="features.tareas.filtrarPorCategoria('conteo')">🔢 Conteo</button>
+            <button class="categoria-btn" onclick="features.tareas.filtrarPorCategoria('colorear')">🎨 Colorear</button>
+            <button class="categoria-btn" onclick="features.tareas.filtrarPorCategoria('patrones')">🧩 Patrones</button>
+            <button class="categoria-btn" onclick="features.tareas.filtrarPorCategoria('memoria')">🧠 Memoria</button>
+          </div>
+          
+          <div id="tareas-content" class="tareas-grid">
+            <!-- Se carga dinámicamente -->
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════ SABÍAS QUE SCREEN ══════════════════════════════════════ -->
+        <section id="sabias-que-screen" class="screen">
+          <div class="screen-header">
+            <h2>💡 Sabías Que</h2>
+            <p>Datos curiosos ilustrados</p>
+          </div>
+          
+          <div id="sabias-que-content" class="curiosidades-grid">
+            <!-- Se carga dinámicamente -->
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════ PROGRESO SCREEN ══════════════════════════════════════ -->
+        <section id="progreso-screen" class="screen">
+          <div class="screen-header">
+            <h2>⭐ Mi Progreso</h2>
+            <p>Tus logros y recompensas</p>
+          </div>
+          
+          <div class="progreso-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px;">
+            <div class="stat-card-mini">
+              <span class="stat-icon">⭐</span>
+              <span class="stat-value" id="total-estrellas">0</span>
+              <span class="stat-label">Estrellas</span>
+            </div>
+            <div class="stat-card-mini">
+              <span class="stat-icon">✅</span>
+              <span class="stat-value" id="tareas-completadas">0</span>
+              <span class="stat-label">Tareas</span>
+            </div>
+            <div class="stat-card-mini">
+              <span class="stat-icon">🏆</span>
+              <span class="stat-value" id="logros-desbloqueados">0</span>
+              <span class="stat-label">Logros</span>
+            </div>
+            <div class="stat-card-mini">
+              <span class="stat-icon">📅</span>
+              <span class="stat-value" id="dias-racha">0</span>
+              <span class="stat-label">Días Racha</span>
+            </div>
+          </div>
+          
+          <div class="logros-section">
+            <h3>🏅 Logros Desbloqueados</h3>
+            <div id="logros-content" class="logros-grid">
+              <!-- Se carga dinámicamente -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════ PADRES SCREEN ══════════════════════════════════════ -->
+        <section id="padres-screen" class="screen">
+          <div class="screen-header">
+            <h2>👨‍👩‍👧 Para Papás</h2>
+            <p>Configuración y reportes</p>
+          </div>
+          
+          <div class="padres-content">
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-header">
+                <div class="card-title">📊 Reporte de Progreso</div>
+              </div>
+              <div class="card-body">
+                <p style="color:var(--ink3);font-size:14px;margin-bottom:16px;">
+                  Revisa el avance de tu pequeño y descarga un reporte semanal.
+                </p>
+                <button class="topbar-btn primary" onclick="features.padres.generarReporte()">📥 Descargar Reporte</button>
+              </div>
+            </div>
+            
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-header">
+                <div class="card-title">⚙️ Configuración</div>
+              </div>
+              <div class="card-body">
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="f-label">Nombre del Niño/a</label>
+                  <input type="text" id="padres-nombre-nino" class="f-input" placeholder="Ej: Sofía">
+                </div>
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="f-label">Grado</label>
+                  <select id="padres-grado" class="f-input">
+                    <option value="kinder1">Kinder 1 (3-4 años)</option>
+                    <option value="kinder2">Kinder 2 (4-5 años)</option>
+                    <option value="kinder3">Kinder 3 (5-6 años)</option>
+                  </select>
+                </div>
+                <button class="topbar-btn primary" onclick="features.padres.guardarConfiguracion()">💾 Guardar</button>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">💳 Plan Actual</div>
+              </div>
+              <div class="card-body">
+                <div id="plan-actual-info" style="margin-bottom:16px;">
+                  <p style="font-size:14px;color:var(--ink3);">Cargando información del plan...</p>
+                </div>
+                <button class="topbar-btn ghost" onclick="app.mostrarPlanes()">📋 Ver Planes Disponibles</button>
+              </div>
+            </div>
+          </div>
+        </section>
 
       </div>
     </main>
   </div>
 
-  <!-- Overlay para sidebar en móvil -->
+  <!-- ══════════════════════════════════════ OVERLAY PARA SIDEBAR (MÓVIL) ══════════════════════════════════════ -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="app.toggleSidebar()"></div>
 
-  <!-- Toast Notification -->
+  <!-- ══════════════════════════════════════ BOTTOM NAV (MÓVIL) ══════════════════════════════════════ -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="bn-item active" data-screen="dashboard" onclick="app.mostrarPantalla('dashboard')">
+        <span class="bn-icon">🏠</span>
+        <span class="bn-label">Inicio</span>
+      </button>
+      <button class="bn-item" data-screen="repaso" onclick="app.mostrarPantalla('repaso')">
+        <span class="bn-icon">🔄</span>
+        <span class="bn-label">Repaso</span>
+      </button>
+      <button class="bn-item" data-screen="tareas" onclick="app.mostrarPantalla('tareas')" style="position:relative;">
+        <span style="position:absolute;top:-14px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(255,107,157,.4);border:3px solid var(--bg);">✏️</span>
+        <span class="bn-icon" style="opacity:0;">✏️</span>
+        <span class="bn-label" style="margin-top:12px;">Tareas</span>
+      </button>
+      <button class="bn-item" data-screen="progreso" onclick="app.mostrarPantalla('progreso')">
+        <span class="bn-icon">⭐</span>
+        <span class="bn-label">Progreso</span>
+      </button>
+      <button class="bn-item" data-screen="padres" onclick="app.mostrarPantalla('padres')">
+        <span class="bn-icon">👨‍👩‍👧</span>
+        <span class="bn-label">Papás</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════ TOAST NOTIFICATION ══════════════════════════════════════ -->
   <div id="toast" class="toast"></div>
 
-  <!-- Scripts -->
-  <script src="src/core/theme.js"></script>
-  <script src="src/core/auth.js"></script>
-  <script src="src/core/storage.js"></script>
-  <script src="src/core/app.js"></script>
-  <script src="src/features/dashboard.js"></script>
-  <!-- ... otros módulos ... -->
+  <!-- ══════════════════════════════════════ MODALS ══════════════════════════════════════ -->
+  <!-- Modal de Instrucciones de Proyecto -->
+  <div id="modal-instructivo" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-instructivo-titulo">🛠️ Proyecto</div>
+        <button class="modal-close" onclick="components.modal.cerrar('modal-instructivo')">✕</button>
+      </div>
+      <div class="modal-body" id="modal-instructivo-body">
+        <!-- Contenido dinámico -->
+      </div>
+      <div class="modal-footer">
+        <button onclick="components.modal.cerrar('modal-instructivo')" class="topbar-btn ghost">❌ Cerrar</button>
+        <button onclick="features.proyectos.marcarCompletado()" class="topbar-btn primary">✅ ¡Terminé!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Logro Desbloqueado -->
+  <div id="modal-logro" class="modal">
+    <div class="modal-content" style="max-width:400px;text-align:center;">
+      <div class="modal-body" style="padding:32px 24px;">
+        <div style="font-size:64px;margin-bottom:16px;">🏆</div>
+        <h3 style="color:var(--primary);margin-bottom:8px;">¡Logro Desbloqueado!</h3>
+        <p id="modal-logro-nombre" style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px;"></p>
+        <p id="modal-logro-desc" style="font-size:14px;color:var(--ink3);"></p>
+        <div style="font-size:32px;margin-top:16px;">⭐ +<span id="modal-logro-estrellas">10</span></div>
+      </div>
+      <div class="modal-footer" style="justify-content:center;">
+        <button onclick="components.modal.cerrar('modal-logro')" class="topbar-btn primary" style="min-width:150px;">¡Genial! 🎉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ SCRIPTS ══════════════════════════════════════ -->
+  <!-- Firebase (DEBEN IR PRIMERO) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Configuración -->
+  <script src="js/config/firebase.js"></script>
+  
+  <!-- Core (EN ORDEN) -->
+  <script src="js/core/theme.js"></script>
+  <script src="js/core/auth.js"></script>
+  <script src="js/core/storage.js"></script>
+  <script src="js/core/app.js"></script>
+  
+  <!-- Components -->
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/components/card-actividad.js"></script>
+  <script src="js/components/star-reward.js"></script>
+  <script src="js/components/modal.js"></script>
+  
+  <!-- Features -->
+  <script src="js/features/dashboard.js"></script>
+  <script src="js/features/repaso.js"></script>
+  <script src="js/features/proyectos.js"></script>
+  <script src="js/features/tareas.js"></script>
+  <script src="js/features/sabias-que.js"></script>
+  <script src="js/features/progreso.js"></script>
+  <script src="js/features/padres.js"></script>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
+        .catch(err => console.error('❌ Error registrando SW:', err));
+    }
+  </script>
 </body>
 </html>
