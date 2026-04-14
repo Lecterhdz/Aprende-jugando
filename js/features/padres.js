@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 console.log('👨‍👩‍👧 padres.js cargado');
-
+window.features = window.features || {};
 window.features.padres = {
   
   // ─────────────────────────────────────────────────────────────
