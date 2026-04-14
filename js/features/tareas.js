@@ -561,9 +561,10 @@ window.features.tareas = {
       return;
     }
     
-    // Validar si ya está completada (permitir repetir)
+    // ✅ PERMITIR REPETIR incluso si está completada
     if (tarea.completada) {
       console.log('🔄 Repitiendo tarea completada:', tarea.titulo);
+      window.app?.mostrarToast('🔄 ¡Vamos a mejorar tu puntuación!', 'info');
     }
     
     // Resetear estado de juego
@@ -571,6 +572,7 @@ window.features.tareas = {
     this.estado.intentos = 0;
     this.estado.hintsUsados = 0;
     this.estado.tiempoInicio = Date.now();
+    this.estado.juegoRespondido = false;
     
     console.log('✏️ Iniciando tarea:', tarea.titulo);
     
@@ -581,7 +583,8 @@ window.features.tareas = {
     this.registrarEvento('tarea_iniciada', { 
       tareaId, 
       categoria, 
-      dificultad: tarea.dificultad 
+      dificultad: tarea.dificultad,
+      esRepetido: tarea.completada
     });
   },
   
