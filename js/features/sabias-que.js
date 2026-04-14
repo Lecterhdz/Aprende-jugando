@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 console.log('💡 sabias-que.js cargado');
-
+window.features = window.features || {};
 window.features.sabiasQue = {
   
   // Datos curiosos por categoría
