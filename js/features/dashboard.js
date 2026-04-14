@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 console.log('📊 dashboard.js cargado');
-
+window.features = window.features || {};
 window.features.dashboard = {
   datosUsuario: null,
   
