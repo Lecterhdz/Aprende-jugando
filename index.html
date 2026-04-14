@@ -331,7 +331,73 @@
             </div>
           </div>
         </section>
-
+        <!-- ══════════════════════════════════════ LICENCIA / PLANES SCREEN ══════════════════════════════════════ -->
+        <section id="licencia-screen" class="screen">
+          <div class="screen-header" style="margin-bottom:24px;">
+            <h2>💳 Planes y Licencia</h2>
+            <p>Elige el plan que mejor se adapte a ti</p>
+          </div>
+          
+          <div class="plan-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+            <!-- DEMO -->
+            <div class="plan-card" style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;text-align:center;">
+              <div style="font-size:40px;margin-bottom:12px;">🆓</div>
+              <h3 style="color:var(--ink);font-size:20px;margin-bottom:8px;">Demo</h3>
+              <p style="color:var(--ink3);font-size:14px;margin-bottom:16px;">7 días de prueba gratuita</p>
+              <ul style="text-align:left;font-size:13px;color:var(--ink3);line-height:2;margin-bottom:24px;">
+                <li>✅ 3 actividades por sección</li>
+                <li>✅ Sin progreso guardado</li>
+                <li>❌ Sin panel de padres</li>
+              </ul>
+              <button class="topbar-btn ghost" onclick="app.iniciarDemo()" style="width:100%;min-height:48px;">🎁 Activar Demo</button>
+            </div>
+            
+            <!-- BÁSICO -->
+            <div class="plan-card" style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;text-align:center;">
+              <div style="font-size:40px;margin-bottom:12px;">🌟</div>
+              <h3 style="color:var(--ink);font-size:20px;margin-bottom:8px;">Básico</h3>
+              <p style="color:var(--ink3);font-size:14px;margin-bottom:16px;">$49 MXN / 3 meses</p>
+              <ul style="text-align:left;font-size:13px;color:var(--ink3);line-height:2;margin-bottom:24px;">
+                <li>✅ Todo Kinder 1</li>
+                <li>✅ Progreso básico</li>
+                <li>✅ 5 proyectos/mes</li>
+              </ul>
+              <button class="topbar-btn primary" onclick="app.mostrarPlanes('basico')" style="width:100%;min-height:48px;">🌟 Elegir Básico</button>
+            </div>
+            
+            <!-- PRO -->
+            <div class="plan-card active" style="background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));border:2px solid var(--primary);border-radius:var(--radius-lg);padding:24px;text-align:center;box-shadow:var(--shadow);">
+              <div style="font-size:40px;margin-bottom:12px;">🚀</div>
+              <h3 style="color:var(--primary);font-size:20px;margin-bottom:8px;">Pro</h3>
+              <p style="color:var(--ink2);font-size:14px;margin-bottom:16px;">$399 MXN / año</p>
+              <ul style="text-align:left;font-size:13px;color:var(--ink);line-height:2;margin-bottom:24px;">
+                <li>✅ Todo Kinder 1, 2, 3</li>
+                <li>✅ Progreso detallado + reportes</li>
+                <li>✅ Proyectos ilimitados</li>
+                <li>✅ Panel de padres completo</li>
+              </ul>
+              <button class="topbar-btn primary" onclick="app.mostrarPlanes('pro')" style="width:100%;min-height:48px;background:var(--primary);">🚀 Elegir Pro</button>
+            </div>
+            
+            <!-- ELITE -->
+            <div class="plan-card" style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px;text-align:center;">
+              <div style="font-size:40px;margin-bottom:12px;">👑</div>
+              <h3 style="color:var(--ink);font-size:20px;margin-bottom:8px;">Elite</h3>
+              <p style="color:var(--ink3);font-size:14px;margin-bottom:16px;">$699 MXN / año</p>
+              <ul style="text-align:left;font-size:13px;color:var(--ink3);line-height:2;margin-bottom:24px;">
+                <li>✅ Todo Pro +</li>
+                <li>✅ Contenido exclusivo mensual</li>
+                <li>✅ Soporte prioritario</li>
+                <li>✅ Descargas offline</li>
+              </ul>
+              <button class="topbar-btn ghost" onclick="app.mostrarPlanes('elite')" style="width:100%;min-height:48px;">👑 Elegir Elite</button>
+            </div>
+          </div>
+          
+          <div style="text-align:center;margin-top:32px;color:var(--ink4);font-size:12px;">
+            ¿Preguntas? <a href="mailto:soporte@aprende-jugando.com" style="color:var(--blue);text-decoration:none;">soporte@aprende-jugando.com</a>
+          </div>
+        </section>
       </div>
     </main>
   </div>
