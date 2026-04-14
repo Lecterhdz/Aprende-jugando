@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 console.log('⭐ progreso.js cargado');
-
+window.features = window.features || {};
 window.features.progreso = {
   
   // Logros disponibles
