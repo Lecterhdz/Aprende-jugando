@@ -3,7 +3,20 @@
 // ═══════════════════════════════════════════════════════════════
 
 console.log('🚀 app.js cargado');
+// ═══════════════════════════════════════════════════════════════
+// NAMESPACE GLOBAL PARA FEATURES (EVITA ERRORES DE UNDEFINED)
+// ═══════════════════════════════════════════════════════════════
+window.features = window.features || {
+  dashboard: {},
+  repaso: {},
+  proyectos: {},
+  tareas: {},
+  sabiasQue: {},
+  progreso: {},
+  padres: {}
+};
 
+console.log('📦 window.features inicializado');
 window.app = {
   pantallaActual: 'auth-screen',
   esAdmin: false,
