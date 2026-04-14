@@ -582,45 +582,67 @@
     }
   </script>
   
-  <!-- Features (con fallback si no existen) -->
+  <!-- Features (con fallback ROBUSTO que SIEMPRE tiene las funciones) -->
   <script defer>
-    // Fallback completo para features si los archivos no existen (evita errores 404)
+    // Fallback completo para features si los archivos no existen o no cargan a tiempo
     const featureStubs = ['repaso', 'proyectos', 'tareas', 'sabiasQue', 'progreso', 'padres'];
     
     featureStubs.forEach(feature => {
-      // Solo crear stub si NO existe o está incompleto
+      // Crear stub si NO existe o está incompleto
       if (!window.features[feature] || typeof window.features[feature] !== 'object') {
         window.features[feature] = {
           init: () => console.log(`📦 ${feature} stub cargado`),
           cargar: () => console.log(`📦 ${feature}.cargar() stub`),
           
+          // ✅ FUNCIÓN CRÍTICA: filtrarPorCategoria (para tareas, proyectos, sabias-que)
+          filtrarPorCategoria: function(categoria) {
+            console.log(`📦 ${feature}.filtrarPorCategoria('${categoria}') stub`);
+            
+            // Actualizar botones visualmente (funciona sin módulo real)
+            if (event?.target?.closest) {
+              const btn = event.target.closest('.categoria-btn');
+              if (btn?.parentElement) {
+                btn.parentElement.querySelectorAll('.categoria-btn').forEach(b => {
+                  b.classList.remove('active');
+                  b.style.background = '';
+                  b.style.color = '';
+                });
+                btn.classList.add('active');
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'white';
+              }
+            }
+            
+            // Feedback al usuario
+            const nombres = {
+              trazo: '🔤 Trazo', conteo: '🔢 Conteo', colorear: '🎨 Colorear',
+              patrones: '🧩 Patrones', memoria: '🧠 Memoria'
+            };
+            window.app?.mostrarToast(`${nombres[categoria] || categoria} (demo)`, 'info');
+            
+            // Simular carga de contenido
+            const container = document.getElementById(`${feature}-content`);
+            if (container) {
+              container.innerHTML = `
+                <div style="text-align:center;padding:40px;color:var(--ink3);">
+                  <div style="font-size:48px;margin-bottom:16px;" aria-hidden="true">🚧</div>
+                  <p style="font-size:14px;">Actividad "${categoria}" en desarrollo</p>
+                  <p style="font-size:12px;margin-top:8px;color:var(--ink4);">Próximamente disponible</p>
+                </div>
+              `;
+            }
+          },
+          
           // Para repaso
           filtrarPorGrado: (grado) => {
             console.log(`📦 repaso.filtrarPorGrado('${grado}') stub`);
-            window.app?.mostrarToast(`📚 Filtro: ${grado}`, 'info');
-          },
-          
-          // Para tareas, proyectos, sabias-que
-          filtrarPorCategoria: (categoria) => {
-            console.log(`📦 ${feature}.filtrarPorCategoria('${categoria}') stub`);
-            // Actualizar botones visualmente
-            if (event?.target) {
-              event.target.parentElement?.querySelectorAll('.categoria-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.background = '';
-                btn.style.color = '';
-              });
-              event.target.classList.add('active');
-              event.target.style.background = 'var(--primary)';
-              event.target.style.color = 'white';
-            }
-            window.app?.mostrarToast(`🎯 Categoría: ${categoria}`, 'info');
+            window.app?.mostrarToast(`📚 ${grado} (demo)`, 'info');
           },
           
           // Para padres
           generarReporte: () => {
             console.log('📦 padres.generarReporte() stub');
-            window.app?.mostrarToast('📊 Reporte de ejemplo generado', 'success');
+            window.app?.mostrarToast('📊 Reporte de ejemplo', 'success');
           },
           guardarConfiguracion: () => {
             console.log('📦 padres.guardarConfiguracion() stub');
@@ -630,7 +652,7 @@
       }
     });
     
-    console.log('✅ Fallbacks de features inicializados');
+    console.log('✅ Fallbacks de features inicializados (con funciones críticas)');
   </script>
   
   <!-- Service Worker Registration (con manejo de error) -->
