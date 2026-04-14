@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// APRENDE-JUGANDO - MODAL COMPONENT
+// APRENDE-JUGANDO - MODAL COMPONENT (CORREGIDO)
 // ═══════════════════════════════════════════════════════════════
 
 console.log('🪟 modal.js cargado');
@@ -92,10 +92,13 @@ window.modal = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // CARGAR DATOS EN MODAL
+  // CARGAR DATOS EN MODAL (CORREGIDO - scope de modal)
   // ─────────────────────────────────────────────────────────────
   cargarDatos: function(modalId, datos) {
-    // Ejemplo: cargar datos en campos específicos
+    // ✅ CORRECCIÓN: Obtener el modal dentro de la función
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
     Object.keys(datos).forEach(key => {
       const element = modal.querySelector(`[data-field="${key}"]`);
       if (element) {
@@ -148,7 +151,37 @@ window.modal = {
   }
 };
 
-// Inicializar cuando el DOM esté listo
+// ─────────────────────────────────────────────────────────────
+// EXPORTAR PARA COMPATIBILIDAD CON index.html
+// ─────────────────────────────────────────────────────────────
+// Tu index.html usa: components.modal.cerrar('modal-id')
+// Esto asegura que funcione aunque window.modal no esté listo
+window.components = window.components || {};
+window.components.modal = {
+  cerrar: function(modalId) {
+    if (window.modal && typeof window.modal.cerrar === 'function') {
+      return window.modal.cerrar(modalId);
+    }
+    // Fallback directo si window.modal no está disponible
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      return true;
+    }
+    return false;
+  },
+  abrir: function(modalId, datos) {
+    if (window.modal && typeof window.modal.abrir === 'function') {
+      return window.modal.abrir(modalId, datos);
+    }
+    return false;
+  }
+};
+
+// ─────────────────────────────────────────────────────────────
+// INICIALIZAR CUANDO EL DOM ESTÉ LISTO
+// ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   if (window.modal) {
     window.modal.init();
