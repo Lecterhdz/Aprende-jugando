@@ -306,3 +306,64 @@ body {
     z-index: 300 !important;
   }
 }
+/* ══════════════════════════════════════ ESTILOS PARA BOTONES DE CATEGORÍAS ══════════════════════════════════════ */
+.categoria-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 18px !important;
+  background: var(--bg2) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--ink2) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  font-family: var(--font) !important;
+  min-height: 44px !important;
+}
+
+.categoria-btn:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.categoria-btn.active {
+  background: var(--primary) !important;
+  border-color: var(--primary-dark) !important;
+  color: white !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.categoria-btn:active {
+  transform: translateY(0) !important;
+}
+
+.categoria-btn:focus-visible {
+  outline: 3px solid var(--primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Icono dentro del botón */
+.categoria-btn .cat-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.categoria-btn .cat-name {
+  line-height: 1;
+}
+
+/* En móvil, ajustar tamaño */
+@media (max-width: 768px) {
+  .categoria-btn {
+    padding: 12px 16px !important;
+    font-size: 13px !important;
+    min-height: 48px !important;
+  }
+}
