@@ -289,3 +289,20 @@ body {
     display: none !important;
   }
 }
+/* ══════════════════════════════════════ FIX: BOTTOM NAV NO BLOQUEE CONTENIDO ══════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Agregar padding inferior al content para que el bottom-nav no bloquee */
+  .content {
+    padding-bottom: 80px !important; /* Espacio para bottom-nav (60px + 20px extra) */
+  }
+  
+  /* Asegurar que los modales de juego se vean por encima del bottom-nav */
+  .modal {
+    z-index: 1000 !important;
+  }
+  
+  /* Bottom-nav siempre arriba del contenido normal */
+  .bottom-nav {
+    z-index: 300 !important;
+  }
+}
