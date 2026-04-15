@@ -1699,7 +1699,403 @@ window.features.tareas = {
     // Implementar grid de cartas con volteo y matching
     this.simularCompletado(tarea);
   },
-
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR JUEGO DE LETRAS (ABECEDARIO)
+  // ─────────────────────────────────────────────────────────────
+  iniciarJuegoLetras: function(tarea) {
+    console.log('🔤 Iniciando juego de letras:', tarea.titulo);
+    
+    if (!tarea.letraObjetivo || !tarea.opciones) {
+      this.mostrarProximamente(tarea, '🔤', 'abecedario');
+      return;
+    }
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'modal-juego-letras';
+    
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width:500px;" role="document">
+        <div class="modal-header">
+          <h2 class="modal-title">🔤 ${tarea.titulo}</h2>
+          <button class="modal-close" onclick="features.tareas.cerrarJuegoActivo()">✕</button>
+        </div>
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">${tarea.descripcion}</p>
+          
+          <div style="font-size:80px;margin:20px 0;color:var(--primary);font-weight:800;" aria-hidden="true">
+            ${tarea.letraObjetivo}
+          </div>
+          
+          <p style="font-size:16px;font-weight:600;margin-bottom:16px;">¿Cuál es esta letra?</p>
+          
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:20px;">
+            ${tarea.opciones.map(opcion => `
+              <button class="opcion-letra-btn" data-respuesta="${opcion}"
+                      style="min-width:70px;min-height:70px;font-size:32px;font-weight:700;
+                             background:var(--surface);border:2px solid var(--border);
+                             border-radius:var(--radius-sm);cursor:pointer;">
+                ${opcion}
+              </button>
+            `).join('')}
+          </div>
+          
+          <div id="letras-feedback" style="min-height:24px;font-weight:600;" aria-live="polite"></div>
+          
+          ${tarea.hint ? `
+            <button class="topbar-btn ghost" onclick="features.tareas.mostrarHint('${tarea.id}')"
+                    style="margin-top:12px;min-height:44px;">💡 ¿Necesitas ayuda?</button>
+          ` : ''}
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+          <button onclick="features.tareas.cerrarJuegoActivo()" class="topbar-btn ghost" style="min-width:120px;min-height:48px;">❌ Salir</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Configurar eventos
+    modal.querySelectorAll('.opcion-letra-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.verificarRespuestaLetras(btn, tarea));
+    });
+    
+    this.estado.juegoActivo = { modal, tipo: 'letras', tareaId: tarea.id };
+  },
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR JUEGO DE SÍLABAS
+  // ─────────────────────────────────────────────────────────────
+  iniciarJuegoSilabas: function(tarea) {
+    console.log('📖 Iniciando juego de sílabas:', tarea.titulo);
+    
+    if (!tarea.silabaObjetivo && !tarea.letraFaltante) {
+      this.mostrarProximamente(tarea, '📖', 'silabas');
+      return;
+    }
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'modal-juego-silabas';
+    
+    const displayObjetivo = tarea.silabaObjetivo || 
+      (tarea.palabra ? tarea.palabra.replace('_', '___') : '');
+    
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width:500px;" role="document">
+        <div class="modal-header">
+          <h2 class="modal-title">📖 ${tarea.titulo}</h2>
+          <button class="modal-close" onclick="features.tareas.cerrarJuegoActivo()">✕</button>
+        </div>
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">${tarea.descripcion}</p>
+          
+          <div style="font-size:60px;margin:20px 0;color:var(--primary);font-weight:700;letter-spacing:4px;" aria-hidden="true">
+            ${displayObjetivo}
+          </div>
+          
+          <p style="font-size:16px;font-weight:600;margin-bottom:16px;">Selecciona la opción correcta</p>
+          
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:20px;">
+            ${tarea.opciones.map(opcion => `
+              <button class="opcion-silaba-btn" data-respuesta="${opcion}"
+                      style="min-width:80px;min-height:50px;font-size:24px;font-weight:700;
+                             background:var(--surface);border:2px solid var(--border);
+                             border-radius:var(--radius-sm);cursor:pointer;">
+                ${opcion}
+              </button>
+            `).join('')}
+          </div>
+          
+          <div id="silabas-feedback" style="min-height:24px;font-weight:600;" aria-live="polite"></div>
+          
+          ${tarea.hint ? `
+            <button class="topbar-btn ghost" onclick="features.tareas.mostrarHint('${tarea.id}')"
+                    style="margin-top:12px;min-height:44px;">💡 Pista</button>
+          ` : ''}
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+          <button onclick="features.tareas.cerrarJuegoActivo()" class="topbar-btn ghost" style="min-width:120px;min-height:48px;">❌ Salir</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    modal.querySelectorAll('.opcion-silaba-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.verificarRespuestaSilabas(btn, tarea));
+    });
+    
+    this.estado.juegoActivo = { modal, tipo: 'silabas', tareaId: tarea.id };
+  },
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR JUEGO DE SUMAS
+  // ─────────────────────────────────────────────────────────────
+  iniciarJuegoSumas: function(tarea) {
+    console.log('➕ Iniciando juego de sumas:', tarea.titulo);
+    
+    if (!tarea.operacion || !tarea.opciones) {
+      this.mostrarProximamente(tarea, '➕', 'sumas');
+      return;
+    }
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'modal-juego-sumas';
+    
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width:520px;" role="document">
+        <div class="modal-header">
+          <h2 class="modal-title">➕ ${tarea.titulo}</h2>
+          <button class="modal-close" onclick="features.tareas.cerrarJuegoActivo()">✕</button>
+        </div>
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">${tarea.descripcion}</p>
+          
+          <div style="font-size:50px;margin:20px 0;color:var(--primary);font-weight:700;" aria-label="${tarea.ilustracion}">
+            ${tarea.ilustracion}
+          </div>
+          
+          <div style="font-size:40px;margin:20px 0;color:var(--ink);font-weight:800;" aria-label="Operación: ${tarea.operacion.a} más ${tarea.operacion.b}">
+            ${tarea.operacion.a} ${tarea.operacion.simbolo} ${tarea.operacion.b} = ?
+          </div>
+          
+          <p style="font-size:16px;font-weight:600;margin-bottom:16px;">¿Cuál es el resultado?</p>
+          
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:20px;">
+            ${tarea.opciones.map(opcion => `
+              <button class="opcion-suma-btn" data-respuesta="${opcion}"
+                      style="min-width:70px;min-height:70px;font-size:32px;font-weight:700;
+                             background:var(--surface);border:2px solid var(--border);
+                             border-radius:var(--radius-sm);cursor:pointer;">
+                ${opcion}
+              </button>
+            `).join('')}
+          </div>
+          
+          <div id="sumas-feedback" style="min-height:24px;font-weight:600;" aria-live="polite"></div>
+          
+          ${tarea.hint ? `
+            <button class="topbar-btn ghost" onclick="features.tareas.mostrarHint('${tarea.id}')"
+                    style="margin-top:12px;min-height:44px;">💡 ¿Necesitas ayuda?</button>
+          ` : ''}
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+          <button onclick="features.tareas.cerrarJuegoActivo()" class="topbar-btn ghost" style="min-width:120px;min-height:48px;">❌ Salir</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    modal.querySelectorAll('.opcion-suma-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.verificarRespuestaSumas(btn, tarea));
+    });
+    
+    this.estado.juegoActivo = { modal, tipo: 'sumas', tareaId: tarea.id };
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR JUEGO DE LECTURA DE PALABRAS
+  // ─────────────────────────────────────────────────────────────
+  iniciarJuegoLeerPalabra: function(tarea) {
+    console.log('📖 Iniciando juego de lectura:', tarea.titulo);
+    
+    if (!tarea.palabraObjetivo || !tarea.opciones) {
+      this.mostrarProximamente(tarea, '📖', 'lectura');
+      return;
+    }
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'modal-juego-lectura';
+    
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width:500px;" role="document">
+        <div class="modal-header">
+          <h2 class="modal-title">📖 ${tarea.titulo}</h2>
+          <button class="modal-close" onclick="features.tareas.cerrarJuegoActivo()">✕</button>
+        </div>
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">${tarea.descripcion}</p>
+          
+          <div style="font-size:50px;margin:20px 0;color:var(--primary);font-weight:700;" aria-hidden="true">
+            ${tarea.palabraObjetivo}
+          </div>
+          
+          <p style="font-size:16px;font-weight:600;margin-bottom:16px;">Toca la palabra correcta</p>
+          
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:20px;">
+            ${tarea.opciones.map(opcion => `
+              <button class="opcion-lectura-btn" data-respuesta="${opcion}"
+                      style="min-width:100px;min-height:50px;font-size:20px;font-weight:700;
+                             background:var(--surface);border:2px solid var(--border);
+                             border-radius:var(--radius-sm);cursor:pointer;">
+                ${opcion}
+              </button>
+            `).join('')}
+          </div>
+          
+          <div id="lectura-feedback" style="min-height:24px;font-weight:600;" aria-live="polite"></div>
+          
+          ${tarea.hint ? `
+            <button class="topbar-btn ghost" onclick="features.tareas.mostrarHint('${tarea.id}')"
+                    style="margin-top:12px;min-height:44px;">💡 Pista</button>
+          ` : ''}
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+          <button onclick="features.tareas.cerrarJuegoActivo()" class="topbar-btn ghost" style="min-width:120px;min-height:48px;">❌ Salir</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    modal.querySelectorAll('.opcion-lectura-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.verificarRespuestaLectura(btn, tarea));
+    });
+    
+    this.estado.juegoActivo = { modal, tipo: 'lectura', tareaId: tarea.id };
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR RESPUESTA - LETRAS
+  // ─────────────────────────────────────────────────────────────
+  verificarRespuestaLetras: function(btn, tarea) {
+    if (this.estado.juegoRespondido) return;
+    
+    const respuesta = btn.dataset.respuesta;
+    const esCorrecta = respuesta === tarea.letraObjetivo;
+    
+    this.estado.juegoRespondido = true;
+    
+    if (esCorrecta) {
+      btn.classList.add('correcta');
+      this.reproducirSonido('audio/exito.mp3');
+      document.getElementById('letras-feedback').textContent = '¡Correcto! 🎉';
+      document.getElementById('letras-feedback').style.color = 'var(--success)';
+      
+      setTimeout(() => {
+        this.completarTarea(tarea.id, { exito: true, puntuacion: tarea.recompensa });
+        this.cerrarJuegoActivo();
+      }, 1500);
+    } else {
+      btn.classList.add('incorrecta');
+      this.reproducirSonido('audio/error.mp3');
+      document.getElementById('letras-feedback').textContent = 'Casi... intenta de nuevo 💪';
+      document.getElementById('letras-feedback').style.color = 'var(--warning)';
+      
+      setTimeout(() => {
+        this.estado.juegoRespondido = false;
+        btn.classList.remove('incorrecta');
+        document.getElementById('letras-feedback').textContent = '';
+      }, 1200);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR RESPUESTA - SÍLABAS
+  // ─────────────────────────────────────────────────────────────
+  verificarRespuestaSilabas: function(btn, tarea) {
+    if (this.estado.juegoRespondido) return;
+    
+    const respuesta = btn.dataset.respuesta;
+    const esCorrecta = respuesta === (tarea.silabaObjetivo || tarea.letraFaltante);
+    
+    this.estado.juegoRespondido = true;
+    
+    if (esCorrecta) {
+      btn.classList.add('correcta');
+      this.reproducirSonido('audio/exito.mp3');
+      document.getElementById('silabas-feedback').textContent = '¡Excelente! 🎉';
+      document.getElementById('silabas-feedback').style.color = 'var(--success)';
+      
+      setTimeout(() => {
+        this.completarTarea(tarea.id, { exito: true, puntuacion: tarea.recompensa });
+        this.cerrarJuegoActivo();
+      }, 1500);
+    } else {
+      btn.classList.add('incorrecta');
+      this.reproducirSonido('audio/error.mp3');
+      document.getElementById('silabas-feedback').textContent = 'Casi... 💪';
+      document.getElementById('silabas-feedback').style.color = 'var(--warning)';
+      
+      setTimeout(() => {
+        this.estado.juegoRespondido = false;
+        btn.classList.remove('incorrecta');
+        document.getElementById('silabas-feedback').textContent = '';
+      }, 1200);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR RESPUESTA - SUMAS
+  // ─────────────────────────────────────────────────────────────
+  verificarRespuestaSumas: function(btn, tarea) {
+    if (this.estado.juegoRespondido) return;
+    
+    const respuesta = parseInt(btn.dataset.respuesta);
+    const esCorrecta = respuesta === tarea.respuestaCorrecta;
+    
+    this.estado.juegoRespondido = true;
+    
+    if (esCorrecta) {
+      btn.classList.add('correcta');
+      this.reproducirSonido('audio/exito.mp3');
+      document.getElementById('sumas-feedback').textContent = '¡Muy bien! 🎉';
+      document.getElementById('sumas-feedback').style.color = 'var(--success)';
+      
+      setTimeout(() => {
+        this.completarTarea(tarea.id, { exito: true, puntuacion: tarea.recompensa });
+        this.cerrarJuegoActivo();
+      }, 1500);
+    } else {
+      btn.classList.add('incorrecta');
+      this.reproducirSonido('audio/error.mp3');
+      document.getElementById('sumas-feedback').textContent = 'Casi... cuenta con los dedos 💪';
+      document.getElementById('sumas-feedback').style.color = 'var(--warning)';
+      
+      setTimeout(() => {
+        this.estado.juegoRespondido = false;
+        btn.classList.remove('incorrecta');
+        document.getElementById('sumas-feedback').textContent = '';
+      }, 1200);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR RESPUESTA - LECTURA
+  // ─────────────────────────────────────────────────────────────
+  verificarRespuestaLectura: function(btn, tarea) {
+    if (this.estado.juegoRespondido) return;
+    
+    const respuesta = btn.dataset.respuesta;
+    const esCorrecta = respuesta === tarea.palabraObjetivo;
+    
+    this.estado.juegoRespondido = true;
+    
+    if (esCorrecta) {
+      btn.classList.add('correcta');
+      this.reproducirSonido('audio/exito.mp3');
+      document.getElementById('lectura-feedback').textContent = '¡Excelente lector! 📚';
+      document.getElementById('lectura-feedback').style.color = 'var(--success)';
+      
+      setTimeout(() => {
+        this.completarTarea(tarea.id, { exito: true, puntuacion: tarea.recompensa });
+        this.cerrarJuegoActivo();
+      }, 1500);
+    } else {
+      btn.classList.add('incorrecta');
+      this.reproducirSonido('audio/error.mp3');
+      document.getElementById('lectura-feedback').textContent = 'Casi... lee despacio 💪';
+      document.getElementById('lectura-feedback').style.color = 'var(--warning)';
+      
+      setTimeout(() => {
+        this.estado.juegoRespondido = false;
+        btn.classList.remove('incorrecta');
+        document.getElementById('lectura-feedback').textContent = '';
+      }, 1200);
+    }
+  },
   // ─────────────────────────────────────────────────────────────
   // VERIFICAR RESPUESTA EN JUEGO DE CONTEO
   // ─────────────────────────────────────────────────────────────
