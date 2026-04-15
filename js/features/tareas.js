@@ -867,21 +867,49 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // MOSTRAR INSTRUCCIONES (MODAL ACCESIBLE)
+  // MOSTRAR INSTRUCCIONES (MODAL ACCESIBLE) - VERSIÓN CORREGIDA
   // ─────────────────────────────────────────────────────────────
   mostrarInstrucciones: function(tarea) {
-    // Usar el sistema de modales de components si está disponible
-    if (window.components?.modal?.abrir) {
-      window.components.modal.abrir('modal-instrucciones-tarea', {
-        titulo: tarea.titulo,
-        instruccion: tarea.instruccionesDetalladas || tarea.descripcion,
-        icono: this.getIconoCategoria(this.estado.categoriaActual),
-        recompensa: tarea.recompensa,
-        onConfirmar: () => this.comenzarJuego(tarea.id)
-      });
-      return;
-    }
+    // Usar el modal estático si existe en el DOM
+    const modalEstatico = document.getElementById('modal-instrucciones-tarea');
     
+    if (modalEstatico) {
+      // Llenar contenido dinámico
+      document.getElementById('modal-instrucciones-titulo').textContent = tarea.titulo;
+      document.getElementById('modal-instrucciones-icono').textContent = 
+        tarea.icono || this.getIconoCategoria(this.estado.categoriaActual);
+      document.getElementById('modal-instrucciones-texto').textContent = 
+        tarea.instruccionesDetalladas || tarea.descripcion;
+      document.getElementById('modal-instrucciones-recompensa').textContent = 
+        `${tarea.recompensa} estrellas`;
+      
+      // Configurar botón de hint si existe
+      const btnHint = document.getElementById('modal-instrucciones-hint');
+      if (tarea.hint && btnHint) {
+        btnHint.style.display = 'block';
+        btnHint.onclick = () => {
+          this.mostrarHint(tarea.id);
+        };
+      } else if (btnHint) {
+        btnHint.style.display = 'none';
+      }
+      
+      // Configurar botón de comenzar
+      const btnComenzar = document.getElementById('modal-instrucciones-comenzar');
+      if (btnComenzar) {
+        btnComenzar.onclick = () => {
+          components.modal.cerrar('modal-instrucciones-tarea');
+          this.comenzarJuego(tarea.id);
+        };
+      }
+      // Abrir modal
+      components.modal.abrir('modal-instrucciones-tarea');
+      
+      // Enfocar botón para accesibilidad
+      setTimeout(() => btnComenzar?.focus(), 100);
+      
+      return;
+    }    
     // Fallback: crear modal dinámico
     const modal = document.createElement('div');
     modal.className = 'modal active';
