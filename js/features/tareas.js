@@ -994,7 +994,6 @@ window.features.tareas = {
     
     console.log('🎮 Juego iniciado:', tarea.titulo);
     
-    // Resetear estado de juego
     this.estado.tareaActiva = tarea;
     this.estado.intentos = 0;
     this.estado.hintsUsados = 0;
@@ -1004,19 +1003,46 @@ window.features.tareas = {
     // Ejecutar lógica específica por categoría
     switch (this.estado.categoriaActual) {
       case 'conteo':
-        this.iniciarJuegoConteo(tarea); // ← IMPLEMENTACIÓN REAL
+        this.iniciarJuegoConteo(tarea);
         break;
       
-      // Para las demás categorías, mantener simulación por ahora
+      case 'abecedario':
+        if (tarea.silabaObjetivo || tarea.letraFaltante) {
+          this.iniciarJuegoSilabas(tarea);
+        } else {
+          this.iniciarJuegoLetras(tarea);
+        }
+        break;
+      
+      case 'sumas':
+        this.iniciarJuegoSumas(tarea);
+        break;
+      
+      case 'lectura':
+        if (tarea.imagen) {
+          this.iniciarJuegoLecturaImagen(tarea);
+        } else if (tarea.letraFaltante) {
+          this.iniciarJuegoCompletarPalabra(tarea);
+        } else {
+          this.iniciarJuegoLeerPalabra(tarea);
+        }
+        break;
+      
+      // Para las demás categorías: mostrar "Próximamente"
       case 'trazo':
       case 'colorear':
       case 'patrones':
       case 'memoria':
       default:
-        console.log(`🎮 ${this.estado.categoriaActual}: simulación (próximamente)`);
-        window.app?.mostrarToast('🚧 Actividad en desarrollo', 'info');
-        this.simularCompletado(tarea);
+        this.mostrarProximamente(tarea, this.getIconoCategoria(this.estado.categoriaActual), this.estado.categoriaActual);
     }
+    
+    this.registrarEvento('juego_comenzado', { 
+      tareaId, 
+      categoria: this.estado.categoriaActual,
+      timestamp: Date.now()
+    });
+  },
     
     // Analytics
     this.registrarEvento('juego_comenzado', { 
