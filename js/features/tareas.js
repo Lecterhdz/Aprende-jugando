@@ -136,7 +136,7 @@ window.features.tareas = {
       mejorPuntuacion: 0
     },
     {
-      id: 'c3',
+      id: 'c4',
       titulo: 'Contar Animales 🐾',
       descripcion: '¿Cuántos animalitos hay en la granja?',
       dificultad: 2,
@@ -430,8 +430,8 @@ window.features.tareas = {
         hint: 'Mira: rojo, azul, rojo, azul... ¿qué toca?',
         audioExito: 'audio/exito-logica.mp3'
       },
-      { id: 'p1', titulo: 'Completa: 🔴🔴🔵🔵___', descripcion: '¿Qué sigue?', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica', 'reconocimiento-patrones'], secuencia: ['🔴', '🔵', '🔴', '🔵'], opciones: ['🔴', '🔵', '🟡', '🟢'], respuestaCorrecta: '🔴', hint: 'Mira: rojo, azul, rojo, azul... ¿qué toca?', completada: false, mejorPuntuacion: 0 },
-      { id: 'p2', titulo: 'Completa: 🟢🟡🟡🟢___', descripcion: 'Sigue el patrón', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica'], secuencia: ['🟡', '🟢', '🟡', '🟢'], opciones: ['🟡', '🟢', '🔴', '🔵'], respuestaCorrecta: '🟡', hint: 'Amarillo, verde, amarillo, verde...', completada: false, mejorPuntuacion: 0 }
+      { id: 'p2', titulo: 'Completa: 🔴🔴🔵🔵___', descripcion: '¿Qué sigue?', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica', 'reconocimiento-patrones'], secuencia: ['🔴', '🔵', '🔴', '🔵'], opciones: ['🔴', '🔵', '🟡', '🟢'], respuestaCorrecta: '🔴', hint: 'Mira: rojo, azul, rojo, azul... ¿qué toca?', completada: false, mejorPuntuacion: 0 },
+      { id: 'p3', titulo: 'Completa: 🟢🟡🟡🟢___', descripcion: 'Sigue el patrón', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica'], secuencia: ['🟡', '🟢', '🟡', '🟢'], opciones: ['🟡', '🟢', '🔴', '🔵'], respuestaCorrecta: '🟡', hint: 'Amarillo, verde, amarillo, verde...', completada: false, mejorPuntuacion: 0 }
     ],
     
     memoria: [
@@ -1043,15 +1043,7 @@ window.features.tareas = {
       timestamp: Date.now()
     });
   },
-    
-    // Analytics
-    this.registrarEvento('juego_comenzado', { 
-      tareaId, 
-      categoria: this.estado.categoriaActual,
-      timestamp: Date.now()
-    });
-  },
-  
+
   // ─────────────────────────────────────────────────────────────
   // SIMULAR COMPLETADO (FALLBACK)
   // ─────────────────────────────────────────────────────────────
