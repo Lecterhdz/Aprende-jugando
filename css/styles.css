@@ -367,3 +367,38 @@ body {
     min-height: 48px !important;
   }
 }
+/* Estilos para botones de juegos educativos */
+.opcion-letra-btn,
+.opcion-silaba-btn,
+.opcion-suma-btn,
+.opcion-lectura-btn {
+  font-family: var(--font) !important;
+  -webkit-appearance: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.opcion-letra-btn:hover,
+.opcion-silaba-btn:hover,
+.opcion-suma-btn:hover,
+.opcion-lectura-btn:hover {
+  border-color: var(--primary) !important;
+  transform: scale(1.05) !important;
+}
+
+.opcion-letra-btn.correcta,
+.opcion-silaba-btn.correcta,
+.opcion-suma-btn.correcta,
+.opcion-lectura-btn.correcta {
+  background: var(--success) !important;
+  border-color: var(--success-dark) !important;
+  color: white !important;
+}
+
+.opcion-letra-btn.incorrecta,
+.opcion-silaba-btn.incorrecta,
+.opcion-suma-btn.incorrecta,
+.opcion-lectura-btn.incorrecta {
+  background: var(--warning) !important;
+  border-color: var(--warning-dark) !important;
+  color: white !important;
+}
