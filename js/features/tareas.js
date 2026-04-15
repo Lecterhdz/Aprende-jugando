@@ -119,9 +119,285 @@ window.features.tareas = {
         ilustracion: '🐱🐱 + 🐱🐱 = ?',
         hint: 'Junta todos los gatitos y cuéntalos',
         audioExito: 'audio/exito-matematicas.mp3'
+      },
+     {
+      id: 'c3',
+      titulo: 'Contar Estrellas ⭐',
+      descripcion: 'Cuenta las estrellas brillantes en el cielo',
+      dificultad: 1,
+      recompensa: 2,
+      tiempoEstimado: 35,
+      habilidades: ['conteo', 'atencion'],
+      elementos: ['⭐', '⭐', '⭐', '⭐','⭐'],
+      respuestaCorrecta: 5,
+      opciones: [3, 4, 5, 6],
+      hint: 'Señala cada estrella mientras cuentas',
+      completada: false,
+      mejorPuntuacion: 0
+    },
+    {
+      id: 'c3',
+      titulo: 'Contar Animales 🐾',
+      descripcion: '¿Cuántos animalitos hay en la granja?',
+      dificultad: 2,
+      recompensa: 3,
+      tiempoEstimado: 45,
+      habilidades: ['conteo', 'clasificacion'],
+      elementos: ['🐶', '🐱', '🐰', '🐸', '🐼'],
+      respuestaCorrecta: 5,
+      opciones: [4, 5, 6, 7],
+      hint: 'Cuenta de uno en uno sin saltarte ninguno',
+      completada: false,
+      mejorPuntuacion: 0
+    }
+    ],
+    // ✅ NUEVA: ABECEDARIO (Letras y Sílabas)
+    abecedario: [
+      {
+        id: 'a1',
+        titulo: '¿Qué letra es? A',
+        descripcion: 'Toca la letra A mayúscula',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 30,
+        habilidades: ['reconocimiento-letras', 'lectura'],
+        letraObjetivo: 'A',
+        opciones: ['A', 'B', 'D', 'O'],
+        hint: 'La A tiene forma de triángulo',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'a2',
+        titulo: '¿Qué letra es? M',
+        descripcion: 'Encuentra la letra M entre las opciones',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 30,
+        habilidades: ['reconocimiento-letras'],
+        letraObjetivo: 'M',
+        opciones: ['W', 'M', 'N', 'H'],
+        hint: 'La M tiene dos picos hacia abajo',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'a3',
+        titulo: 'Sílabas: MA',
+        descripcion: 'Toca la sílaba MA',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 40,
+        habilidades: ['silabas', 'lectura-inicial'],
+        silabaObjetivo: 'MA',
+        opciones: ['MA', 'ME', 'MI', 'MO'],
+        hint: 'Suena como "ma-má"',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'a4',
+        titulo: 'Sílabas: PA',
+        descripcion: 'Encuentra la sílaba PA',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 40,
+        habilidades: ['silabas', 'lectura-inicial'],
+        silabaObjetivo: 'PA',
+        opciones: ['BA', 'PA', 'TA', 'SA'],
+        hint: 'Suena como "pa-pá"',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'a5',
+        titulo: 'Completa: _ASA',
+        descripcion: '¿Qué letra falta para formar CASA?',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 45,
+        habilidades: ['lectura', 'completar-palabras'],
+        palabra: 'CASA',
+        letraFaltante: 'C',
+        opciones: ['C', 'B', 'D', 'G'],
+        hint: 'Casa empieza con C',
+        completada: false,
+        mejorPuntuacion: 0
       }
     ],
-    
+     // ✅ NUEVA: SUMAS (Kinder 3)
+    sumas: [
+      {
+        id: 's1',
+        titulo: 'Suma: 1 + 1',
+        descripcion: '¿Cuánto es 1 más 1?',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 30,
+        habilidades: ['suma-basica', 'matematicas'],
+        operacion: { a: 1, b: 1, simbolo: '+' },
+        respuestaCorrecta: 2,
+        opciones: [1, 2, 3, 4],
+        ilustracion: '🍎 + 🍎 = ?',
+        hint: 'Junta las manzanas y cuéntalas',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 's2',
+        titulo: 'Suma: 2 + 1',
+        descripcion: '¿Cuánto es 2 más 1?',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 35,
+        habilidades: ['suma-basica'],
+        operacion: { a: 2, b: 1, simbolo: '+' },
+        respuestaCorrecta: 3,
+        opciones: [2, 3, 4, 5],
+        ilustracion: '⭐⭐ + ⭐ = ?',
+        hint: 'Dos más uno es... cuenta con los dedos',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 's3',
+        titulo: 'Suma: 2 + 2',
+        descripcion: '¿Cuánto es 2 más 2?',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 40,
+        habilidades: ['suma-basica', 'doble'],
+        operacion: { a: 2, b: 2, simbolo: '+' },
+        respuestaCorrecta: 4,
+        opciones: [3, 4, 5, 6],
+        ilustracion: '🐱🐱 + 🐱🐱 = ?',
+        hint: 'Dos y dos son... cuatro patas tiene un perro',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 's4',
+        titulo: 'Suma: 3 + 2',
+        descripcion: '¿Cuánto es 3 más 2?',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 45,
+        habilidades: ['suma-basica'],
+        operacion: { a: 3, b: 2, simbolo: '+' },
+        respuestaCorrecta: 5,
+        opciones: [4, 5, 6, 7],
+        ilustracion: '🍬🍬🍬 + 🍬🍬 = ?',
+        hint: 'Tres dulces más dos dulces...',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 's5',
+        titulo: 'Suma: 4 + 1',
+        descripcion: '¿Cuánto es 4 más 1?',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 40,
+        habilidades: ['suma-basica', 'contar-adelante'],
+        operacion: { a: 4, b: 1, simbolo: '+' },
+        respuestaCorrecta: 5,
+        opciones: [4, 5, 6, 3],
+        ilustracion: '🖐️ (4 dedos) + ☝️ = ?',
+        hint: 'Al cuatro le sumamos uno más',
+        completada: false,
+        mejorPuntuacion: 0
+      }
+    ],
+  
+    // ✅ NUEVA: LECTURA (Palabras y Comprensión)
+    lectura: [
+      {
+        id: 'l1',
+        titulo: 'Leer: MAMÁ',
+        descripcion: 'Toca la palabra MAMÁ',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 40,
+        habilidades: ['lectura', 'reconocimiento-palabras'],
+        palabraObjetivo: 'MAMÁ',
+        opciones: ['MAMÁ', 'PAPÁ', 'BEBÉ', 'CASA'],
+        hint: 'Empieza con M-A-M-A',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'l2',
+        titulo: 'Leer: PAPÁ',
+        descripcion: 'Encuentra la palabra PAPÁ',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 40,
+        habilidades: ['lectura'],
+        palabraObjetivo: 'PAPÁ',
+        opciones: ['MAMÁ', 'PAPÁ', 'OSO', 'SOL'],
+        hint: 'Empieza con P-A-P-A',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'l3',
+        titulo: 'Leer: SOL',
+        descripcion: 'Toca la palabra SOL',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 35,
+        habilidades: ['lectura', 'palabras-cortas'],
+        palabraObjetivo: 'SOL',
+        opciones: ['SOL', 'SAL', 'SOM', 'SON'],
+        hint: 'Brilla en el cielo de día',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'l4',
+        titulo: 'Leer: LUNA',
+        descripcion: 'Encuentra la palabra LUNA',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 40,
+        habilidades: ['lectura'],
+        palabraObjetivo: 'LUNA',
+        opciones: ['LUNA', 'LANA', 'LOMA', 'LIGA'],
+        hint: 'Brilla en el cielo de noche',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'l5',
+        titulo: '¿Qué dice? 🍎',
+        descripcion: 'Toca la palabra correcta para la imagen',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 45,
+        habilidades: ['lectura', 'asociacion-imagen-palabra'],
+        imagen: '🍎',
+        palabraObjetivo: 'MANZANA',
+        opciones: ['MANZANA', 'NARANJA', 'PERA', 'UVA'],
+        hint: 'Es roja y dulce',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      {
+        id: 'l6',
+        titulo: 'Completa: C_SA',
+        descripcion: '¿Qué letra falta para formar CASA?',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 45,
+        habilidades: ['lectura', 'completar-palabras'],
+        palabra: 'CASA',
+        letraFaltante: 'A',
+        opciones: ['A', 'E', 'I', 'O'],
+        hint: 'Ca-sa, la letra del medio es A',
+        completada: false,
+        mejorPuntuacion: 0
+      }
+    ],   
     colorear: [
       {
         id: 'col1',
@@ -153,7 +429,9 @@ window.features.tareas = {
         respuestaCorrecta: '🔴',
         hint: 'Mira: rojo, azul, rojo, azul... ¿qué toca?',
         audioExito: 'audio/exito-logica.mp3'
-      }
+      },
+      { id: 'p1', titulo: 'Completa: 🔴🔴🔵🔵___', descripcion: '¿Qué sigue?', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica', 'reconocimiento-patrones'], secuencia: ['🔴', '🔵', '🔴', '🔵'], opciones: ['🔴', '🔵', '🟡', '🟢'], respuestaCorrecta: '🔴', hint: 'Mira: rojo, azul, rojo, azul... ¿qué toca?', completada: false, mejorPuntuacion: 0 },
+      { id: 'p2', titulo: 'Completa: 🟢🟡🟡🟢___', descripcion: 'Sigue el patrón', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica'], secuencia: ['🟡', '🟢', '🟡', '🟢'], opciones: ['🟡', '🟢', '🔴', '🔵'], respuestaCorrecta: '🟡', hint: 'Amarillo, verde, amarillo, verde...', completada: false, mejorPuntuacion: 0 }
     ],
     
     memoria: [
@@ -1089,7 +1367,10 @@ window.features.tareas = {
       conteo: '🔢',
       colorear: '🎨',
       patrones: '🧩',
-      memoria: '🧠'
+      memoria: '🧠',
+      abecedario: '🔤',
+      sumas: '➕',
+      lectura: '📖'
     };
     return iconos[cat] || '⭐';
   },
@@ -1100,7 +1381,10 @@ window.features.tareas = {
       conteo: 'Conteo',
       colorear: 'Colorear',
       patrones: 'Patrones',
-      memoria: 'Memoria'
+      memoria: 'Memoria',
+      abecedario: 'Abecedario',
+      sumas: 'Sumas',
+      lectura: 'Lectura'
     };
     return nombres[cat] || cat;
   },
