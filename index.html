@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#FF6B9D" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1A1A2E" media="(prefers-color-scheme: dark)">
-  <meta name="description" content="Actividades educativas interactivas para preescolar: Kinder 1, 2 y 3. Aprende jugando con tareas, proyectos, abecedario, sumas y lectura.">
-  <meta name="keywords" content="preescolar, kinder, actividades educativas, niños, aprendizaje, juegos educativos, abecedario, sumas, lectura">
+  <meta name="description" content="Actividades educativas interactivas para preescolar: Kinder 1, 2 y 3. Aprende jugando con tareas, proyectos y repaso.">
+  <meta name="keywords" content="preescolar, kinder, actividades educativas, niños, aprendizaje, juegos educativos">
   <meta name="author" content="Aprende-jugando">
   <meta name="robots" content="index, follow">
   
@@ -15,7 +15,6 @@
   <meta property="og:title" content="Aprende-jugando 🎨">
   <meta property="og:description" content="Actividades educativas para preescolar">
   <meta property="og:image" content="assets/icons/icon-512.png">
-  <meta property="og:url" content="https://lecterhdz.github.io/Aprende-jugando/">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
@@ -27,13 +26,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Aprende-jugando">
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-  <meta name="mobile-web-app-capable" content="yes">
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/icon-512.png">
   
-  <!-- Fuentes optimizadas (carga no bloqueante) -->
+  <!-- Fuentes optimizadas -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -42,12 +40,13 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
   
-  <!-- Critical CSS Inline (evita FOUC - MANTIENE TU ESTILO) -->
+  <!-- Estilos críticos inline para evitar FOUC -->
   <style>
+    /* Critical CSS para carga inicial */
     body.app-loading { opacity: 0; transition: opacity 0.3s ease; }
     body:not(.app-loading) { opacity: 1; }
     .screen { display: none; }
-    .screen.active { display: block; animation: fadeIn 0.3s ease; }
+    .screen.active { display: block; }
     .modal { display: none !important; }
     .modal.active { display: flex !important; }
     @media (max-width: 768px) {
@@ -60,14 +59,10 @@
       .hamburger-btn, .hamburger, .btn-hamburger, .bottom-nav { display: none !important; }
       .sidebar { display: flex !important; }
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .skip-link:focus { position: fixed; left: 20px; top: 20px; padding: 12px 20px; background: var(--primary); color: white; border-radius: 8px; z-index: 10000; text-decoration: none; font-weight: 600; }
-    :focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
-    /* Tu contenido original se mantiene - solo agregamos mejoras */
   </style>
   
-  <!-- Estilos principales (con cache-busting) -->
-  <link rel="stylesheet" href="css/styles.css?v=3.0.0">
+  <!-- Estilos principales -->
+  <link rel="stylesheet" href="css/styles.css">
   
   <!-- Structured Data para SEO -->
   <script type="application/ld+json">
@@ -78,8 +73,16 @@
     "description": "Actividades educativas interactivas para niños de preescolar",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Any",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "MXN" },
-    "audience": { "@type": "EducationalAudience", "educationalRole": "student", "audienceType": "Preescolar" },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "MXN"
+    },
+    "audience": {
+      "@type": "EducationalAudience",
+      "educationalRole": "student",
+      "audienceType": "Preescolar"
+    },
     "learningResourceType": ["Activity", "Game", "Tutorial"],
     "inLanguage": "es-MX",
     "contentRating": "G",
@@ -87,7 +90,7 @@
   }
   </script>
   
-  <!-- Namespaces globales (ANTES de cargar módulos) -->
+  <!-- ✅ Namespaces globales ANTES de cargar módulos -->
   <script>
     window.features = window.features || {
       dashboard: {}, repaso: {}, proyectos: {}, tareas: {}, 
@@ -96,17 +99,19 @@
     window.components = window.components || {
       modal: {}, sidebar: {}, cardActividad: {}, starReward: {}
     };
-    console.log('📦 Namespaces inicializados v3.0');
+    console.log('📦 Namespaces inicializados');
   </script>
   
-  <!-- Content Security Policy (ajustado para eliminar warnings de Firebase) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://www.gstatic.com;">
+  <!-- Content Security Policy (ajustar para producción) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com;">
 </head>
 
 <body class="app-loading" data-theme="claro">
 
-  <!-- Skip link para accesibilidad (nuevo, no quita nada) -->
-  <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+  <!-- Skip link para accesibilidad -->
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
+    Saltar al contenido principal
+  </a>
 
   <!-- ══════════════════════════════════════ PANTALLA DE AUTH / PLANES ══════════════════════════════════════ -->
   <section id="auth-screen" class="screen active" aria-label="Pantalla de autenticación">
@@ -115,37 +120,37 @@
       <p class="auth-subtitle">Actividades educativas para preescolar ✨</p>
       
       <div class="plan-cards" role="radiogroup" aria-label="Selecciona tu plan">
-        <button class="plan-card demo" role="radio" aria-checked="false" onclick="app.iniciarDemo()" aria-label="Plan Demo, 7 días gratis" style="min-height:48px;">
+        <button class="plan-card demo" role="radio" aria-checked="false" onclick="app.iniciarDemo()" aria-label="Plan Demo, 7 días gratis">
           <span class="plan-icon" aria-hidden="true">🆓</span>
           <span class="plan-name">Demo</span>
           <span class="plan-duration">7 días</span>
         </button>
-        <button class="plan-card basico" role="radio" aria-checked="false" onclick="app.mostrarPlanes()" aria-label="Plan Básico, 49 pesos por 3 meses" style="min-height:48px;">
+        <button class="plan-card basico" role="radio" aria-checked="false" onclick="app.mostrarPlanes()" aria-label="Plan Básico, 49 pesos por 3 meses">
           <span class="plan-icon" aria-hidden="true">🌟</span>
           <span class="plan-name">Básico</span>
           <span class="plan-duration">3 meses</span>
         </button>
-        <button class="plan-card pro active" role="radio" aria-checked="true" onclick="app.mostrarPlanes()" aria-label="Plan Pro, 399 pesos por año, recomendado" style="min-height:48px;">
+        <button class="plan-card pro active" role="radio" aria-checked="true" onclick="app.mostrarPlanes()" aria-label="Plan Pro, 399 pesos por año, recomendado">
           <span class="plan-icon" aria-hidden="true">🚀</span>
           <span class="plan-name">Pro</span>
           <span class="plan-duration">1 año</span>
         </button>
-        <button class="plan-card elite" role="radio" aria-checked="false" onclick="app.mostrarPlanes()" aria-label="Plan Elite, 699 pesos por año" style="min-height:48px;">
+        <button class="plan-card elite" role="radio" aria-checked="false" onclick="app.mostrarPlanes()" aria-label="Plan Elite, 699 pesos por año">
           <span class="plan-icon" aria-hidden="true">👑</span>
           <span class="plan-name">Elite</span>
           <span class="plan-duration">1 año +</span>
         </button>
       </div>
       
-      <!-- Login Admin -->
+      <!-- Login Admin (oculto por defecto) -->
       <div id="admin-login-section" style="display:none;margin-top:24px;padding-top:24px;border-top:1px solid var(--border);" role="region" aria-label="Acceso para administradores">
         <div class="form-group">
           <label for="admin-email" class="f-label">Email</label>
-          <input type="email" id="admin-email" class="f-input" placeholder="admin@aprende-jugando.com" autocomplete="email" aria-required="true" style="min-height:48px;">
+          <input type="email" id="admin-email" class="f-input" placeholder="admin@aprende-jugando.com" autocomplete="email" aria-required="true">
         </div>
         <div class="form-group" style="margin-top:12px;">
           <label for="admin-password" class="f-label">Contraseña</label>
-          <input type="password" id="admin-password" class="f-input" placeholder="••••••••" autocomplete="current-password" aria-required="true" style="min-height:48px;">
+          <input type="password" id="admin-password" class="f-input" placeholder="••••••••" autocomplete="current-password" aria-required="true">
         </div>
         <button onclick="app.verificarAdmin()" class="topbar-btn primary btn-full" style="margin-top:16px;min-height:48px;" aria-label="Iniciar sesión como administrador">
           🔑 Iniciar Sesión Admin
@@ -155,7 +160,7 @@
         </button>
       </div>
       
-      <button class="btn-toggle-theme" onclick="theme.toggle()" style="margin-top:16px;min-height:48px;" aria-label="Cambiar tema claro/oscuro">🌓 Cambiar Tema</button>
+      <button class="btn-toggle-theme" onclick="theme.toggle()" style="margin-top:16px;" aria-label="Cambiar tema claro/oscuro">🌓 Cambiar Tema</button>
       
       <p style="margin-top:24px;font-size:12px;color:var(--ink4);">
         ¿Eres administrador? 
@@ -171,32 +176,32 @@
     <aside class="sidebar" id="sidebar" aria-label="Menú de navegación principal">
       <div class="sidebar-header">
         <div class="logo" aria-label="Aprende-jugando">🎨 Aprende-jugando</div>
-        <button class="btn-close-sidebar" onclick="app.toggleSidebar()" aria-label="Cerrar menú lateral" style="min-width:44px;min-height:44px;">✕</button>
+        <button class="btn-close-sidebar" onclick="app.toggleSidebar()" aria-label="Cerrar menú lateral">✕</button>
       </div>
       
       <nav class="nav-menu" role="navigation" aria-label="Navegación principal">
-        <button class="nav-item active" data-screen="dashboard" onclick="app.mostrarPantalla('dashboard-screen')" aria-current="page" style="min-height:48px;">
+        <button class="nav-item active" data-screen="dashboard" onclick="app.mostrarPantalla('dashboard-screen')" aria-current="page">
           <span class="nav-icon" aria-hidden="true">🏠</span> Inicio
         </button>
-        <button class="nav-item" data-screen="repaso" onclick="app.mostrarPantalla('repaso-screen')" style="min-height:48px;">
+        <button class="nav-item" data-screen="repaso" onclick="app.mostrarPantalla('repaso-screen')">
           <span class="nav-icon" aria-hidden="true">🔄</span> Repaso
         </button>
-        <button class="nav-item" data-screen="proyectos" onclick="app.mostrarPantalla('proyectos-screen')" style="min-height:48px;">
+        <button class="nav-item" data-screen="proyectos" onclick="app.mostrarPantalla('proyectos-screen')">
           <span class="nav-icon" aria-hidden="true">🛠️</span> Proyectos
         </button>
-        <button class="nav-item" data-screen="tareas" onclick="app.mostrarPantalla('tareas-screen')" style="min-height:48px;">
+        <button class="nav-item" data-screen="tareas" onclick="app.mostrarPantalla('tareas-screen')">
           <span class="nav-icon" aria-hidden="true">✏️</span> Tareas
         </button>
-        <button class="nav-item" data-screen="sabias-que" onclick="app.mostrarPantalla('sabias-que-screen')" style="min-height:48px;">
+        <button class="nav-item" data-screen="sabias-que" onclick="app.mostrarPantalla('sabias-que-screen')">
           <span class="nav-icon" aria-hidden="true">💡</span> Sabías Que
         </button>
-        <button class="nav-item" data-screen="progreso" onclick="app.mostrarPantalla('progreso-screen')" style="min-height:48px;">
+        <button class="nav-item" data-screen="progreso" onclick="app.mostrarPantalla('progreso-screen')">
           <span class="nav-icon" aria-hidden="true">⭐</span> Mi Progreso
         </button>
-        <button class="nav-item padres-only" data-screen="padres" onclick="app.mostrarPantalla('padres-screen')" style="min-height:48px;">
+        <button class="nav-item padres-only" data-screen="padres" onclick="app.mostrarPantalla('padres-screen')">
           <span class="nav-icon" aria-hidden="true">👨‍👩‍👧</span> Para Papás
         </button>
-        <button class="nav-item" data-screen="licencia" onclick="app.mostrarPantalla('licencia-screen')" style="min-height:48px;">
+        <button class="nav-item" data-screen="licencia" onclick="app.mostrarPantalla('licencia-screen')">
           <span class="nav-icon" aria-hidden="true">💳</span> Planes
         </button>        
       </nav>
@@ -206,7 +211,7 @@
           <span class="user-avatar" aria-hidden="true">🧒</span>
           <span class="user-name" id="user-name">Pequeño Explorador</span>
         </div>
-        <button class="btn-logout" onclick="app.cerrarSesion()" aria-label="Cerrar sesión" style="min-height:48px;">🚪 Salir</button>
+        <button class="btn-logout" onclick="app.cerrarSesion()" aria-label="Cerrar sesión">🚪 Salir</button>
       </div>
     </aside>
 
@@ -215,14 +220,15 @@
       
       <!-- ══════════════════════════════════════ TOPBAR ══════════════════════════════════════ -->
       <header class="topbar" role="banner" aria-label="Barra superior de navegación">
-        <button class="hamburger-btn" id="hamburger-btn" onclick="app.toggleSidebar()" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="sidebar" style="min-width:44px;min-height:44px;">☰</button>
+        <!-- Hamburguesa visible en móvil -->
+        <button class="hamburger-btn" id="hamburger-btn" onclick="app.toggleSidebar()" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="sidebar">☰</button>
         <div>
           <h1 class="topbar-title" id="page-title" aria-live="polite">Dashboard</h1>
           <p class="topbar-sub" id="page-subtitle" aria-live="polite">¡Bienvenido!</p>
         </div>
         <div class="topbar-actions" role="toolbar" aria-label="Acciones rápidas">
-          <button class="btn-theme" onclick="theme.toggle()" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema" style="min-width:44px;min-height:44px;">🌓</button>
-          <button class="btn-profile" onclick="app.mostrarPantalla('progreso-screen')" title="Ver mi progreso" aria-label="Ver progreso, 0 estrellas" style="min-width:44px;min-height:44px;">
+          <button class="btn-theme" onclick="theme.toggle()" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema">🌓</button>
+          <button class="btn-profile" onclick="app.mostrarPantalla('progreso-screen')" title="Ver mi progreso" aria-label="Ver progreso, 0 estrellas">
             ⭐ <span id="stars-count" aria-live="polite">0</span>
           </button>
         </div>
@@ -233,25 +239,25 @@
         
         <!-- ══════════════════════════════════════ DASHBOARD SCREEN ══════════════════════════════════════ -->
         <section id="dashboard-screen" class="screen active" aria-labelledby="dashboard-title">
-          <div class="welcome-banner">
-            <h2 id="dashboard-title">¡Hola, <span id="welcome-name">Explorador</span>! 👋</h2>
-            <p>¿Qué quieres aprender hoy?</p>
-          </div>
+          <h2 id="dashboard-title" class="welcome-banner">
+            ¡Hola, <span id="welcome-name">Explorador</span>! 👋
+            <p style="font-size:16px;font-weight:400;margin-top:8px;">¿Qué quieres aprender hoy?</p>
+          </h2>
           
           <div class="quick-actions" role="navigation" aria-label="Acciones rápidas">
-            <button class="action-card" onclick="app.mostrarPantalla('tareas-screen')" aria-label="Ir a tareas de hoy" style="min-height:120px;">
+            <button class="action-card" onclick="app.mostrarPantalla('tareas-screen')" aria-label="Ir a tareas de hoy">
               <span class="action-icon" aria-hidden="true">✏️</span>
               <span class="action-label">Tareas de Hoy</span>
             </button>
-            <button class="action-card" onclick="app.mostrarPantalla('proyectos-screen')" aria-label="Crear nuevo proyecto" style="min-height:120px;">
+            <button class="action-card" onclick="app.mostrarPantalla('proyectos-screen')" aria-label="Crear nuevo proyecto">
               <span class="action-icon" aria-hidden="true">🛠️</span>
               <span class="action-label">Nuevo Proyecto</span>
             </button>
-            <button class="action-card" onclick="app.mostrarPantalla('repaso-screen')" aria-label="Ir a material de repaso" style="min-height:120px;">
+            <button class="action-card" onclick="app.mostrarPantalla('repaso-screen')" aria-label="Ir a material de repaso">
               <span class="action-icon" aria-hidden="true">🔄</span>
               <span class="action-label">Repasar</span>
             </button>
-            <button class="action-card" onclick="app.mostrarPantalla('sabias-que-screen')" aria-label="Ver datos curiosos" style="min-height:120px;">
+            <button class="action-card" onclick="app.mostrarPantalla('sabias-que-screen')" aria-label="Ver datos curiosos">
               <span class="action-icon" aria-hidden="true">💡</span>
               <span class="action-label">Curiosidades</span>
             </button>
@@ -271,19 +277,24 @@
           <p style="margin-bottom:20px;color:var(--ink3);">Practica lo aprendido</p>
           
           <div class="grado-selector" role="tablist" aria-label="Seleccionar grado escolar" style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-            <button class="grado-btn active" role="tab" aria-selected="true" onclick="features.repaso.filtrarPorGrado('kinder1')" style="min-height:48px;min-width:100px;">Kinder 1</button>
-            <button class="grado-btn" role="tab" aria-selected="false" onclick="features.repaso.filtrarPorGrado('kinder2')" style="min-height:48px;min-width:100px;">Kinder 2</button>
-            <button class="grado-btn" role="tab" aria-selected="false" onclick="features.repaso.filtrarPorGrado('kinder3')" style="min-height:48px;min-width:100px;">Kinder 3</button>
+            <button class="grado-btn active" role="tab" aria-selected="true" onclick="features.repaso.filtrarPorGrado('kinder1')">Kinder 1</button>
+            <button class="grado-btn" role="tab" aria-selected="false" onclick="features.repaso.filtrarPorGrado('kinder2')">Kinder 2</button>
+            <button class="grado-btn" role="tab" aria-selected="false" onclick="features.repaso.filtrarPorGrado('kinder3')">Kinder 3</button>
           </div>
           
-          <div id="repaso-content" class="actividades-grid" role="region" aria-live="polite"></div>
+          <div id="repaso-content" class="actividades-grid" role="region" aria-live="polite">
+            <!-- Se carga dinámicamente -->
+          </div>
         </section>
 
         <!-- ══════════════════════════════════════ PROYECTOS SCREEN ══════════════════════════════════════ -->
         <section id="proyectos-screen" class="screen" aria-labelledby="proyectos-title">
           <h2 id="proyectos-title" class="screen-header">🛠️ Proyectos</h2>
           <p style="margin-bottom:20px;color:var(--ink3);">Crea y aprende</p>
-          <div id="proyectos-content" class="proyectos-grid" role="region" aria-live="polite"></div>
+          
+          <div id="proyectos-content" class="proyectos-grid" role="region" aria-live="polite">
+            <!-- Se carga dinámicamente -->
+          </div>
         </section>
 
         <!-- ══════════════════════════════════════ TAREAS SCREEN ══════════════════════════════════════ -->
@@ -292,24 +303,29 @@
           <p style="margin-bottom:20px;color:var(--ink3);">Actividades divertidas</p>
           
           <div class="tareas-categorias" role="tablist" aria-label="Categorías de tareas" style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-            <button class="categoria-btn active" role="tab" aria-selected="true" data-categoria="trazo" style="min-height:48px;">🔤 Trazo</button>
-            <button class="categoria-btn" role="tab" aria-selected="false" data-categoria="conteo" style="min-height:48px;">🔢 Conteo</button>
-            <button class="categoria-btn" role="tab" aria-selected="false" data-categoria="abecedario" style="min-height:48px;">🔤 Abecedario</button>
-            <button class="categoria-btn" role="tab" aria-selected="false" data-categoria="sumas" style="min-height:48px;">➕ Sumas</button>
-            <button class="categoria-btn" role="tab" aria-selected="false" data-categoria="lectura" style="min-height:48px;">📖 Lectura</button>
-            <button class="categoria-btn" role="tab" aria-selected="false" data-categoria="colorear" style="min-height:48px;">🎨 Colorear</button>
-            <button class="categoria-btn" role="tab" aria-selected="false" data-categoria="patrones" style="min-height:48px;">🧩 Patrones</button>
-            <button class="categoria-btn" role="tab" aria-selected="false" data-categoria="memoria" style="min-height:48px;">🧠 Memoria</button>
+            <button class="categoria-btn active" role="tab" aria-selected="true" onclick="features.tareas.filtrarPorCategoria('trazo')">🔤 Trazo</button>
+            <button class="categoria-btn" role="tab" aria-selected="false" onclick="features.tareas.filtrarPorCategoria('conteo')">🔢 Conteo</button>
+            <button class="categoria-btn" data-categoria="abecedario">🔤 Abecedario</button>  <!-- ¿Está este? -->
+            <button class="categoria-btn" data-categoria="sumas">➕ Sumas</button>            <!-- ¿Está este? -->
+            <button class="categoria-btn" data-categoria="lectura">📖 Lectura</button>        <!-- ¿Está este? -->   
+            <button class="categoria-btn" role="tab" aria-selected="false" onclick="features.tareas.filtrarPorCategoria('colorear')">🎨 Colorear</button>
+            <button class="categoria-btn" role="tab" aria-selected="false" onclick="features.tareas.filtrarPorCategoria('patrones')">🧩 Patrones</button>
+            <button class="categoria-btn" role="tab" aria-selected="false" onclick="features.tareas.filtrarPorCategoria('memoria')">🧠 Memoria</button>
           </div>
           
-          <div id="tareas-content" class="tareas-grid" role="region" aria-live="polite"></div>
+          <div id="tareas-content" class="tareas-grid" role="region" aria-live="polite">
+            <!-- Se carga dinámicamente -->
+          </div>
         </section>
 
         <!-- ══════════════════════════════════════ SABÍAS QUE SCREEN ══════════════════════════════════════ -->
         <section id="sabias-que-screen" class="screen" aria-labelledby="sabias-que-title">
           <h2 id="sabias-que-title" class="screen-header">💡 Sabías Que</h2>
           <p style="margin-bottom:20px;color:var(--ink3);">Datos curiosos ilustrados</p>
-          <div id="sabias-que-content" class="curiosidades-grid" role="region" aria-live="polite"></div>
+          
+          <div id="sabias-que-content" class="curiosidades-grid" role="region" aria-live="polite">
+            <!-- Se carga dinámicamente -->
+          </div>
         </section>
 
         <!-- ══════════════════════════════════════ PROGRESO SCREEN ══════════════════════════════════════ -->
@@ -342,7 +358,9 @@
           
           <div class="logros-section">
             <h3>🏅 Logros Desbloqueados</h3>
-            <div id="logros-content" class="logros-grid" role="region" aria-live="polite"></div>
+            <div id="logros-content" class="logros-grid" role="region" aria-live="polite">
+              <!-- Se carga dinámicamente -->
+            </div>
           </div>
         </section>
 
@@ -357,8 +375,10 @@
                 <div class="card-title">📊 Reporte de Progreso</div>
               </div>
               <div class="card-body">
-                <p style="color:var(--ink3);font-size:14px;margin-bottom:16px;">Revisa el avance de tu pequeño y descarga un reporte semanal.</p>
-                <button class="topbar-btn primary" onclick="features.padres.generarReporte()" aria-label="Descargar reporte de progreso" style="min-height:48px;">📥 Descargar Reporte</button>
+                <p style="color:var(--ink3);font-size:14px;margin-bottom:16px;">
+                  Revisa el avance de tu pequeño y descarga un reporte semanal.
+                </p>
+                <button class="topbar-btn primary" onclick="features.padres.generarReporte()" aria-label="Descargar reporte de progreso">📥 Descargar Reporte</button>
               </div>
             </div>
             
@@ -369,17 +389,17 @@
               <div class="card-body">
                 <div class="form-group" style="margin-bottom:16px;">
                   <label for="padres-nombre-nino" class="f-label">Nombre del Niño/a</label>
-                  <input type="text" id="padres-nombre-nino" class="f-input" placeholder="Ej: Sofía" autocomplete="name" style="min-height:48px;">
+                  <input type="text" id="padres-nombre-nino" class="f-input" placeholder="Ej: Sofía" autocomplete="name">
                 </div>
                 <div class="form-group" style="margin-bottom:16px;">
                   <label for="padres-grado" class="f-label">Grado</label>
-                  <select id="padres-grado" class="f-input" style="min-height:48px;">
+                  <select id="padres-grado" class="f-input">
                     <option value="kinder1">Kinder 1 (3-4 años)</option>
                     <option value="kinder2">Kinder 2 (4-5 años)</option>
                     <option value="kinder3">Kinder 3 (5-6 años)</option>
                   </select>
                 </div>
-                <button class="topbar-btn primary" onclick="features.padres.guardarConfiguracion()" aria-label="Guardar configuración" style="min-height:48px;">💾 Guardar</button>
+                <button class="topbar-btn primary" onclick="features.padres.guardarConfiguracion()" aria-label="Guardar configuración">💾 Guardar</button>
               </div>
             </div>
             
@@ -391,7 +411,7 @@
                 <div id="plan-actual-info" style="margin-bottom:16px;" aria-live="polite">
                   <p style="font-size:14px;color:var(--ink3);">Cargando información del plan...</p>
                 </div>
-                <button class="topbar-btn ghost" onclick="app.mostrarPlanes()" aria-label="Ver planes disponibles" style="min-height:48px;">📋 Ver Planes Disponibles</button>
+                <button class="topbar-btn ghost" onclick="app.mostrarPlanes()" aria-label="Ver planes disponibles">📋 Ver Planes Disponibles</button>
               </div>
             </div>
           </div>
@@ -429,7 +449,7 @@
               <button class="topbar-btn primary" onclick="app.mostrarPlanes('basico')" style="width:100%;min-height:48px;" aria-label="Elegir plan Básico">🌟 Elegir Básico</button>
             </article>
             
-            <!-- PRO -->
+            <!-- PRO - Destacado -->
             <article class="plan-card active" aria-labelledby="plan-pro-title" style="background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));border:2px solid var(--primary);border-radius:var(--radius-lg);padding:24px;text-align:center;box-shadow:var(--shadow);">
               <div style="font-size:40px;margin-bottom:12px;" aria-hidden="true">🚀</div>
               <h3 id="plan-pro-title" style="color:var(--primary);font-size:20px;margin-bottom:8px;">Pro</h3>
@@ -473,24 +493,24 @@
   <!-- ══════════════════════════════════════ BOTTOM NAV (MÓVIL) ══════════════════════════════════════ -->
   <nav class="bottom-nav" id="bottom-nav" role="navigation" aria-label="Navegación inferior para móvil">
     <div class="bottom-nav-inner">
-      <button class="bn-item active" data-screen="dashboard" onclick="app.mostrarPantalla('dashboard-screen')" aria-label="Ir a inicio" aria-current="page" style="min-height:56px;">
+      <button class="bn-item active" data-screen="dashboard" onclick="app.mostrarPantalla('dashboard-screen')" aria-label="Ir a inicio" aria-current="page">
         <span class="bn-icon" aria-hidden="true">🏠</span>
         <span class="bn-label">Inicio</span>
       </button>
-      <button class="bn-item" data-screen="repaso" onclick="app.mostrarPantalla('repaso-screen')" aria-label="Ir a repaso" style="min-height:56px;">
+      <button class="bn-item" data-screen="repaso" onclick="app.mostrarPantalla('repaso-screen')" aria-label="Ir a repaso">
         <span class="bn-icon" aria-hidden="true">🔄</span>
         <span class="bn-label">Repaso</span>
       </button>
-      <button class="bn-item" data-screen="tareas" onclick="app.mostrarPantalla('tareas-screen')" aria-label="Ir a tareas" style="min-height:56px;position:relative;">
+      <button class="bn-item" data-screen="tareas" onclick="app.mostrarPantalla('tareas-screen')" aria-label="Ir a tareas" style="position:relative;">
         <span style="position:absolute;top:-14px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(255,107,157,.4);border:3px solid var(--bg);" aria-hidden="true">✏️</span>
         <span class="bn-icon" style="opacity:0;" aria-hidden="true">✏️</span>
         <span class="bn-label" style="margin-top:12px;">Tareas</span>
       </button>
-      <button class="bn-item" data-screen="progreso" onclick="app.mostrarPantalla('progreso-screen')" aria-label="Ver progreso" style="min-height:56px;">
+      <button class="bn-item" data-screen="progreso" onclick="app.mostrarPantalla('progreso-screen')" aria-label="Ver progreso">
         <span class="bn-icon" aria-hidden="true">⭐</span>
         <span class="bn-label">Progreso</span>
       </button>
-      <button class="bn-item" data-screen="padres" onclick="app.mostrarPantalla('padres-screen')" aria-label="Ir a configuración para padres" style="min-height:56px;">
+      <button class="bn-item" data-screen="padres" onclick="app.mostrarPantalla('padres-screen')" aria-label="Ir a configuración para padres">
         <span class="bn-icon" aria-hidden="true">👨‍👩‍👧</span>
         <span class="bn-label">Papás</span>
       </button>
@@ -500,21 +520,25 @@
   <!-- ══════════════════════════════════════ TOAST NOTIFICATION ══════════════════════════════════════ -->
   <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
-  <!-- ══════════════════════════════════════ MODALS (CORREGIDOS CON DIALOG + ARIA) ══════════════════════════════════════ -->
+  <!-- ══════════════════════════════════════ MODALS (OCULTOS POR DEFECTO) ══════════════════════════════════════ -->
+  <!-- Modal de Instrucciones de Proyecto -->
   <dialog id="modal-instructivo" class="modal" aria-labelledby="modal-instructivo-titulo" aria-modal="true">
     <div class="modal-content" role="document">
       <div class="modal-header">
         <div class="modal-title" id="modal-instructivo-titulo">🛠️ Proyecto</div>
-        <button class="modal-close" onclick="components.modal.cerrar('modal-instructivo')" aria-label="Cerrar modal" style="min-width:44px;min-height:44px;">✕</button>
+        <button class="modal-close" onclick="components.modal.cerrar('modal-instructivo')" aria-label="Cerrar modal">✕</button>
       </div>
-      <div class="modal-body" id="modal-instructivo-body"></div>
+      <div class="modal-body" id="modal-instructivo-body">
+        <!-- Contenido dinámico -->
+      </div>
       <div class="modal-footer">
-        <button onclick="components.modal.cerrar('modal-instructivo')" class="topbar-btn ghost" style="min-height:48px;">❌ Cerrar</button>
-        <button onclick="features.proyectos.marcarCompletado()" class="topbar-btn primary" style="min-height:48px;">✅ ¡Terminé!</button>
+        <button onclick="components.modal.cerrar('modal-instructivo')" class="topbar-btn ghost">❌ Cerrar</button>
+        <button onclick="features.proyectos.marcarCompletado()" class="topbar-btn primary">✅ ¡Terminé!</button>
       </div>
     </div>
   </dialog>
 
+  <!-- Modal de Logro Desbloqueado -->
   <dialog id="modal-logro" class="modal" aria-labelledby="modal-logro-titulo" aria-modal="true">
     <div class="modal-content" style="max-width:400px;text-align:center;" role="document">
       <div class="modal-body" style="padding:32px 24px;">
@@ -525,81 +549,223 @@
         <div style="font-size:32px;margin-top:16px;" aria-live="polite">⭐ +<span id="modal-logro-estrellas">10</span></div>
       </div>
       <div class="modal-footer" style="justify-content:center;">
-        <button onclick="components.modal.cerrar('modal-logro')" class="topbar-btn primary" style="min-width:150px;min-height:48px;">¡Genial! 🎉</button>
+        <button onclick="components.modal.cerrar('modal-logro')" class="topbar-btn primary" style="min-width:150px;">¡Genial! 🎉</button>
       </div>
     </div>
   </dialog>
 
-  <!-- ══════════════════════════════════════ SCRIPTS (CON CACHE-BUSTING) ══════════════════════════════════════ -->
-  <!-- Firebase (PRIMERO) -->
+  <!-- ══════════════════════════════════════ SCRIPTS ══════════════════════════════════════ -->
+  <!-- Firebase (DEBEN IR PRIMERO) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" defer></script>
   
   <!-- Configuración -->
-  <script src="js/config/firebase.js?v=3.0.0" defer></script>
+  <script src="js/config/firebase.js" defer></script>
   
-  <!-- Core (ORDEN CRÍTICO) -->
-  <script src="js/core/theme.js?v=3.0.0" defer></script>
-  <script src="js/core/auth.js?v=3.0.0" defer></script>
-  <script src="js/core/router.js?v=3.0.0" defer></script>
-  <script src="js/core/storage.js?v=3.0.0" defer></script>
-  <script src="js/core/app.js?v=3.0.0" defer></script>
+  <!-- Core (EN ORDEN CRÍTICO) -->
+  <script src="js/core/theme.js?v=2.0.1" defer></script>
+  <script src="js/core/auth.js?v=2.0.1" defer></script>
+  <script src="js/core/router.js?v=2.0.1" defer></script>
+  <script src="js/core/storage.js?v=2.0.1" defer></script>
+  <script src="js/core/app.js?v=2.0.1" defer></script>
   
-  <!-- Components -->
-  <script src="js/components/sidebar.js?v=3.0.0" defer></script>
-  <script src="js/components/modal.js?v=3.0.0" defer></script>
+  <!-- 4. Features (DESPUÉS de core, con defer) -->
+  <script src="js/features/repaso.js?v=2.0.1" defer></script>
+  <script src="js/features/proyectos.js?v=2.0.1" defer></script>
+  <script src="js/features/tareas.js?v=2.0.1" defer></script> <!-- ✅ ESTE ES EL IMPORTANTE -->
+  <script src="js/features/sabias-que.js?v=2.0.1" defer></script>
+  <script src="js/features/progreso.js?v=2.0.1" defer></script>
+  <script src="js/features/padres.js?v=2.0.1" defer></script>  
   
-  <!-- Features -->
-  <script src="js/features/dashboard.js?v=3.0.0" defer></script>
-  <script src="js/features/repaso.js?v=3.0.0" defer></script>
-  <script src="js/features/proyectos.js?v=3.0.0" defer></script>
-  <script src="js/features/tareas.js?v=3.0.0" defer></script>
-  <script src="js/features/sabias-que.js?v=3.0.0" defer></script>
-  <script src="js/features/progreso.js?v=3.0.0" defer></script>
-  <script src="js/features/padres.js?v=3.0.0" defer></script>
-  
-  <!-- Fallback para si tareas.js no carga -->
+  <!-- Components (con fallback si no existen) -->
   <script defer>
-    window.addEventListener('load', () => {
-      if (!window.features?.tareas?.filtrarPorCategoria) {
-        console.warn('⚠️ tareas.js no cargó correctamente, usando fallback');
-        window.features.tareas.filtrarPorCategoria = function(cat) {
-          console.log('📦 Fallback: filtrarPorCategoria(', cat, ')');
-          window.app?.mostrarToast('🚧 Actividad en desarrollo', 'info');
+    // Fallback para components si los archivos no existen
+    if (!window.components?.modal?.cerrar) {
+      window.components.modal.cerrar = function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.classList.remove('active');
+          if (modal.tagName === 'DIALOG') modal.close();
+          document.body.style.overflow = '';
+        }
+      };
+    }
+  </script>
+  
+  <!-- Features (con fallback ROBUSTO que SIEMPRE tiene las funciones) -->
+  <script defer>
+    // Fallback completo para features si los archivos no existen o no cargan a tiempo
+    const featureStubs = ['repaso', 'proyectos', 'tareas', 'sabiasQue', 'progreso', 'padres'];
+    
+    featureStubs.forEach(feature => {
+      // Crear stub si NO existe o está incompleto
+      if (!window.features[feature] || typeof window.features[feature] !== 'object') {
+        window.features[feature] = {
+          init: () => console.log(`📦 ${feature} stub cargado`),
+          cargar: () => console.log(`📦 ${feature}.cargar() stub`),
+          
+          // ✅ FUNCIÓN CRÍTICA: filtrarPorCategoria (para tareas, proyectos, sabias-que)
+          filtrarPorCategoria: function(categoria) {
+            console.log(`📦 ${feature}.filtrarPorCategoria('${categoria}') stub`);
+            
+            // Actualizar botones visualmente (funciona sin módulo real)
+            if (event?.target?.closest) {
+              const btn = event.target.closest('.categoria-btn');
+              if (btn?.parentElement) {
+                btn.parentElement.querySelectorAll('.categoria-btn').forEach(b => {
+                  b.classList.remove('active');
+                  b.style.background = '';
+                  b.style.color = '';
+                });
+                btn.classList.add('active');
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'white';
+              }
+            }
+            
+            // Feedback al usuario
+            const nombres = {
+              trazo: '🔤 Trazo', conteo: '🔢 Conteo', colorear: '🎨 Colorear',
+              patrones: '🧩 Patrones', memoria: '🧠 Memoria'
+            };
+            window.app?.mostrarToast(`${nombres[categoria] || categoria} (demo)`, 'info');
+            
+            // Simular carga de contenido
+            const container = document.getElementById(`${feature}-content`);
+            if (container) {
+              container.innerHTML = `
+                <div style="text-align:center;padding:40px;color:var(--ink3);">
+                  <div style="font-size:48px;margin-bottom:16px;" aria-hidden="true">🚧</div>
+                  <p style="font-size:14px;">Actividad "${categoria}" en desarrollo</p>
+                  <p style="font-size:12px;margin-top:8px;color:var(--ink4);">Próximamente disponible</p>
+                </div>
+              `;
+            }
+          },
+          
+          // Para repaso
+          filtrarPorGrado: (grado) => {
+            console.log(`📦 repaso.filtrarPorGrado('${grado}') stub`);
+            window.app?.mostrarToast(`📚 ${grado} (demo)`, 'info');
+          },
+          
+          // Para padres
+          generarReporte: () => {
+            console.log('📦 padres.generarReporte() stub');
+            window.app?.mostrarToast('📊 Reporte de ejemplo', 'success');
+          },
+          guardarConfiguracion: () => {
+            console.log('📦 padres.guardarConfiguracion() stub');
+            window.app?.mostrarToast('✅ Configuración guardada', 'success');
+          }
         };
       }
     });
+    
+    console.log('✅ Fallbacks de features inicializados (con funciones críticas)');
   </script>
   
-  <!-- Service Worker -->
+  <!-- Service Worker Registration (con manejo de error) -->
   <script defer>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=3.0.0')
+        navigator.serviceWorker.register('/sw.js')
           .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
-          .catch(err => console.warn('⚠️ SW no disponible:', err));
+          .catch(err => {
+            console.warn('⚠️ Service Worker no disponible (puede ser normal en desarrollo):', err);
+          });
       });
     }
   </script>
   
-  <!-- Inicialización final -->
+  <!-- ✅ Inicialización final después de cargar todo -->
   <script defer>
     document.addEventListener('DOMContentLoaded', () => {
+      // Esperar un poco para asegurar que todos los módulos cargaron
       setTimeout(() => {
+        // Inicializar features que tengan init
         Object.values(window.features).forEach(feature => {
           if (feature && typeof feature.init === 'function') {
-            try { feature.init(); } catch(e) { console.warn('⚠️ Error inicializando', e); }
+            try { feature.init(); } catch(e) { console.warn(`⚠️ Error inicializando ${feature}:`, e); }
           }
         });
+        
+        // Revelar app (eliminar flash de carga)
         document.body.classList.remove('app-loading');
+        
+        // Revelar layout principal si está autenticado
         if (window.app?.esAdmin) {
-          document.getElementById('main-layout').style.display = 'grid';
-          document.getElementById('auth-screen').style.display = 'none';
+          const layout = document.getElementById('main-layout');
+          const authScreen = document.getElementById('auth-screen');
+          if (layout) layout.style.display = 'grid';
+          if (authScreen) authScreen.style.display = 'none';
         }
-        console.log('✅ Aprende-jugando v3.0 inicializado');
+        
+        console.log('✅ Aprende-jugando inicializado');
       }, 200);
     });
   </script>
+  
+  <!-- Estilos adicionales para accesibilidad y UX -->
+  <style>
+    /* Skip link visible on focus */
+    .skip-link:focus {
+      position: fixed;
+      left: 20px;
+      top: 20px;
+      width: auto;
+      height: auto;
+      padding: 12px 20px;
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius-sm);
+      z-index: 10000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    /* Focus visible para navegación por teclado */
+    :focus-visible {
+      outline: 3px solid var(--primary);
+      outline-offset: 2px;
+    }
+    
+    /* Reducir movimiento para usuarios con preferencia */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    
+    /* Alto contraste para usuarios con preferencia */
+    @media (prefers-contrast: high) {
+      :root {
+        --border: #000 !important;
+        --ink: #000 !important;
+        --ink2: #333 !important;
+      }
+      body.tema-claro {
+        --border: #000 !important;
+        --ink: #000 !important;
+      }
+    }
+    
+    /* Print styles */
+    @media print {
+      .sidebar, .topbar, .bottom-nav, .btn-logout, .btn-toggle-theme {
+        display: none !important;
+      }
+      .layout {
+        grid-template-columns: 1fr !important;
+      }
+      .content {
+        padding: 0 !important;
+      }
+    }
+  </style>
 </body>
 </html>
