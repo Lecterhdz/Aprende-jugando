@@ -4,33 +4,61 @@
 
 /* ══════════════════════════════════════ VARIABLES - TEMA CLARO ══════════════════════════════════════ */
 :root[data-theme="claro"] {
-  --primary: #FF6B9D; --primary-light: #FFB3C6; --primary-dark: #E04A7C;
-  --secondary: #4ECDC4; --secondary-light: #A0E7E0; --secondary-dark: #3DBDB4;
-  --accent: #FFE66D; --accent-light: #FFF4B3; --accent-dark: #E6D45C;
-  --purple: #C780E8; --purple-light: #E8C7F5;
-  --bg: #FFF9FB; --bg2: #F0F9FF; --surface: #FFFFFF;
-  --ink: #2D3142; --ink2: #4F5D75; --ink3: #7B8FA3; --ink4: #A8B5C5;
-  --success: #95E1D3; --warning: #F38181; --error: #AA96DA;
-  --border: #E8E8E8; --border2: #D0D0D0;
-  --shadow: 0 4px 20px rgba(255,107,157,0.15);
-  --shadow-lg: 0 8px 30px rgba(255,107,157,0.25);
-  --radius: 16px; --radius-sm: 12px; --radius-lg: 24px;
+  /* Arcoíris pastel - colores vibrantes pero suaves */
+  --primary: #FF6B9D;        /* Rosa */
+  --primary-light: #FFB3C6;
+  --primary-dark: #E04A7C;
+  
+  --secondary: #4ECDC4;      /* Turquesa */
+  --secondary-light: #A0E7E0;
+  --secondary-dark: #3DBDB4;
+  
+  --accent: #FFE66D;         /* Amarillo */
+  --accent-light: #FFF4B3;
+  --accent-dark: #E6D45C;
+  
+  --purple: #C780E8;         /* Morado */
+  --purple-light: #E8C7F5;
+  
+  --blue: #6CB4EE;           /* Azul cielo */
+  --blue-light: #B3D9F5;
+  
+  --green: #95E1D3;          /* Verde menta */
+  --green-light: #C7F0E8;
+  
+  --orange: #F38181;         /* Coral */
+  --orange-light: #F9B5B5;
+  
+  /* Fondos claros con toque arcoíris */
+  --bg: #FFFBFD;             /* Blanco rosado muy suave */
+  --bg2: #F8FDFF;            /* Blanco azulado muy suave */
+  --surface: #FFFFFF;
+  
+  /* Texto */
+  --ink: #2D3142;
+  --ink2: #4F5D75;
+  --ink3: #7B8FA3;
+  --ink4: #A8B5C5;
+  
+  /* Estados */
+  --success: var(--green);
+  --warning: var(--orange);
+  --error: #E06B8A;
+  
+  /* UI */
+  --border: #F0E6F5;
+  --border2: #E0D4EB;
+  --shadow: 0 4px 20px rgba(255, 107, 157, 0.12);
+  --shadow-lg: 0 8px 30px rgba(255, 107, 157, 0.20);
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-lg: 24px;
+  
   --font: 'Nunito', 'Quicksand', sans-serif;
-  --font-size-base: 18px;
 }
 
-:root[data-theme="oscuro"] {
-  --primary: #FF8FAB; --primary-light: #FFB3C6; --primary-dark: #E06B8A;
-  --secondary: #7DD3C0; --secondary-light: #A0E7E0; --secondary-dark: #6BC4B0;
-  --accent: #FFD97A; --accent-light: #FFE9A3; --accent-dark: #E6C86A;
-  --purple: #D89BF0; --purple-light: #E8C7F5;
-  --bg: #1A1A2E; --bg2: #16213E; --surface: #0F3460;
-  --ink: #E8E8E8; --ink2: #B8B8D1; --ink3: #8A8AB8; --ink4: #5A5A78;
-  --success: #5DBEA8; --warning: #D16B7A; --error: #8B7AB8;
-  --border: #2A2A4A; --border2: #3A3A6A;
-  --shadow: 0 4px 20px rgba(0,0,0,0.3);
-  --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
 }
+
 
 /* ══════════════════════════════════════ RESET ══════════════════════════════════════ */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -247,6 +275,7 @@ body {
     width: 280px !important;
     height: 100vh !important;
     z-index: 200 !important;
+    background: var(--surface) !important;
     box-shadow: var(--shadow-lg) !important;
     transition: left 0.3s ease !important;
   }
