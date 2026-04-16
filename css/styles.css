@@ -1104,8 +1104,12 @@ input, select, textarea {
     width: 100% !important;
   }
   
+  /* ✅ CORRECCIÓN: Agregar padding-bottom para que el contenido no quede tapado */
   .content {
     padding: 16px !important;
+    padding-bottom: 100px !important; /* ← ESPACIO PARA BOTTOM-NAV (60px + 40px extra) */
+    overflow-y: auto !important; /* ← PERMITIR SCROLL */
+    -webkit-overflow-scrolling: touch !important; /* ← SCROLL SUAVE EN iOS */
   }
   
   /* Topbar compacta */
@@ -1161,6 +1165,18 @@ input, select, textarea {
   /* Estadísticas en 2 columnas */
   .progreso-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+  /* ✅ TARJETAS DE TAREAS/PROYECTOS/REPASO - ASEGURAR QUE SE VEA EL BOTÓN */
+  .tarea-card,
+  .card {
+    margin-bottom: 16px !important;
+  }
+  
+  /* El último elemento debe tener espacio extra */
+  .tareas-grid > :last-child,
+  .proyectos-grid > :last-child,
+  .actividades-grid > :last-child {
+    margin-bottom: 40px !important;
   }
 }
 
@@ -1358,5 +1374,21 @@ input, select, textarea {
   body {
     background: white !important;
     color: black !important;
+  }
+}
+/* ══════════════════════════════════════ BOTTOM-NAV - NO TAPAR CONTENIDO ══════════════════════════════════════ */
+.bottom-nav {
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
+  background: var(--surface) !important;
+}
+
+/* En móvil pequeño, ajustar aún más */
+@media (max-width: 480px) {
+  .content {
+    padding-bottom: 110px !important; /* ← MÁS ESPACIO PARA PANTALLAS PEQUEÑAS */
+  }
+  
+  .bottom-nav {
+    padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
   }
 }
