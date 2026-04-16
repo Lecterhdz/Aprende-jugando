@@ -7,13 +7,13 @@
 /* ══════════════════════════════════════ TEMA CLARO - ARCOÍRIS PASTEL ══════════════════════════════════════ */
 :root[data-theme="claro"] {
   /* Colores principales - Arcoíris vibrante pero suave */
-  --primary: #FF6B9D;        /* Rosa */
-  --primary-light: #FFB3C6;
-  --primary-dark: #E04A7C;
+  --primary: #4ECDC4;        /* 🔵 Cian/Turquesa vibrante */
+  --primary-light: #A0E7E0;
+  --primary-dark: #3DBDB4;
   
-  --secondary: #4ECDC4;      /* Turquesa */
-  --secondary-light: #A0E7E0;
-  --secondary-dark: #3DBDB4;
+  --secondary: #FF8C42;      /* 🟠 Naranja (complemento) */
+  --secondary-light: #FFB380;
+  --secondary-dark: #E67A3D;
   
   --accent: #FFE66D;         /* Amarillo */
   --accent-light: #FFF4B3;
@@ -28,15 +28,15 @@
   --green: #95E1D3;          /* Verde menta */
   --green-light: #C7F0E8;
   
-  --orange: #F38181;         /* Coral */
-  --orange-light: #F9B5B5;
+  --orange: #FF8C42;         /* Naranja */
+  --orange-light: #FFB380;
   
   --red: #FF8FAB;            /* Rojo suave */
   --red-light: #FFC4C0;
   
   /* Fondos claros con toque arcoíris muy suave */
-  --bg: #FFFBFD;             /* Blanco rosado */
-  --bg2: #F8FDFF;            /* Blanco azulado */
+  --bg: #F8FDFF;             /* Blanco azulado muy suave */
+  --bg2: #F0F9FF;            /* Blanco azulado */
   --surface: #FFFFFF;        /* Blanco puro */
   
   /* Texto */
@@ -50,14 +50,14 @@
   --success-dark: #7BD4C3;
   --warning: var(--orange);
   --warning-dark: #E06B6B;
-  --error: #E06B8A;
+  --error: #FF6B9D;
   --error-dark: #C75A7A;
   
   /* UI */
-  --border: #F0E6F5;
-  --border2: #E0D4EB;
-  --shadow: 0 4px 20px rgba(255, 107, 157, 0.12);
-  --shadow-lg: 0 8px 30px rgba(255, 107, 157, 0.20);
+  --border: #E0F4F8;
+  --border2: #C0E8F0;
+  --shadow: 0 4px 20px rgba(78, 205, 196, 0.15);
+  --shadow-lg: 0 8px 30px rgba(78, 205, 196, 0.25);
   --shadow-xl: 0 12px 40px rgba(255, 107, 157, 0.25);
   
   /* Radio y fuentes */
@@ -76,13 +76,13 @@
 /* ══════════════════════════════════════ TEMA OSCURO - ARCOÍRIS NOCTURNO ══════════════════════════════════════ */
 :root[data-theme="oscuro"] {
   /* Colores principales - Arcoíris brillante sobre fondo oscuro suave */
-  --primary: #FF8FAB;        /* Rosa brillante */
-  --primary-light: #FFB3C6;
-  --primary-dark: #E06B8A;
+  --primary: #7DD3C0;        /* Cian brillante */
+  --primary-light: #A0E7E0;
+  --primary-dark: #6BC4B0;
   
-  --secondary: #7DD3C0;      /* Turquesa brillante */
-  --secondary-light: #A0E7E0;
-  --secondary-dark: #6BC4B0;
+  --secondary: #FFAA80;      /* Naranja suave */
+  --secondary-light: #FFB380;
+  --secondary-dark: #E69A70;
   
   --accent: #FFD97A;         /* Amarillo dorado */
   --accent-light: #FFE9A3;
