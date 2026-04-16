@@ -266,7 +266,7 @@ window.app = {
     }
     
     console.log('📱 Sidebar:', estaAbierto ? 'cerrado' : 'abierto');
-  }
+  },
   
   // ─────────────────────────────────────────────────────────────
   // CALLBACK: AUTH SUCCESS
