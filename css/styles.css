@@ -121,11 +121,54 @@ body {
   display: none !important;
   position: fixed !important;
   inset: 0 !important;
-  background: rgba(0,0,0,0.5) !important;
-  backdrop-filter: blur(4px) !important;
-  z-index: 1000 !important;
+  background: rgba(0,0,0,0.4) !important;
+  backdrop-filter: blur(8px) !important;
+  z-index: 1000 !important; 
   align-items: center !important;
   justify-content: center !important;
+  padding: 16px !important;
+}
+/* Contenido del modal - OPACO y legible */
+.modal .modal-content {
+  background: var(--surface) !important; /* Fondo sólido del tema */
+  color: var(--ink) !important; /* Texto del tema */
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  max-width: 95vw !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  border: 2px solid var(--border) !important;
+}
+
+/* Asegurar que el texto dentro del modal sea legible */
+.modal .modal-body,
+.modal .modal-header,
+.modal .modal-footer {
+  color: var(--ink) !important;
+}
+
+.modal .modal-title {
+  color: var(--primary) !important;
+}
+
+.modal p,
+.modal h2,
+.modal h3 {
+  color: var(--ink) !important;
+}
+
+/* En móvil: modal casi pantalla completa */
+@media (max-width: 768px) {
+  .modal {
+    padding: 8px !important;
+  }
+  .modal .modal-content {
+    max-width: 100vw !important;
+    max-height: 95vh !important;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+  }
 }
 .modal.active { display: flex !important; animation: fadeIn 0.2s ease !important; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -430,4 +473,24 @@ body {
   background: var(--warning) !important;
   border-color: var(--warning-dark) !important;
   color: white !important;
+}
+/* Modal de proyectos - más grande en móvil */
+#modal-instructivo .modal-content {
+  max-width: min(600px, 95vw) !important;
+  width: 100% !important;
+}
+
+@media (max-width: 768px) {
+  #modal-instructivo .modal-content {
+    max-width: 100vw !important;
+    max-height: 95vh !important;
+    margin: 0 !important;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+  }
+  
+  #modal-instructivo .modal-body {
+    padding: 20px 16px !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+  }
 }
