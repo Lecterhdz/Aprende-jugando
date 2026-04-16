@@ -239,23 +239,34 @@ window.app = {
     });
   },
   
-  // ─────────────────────────────────────────────────────────────
-  // TOGGLE SIDEBAR (DELEGADO A sidebar.js)
-  // ─────────────────────────────────────────────────────────────
+  // En app.js, asegúrate de que toggleSidebar tenga esto:
   toggleSidebar: function() {
-    if (window.sidebar && typeof sidebar.toggle === 'function') {
-      sidebar.toggle();
+    // En desktop, no hacer toggle
+    if (window.innerWidth >= 1025) return;
+    
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const hamburger = document.getElementById('hamburger-btn');
+    
+    if (!sidebar) return;
+    
+    // Toggle estado
+    const estaAbierto = sidebar.classList.contains('visible');
+    
+    if (estaAbierto) {
+      sidebar.classList.remove('visible');
+      overlay?.classList.remove('active');
+      if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
     } else {
-      // Fallback simple si sidebar.js no está cargado
-      const sidebarEl = document.querySelector('.sidebar');
-      const overlay = document.getElementById('sidebar-overlay');
-      if (sidebarEl) {
-        sidebarEl.classList.toggle('visible');
-        overlay?.classList.toggle('active');
-        document.body.style.overflow = sidebarEl.classList.contains('visible') ? 'hidden' : '';
-      }
+      sidebar.classList.add('visible');
+      overlay?.classList.add('active');
+      if (hamburger) hamburger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
     }
-  },
+    
+    console.log('📱 Sidebar:', estaAbierto ? 'cerrado' : 'abierto');
+  }
   
   // ─────────────────────────────────────────────────────────────
   // CALLBACK: AUTH SUCCESS
