@@ -1106,6 +1106,8 @@ window.features.tareas = {
       case 'colorear':
       case 'patrones':
       case 'memoria':
+        this.iniciarJuegoMemoria(tarea);
+        break;
       default:
         this.mostrarProximamente(tarea, this.getIconoCategoria(this.estado.categoriaActual), this.estado.categoriaActual);
     }
@@ -1860,6 +1862,14 @@ window.features.tareas = {
         <span style="opacity:0;transition:opacity 0.3s;">${emoji}</span>
       </button>
     `).join('');
+    
+    // Calcular columnas según número de cartas
+    const numCartas = tarea.cartas.length;
+    let columnas = 4;
+    if (numCartas <= 8) columnas = 4;
+    else if (numCartas <= 12) columnas = 4;
+    else if (numCartas <= 16) columnas = 4;
+    else columnas = 5;    
     
     juegoContainer.innerHTML = `
       <style>
