@@ -911,105 +911,135 @@ window.features.tareas = {
     });
   },
   
-  // ─────────────────────────────────────────────────────────────
-  // MOSTRAR INSTRUCCIONES (MODAL ACCESIBLE) - VERSIÓN CORREGIDA
+  / ─────────────────────────────────────────────────────────────
+  // MOSTRAR INSTRUCCIONES (MODAL ACCESIBLE - v3.0)
   // ─────────────────────────────────────────────────────────────
   mostrarInstrucciones: function(tarea) {
-    // Usar el modal estático si existe en el DOM
+    console.log('📋 Mostrando instrucciones:', tarea.titulo);
+    
+    // OPCIÓN A: Usar modal estático si existe en index.html (RECOMENDADO)
     const modalEstatico = document.getElementById('modal-instrucciones-tarea');
     
     if (modalEstatico) {
       // Llenar contenido dinámico
-      document.getElementById('modal-instrucciones-titulo').textContent = tarea.titulo;
-      document.getElementById('modal-instrucciones-icono').textContent = 
-        tarea.icono || this.getIconoCategoria(this.estado.categoriaActual);
-      document.getElementById('modal-instrucciones-texto').textContent = 
-        tarea.instruccionesDetalladas || tarea.descripcion;
-      document.getElementById('modal-instrucciones-recompensa').textContent = 
-        `${tarea.recompensa} estrellas`;
-      
-      // Configurar botón de hint si existe
+      const elTitulo = document.getElementById('modal-instrucciones-titulo');
+      const elIcono = document.getElementById('modal-instrucciones-icono');
+      const elTexto = document.getElementById('modal-instrucciones-texto');
+      const elRecompensa = document.getElementById('modal-instrucciones-recompensa');
       const btnHint = document.getElementById('modal-instrucciones-hint');
-      if (tarea.hint && btnHint) {
-        btnHint.style.display = 'block';
-        btnHint.onclick = () => {
-          this.mostrarHint(tarea.id);
-        };
-      } else if (btnHint) {
-        btnHint.style.display = 'none';
+      const btnComenzar = document.getElementById('modal-instrucciones-comenzar');
+      
+      if (elTitulo) elTitulo.textContent = tarea.titulo;
+      if (elIcono) elIcono.textContent = tarea.icono || this.getIconoCategoria(this.estado.categoriaActual);
+      if (elTexto) elTexto.textContent = tarea.instruccionesDetalladas || tarea.descripcion;
+      if (elRecompensa) elRecompensa.textContent = `${tarea.recompensa} estrellas`;
+      
+      // Configurar botón de hint
+      if (btnHint) {
+        if (tarea.hint) {
+          btnHint.style.display = 'flex';
+          btnHint.onclick = (e) => {
+            e.preventDefault();
+            this.mostrarHint(tarea.id);
+          };
+        } else {
+          btnHint.style.display = 'none';
+        }
       }
       
       // Configurar botón de comenzar
-      const btnComenzar = document.getElementById('modal-instrucciones-comenzar');
       if (btnComenzar) {
-        btnComenzar.onclick = () => {
-          components.modal.cerrar('modal-instrucciones-tarea');
+        btnComenzar.onclick = (e) => {
+          e.preventDefault();
+          if (window.components?.modal?.cerrar) {
+            window.components.modal.cerrar('modal-instrucciones-tarea');
+          } else {
+            modalEstatico.classList.remove('active');
+            if (modalEstatico.tagName === 'DIALOG') modalEstatico.close();
+          }
+          document.body.style.overflow = '';
           this.comenzarJuego(tarea.id);
         };
       }
+      
       // Abrir modal
-      components.modal.abrir('modal-instrucciones-tarea');
+      if (window.components?.modal?.abrir) {
+        window.components.modal.abrir('modal-instrucciones-tarea');
+      } else {
+        modalEstatico.classList.add('active');
+        if (modalEstatico.tagName === 'DIALOG' && typeof modalEstatico.showModal === 'function') {
+          modalEstatico.showModal();
+        }
+        document.body.style.overflow = 'hidden';
+      }
       
       // Enfocar botón para accesibilidad
       setTimeout(() => btnComenzar?.focus(), 100);
       
       return;
-    }    
-    // Fallback: crear modal dinámico
+    }
+    
+    // OPCIÓN B: Fallback - crear modal dinámico (si el estático no existe)
+    console.log('⚠️ Modal estático no encontrado, creando modal dinámico');
+    
     const modal = document.createElement('div');
     modal.className = 'modal active';
-    modal.id = 'modal-instrucciones-tarea';
+    modal.id = 'modal-instrucciones-tarea-dinamico';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-labelledby', 'modal-instrucciones-title');
     
+    // ✅ Click en overlay para cerrar
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        this.cerrarModalInstrucciones(modal);
+      }
+    });
+    
+    // ✅ Cerrar con tecla Escape
+    const onKeydown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.cerrarModalInstrucciones(modal);
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
+    
+    // ✅ Template literal CORREGIDO (sin espacios ni comillas rotas)
     modal.innerHTML = `
       <div class="modal-content" style="max-width:520px;" role="document">
         <div class="modal-header">
           <h2 id="modal-instrucciones-title" class="modal-title" style="font-size:18px;">
-            ${tarea.icono || this.getIconoCategoria(this.estado.categoriaActual)} ${tarea.titulo}
+            ${this.getIconoCategoria(this.estado.categoriaActual)} ${tarea.titulo}
           </h2>
-          <button class="modal-close" onclick="this.closest('.modal')?.remove()" 
-                  aria-label="Cerrar instrucciones" style="min-width:44px;min-height:44px;">✕</button>
+          <button class="modal-close" aria-label="Cerrar instrucciones" style="min-width:44px;min-height:44px;">✕</button>
         </div>
         <div class="modal-body" style="padding:24px;text-align:center;">
           <div style="font-size:56px;margin-bottom:16px;" aria-hidden="true">
-            ${tarea.icono || this.getIconoCategoria(this.estado.categoriaActual)}
+            ${this.getIconoCategoria(this.estado.categoriaActual)}
           </div>
           <h3 style="color:var(--primary);margin-bottom:12px;font-size:16px;">Instrucciones</h3>
-          <p style="color:var(--ink2);font-size:15px;line-height:1.6;white-space:pre-line;margin-bottom:20px;"
-             id="modal-instrucciones-text">
+          <p style="color:var(--ink2);font-size:15px;line-height:1.6;white-space:pre-line;margin-bottom:20px;">
             ${tarea.instruccionesDetalladas || tarea.descripcion}
           </p>
-          
-          <div style="background:var(--bg2);padding:14px;border-radius:var(--radius-sm);margin-bottom:20px;"
-               role="note"
-               aria-label="Recompensa al completar">
+          <div style="background:var(--bg2);padding:14px;border-radius:var(--radius-sm);margin-bottom:20px;" role="note">
             <div style="font-size:13px;color:var(--ink3);">⭐ Recompensa:</div>
             <div style="font-size:28px;font-weight:800;color:var(--accent);margin-top:4px;">
               ${tarea.recompensa} estrellas
             </div>
           </div>
-          
           ${tarea.hint ? `
-            <button class="topbar-btn ghost" 
-                    onclick="features.tareas.mostrarHint('${tarea.id}')"
-                    style="width:100%;min-height:44px;margin-bottom:12px;"
-                    aria-label="Ver pista para esta actividad">
+            <button id="btn-hint-dinamico" class="topbar-btn ghost" style="width:100%;min-height:44px;margin-bottom:12px;">
               💡 ¿Necesitas una pista?
             </button>
           ` : ''}
         </div>
         <div class="modal-footer" style="justify-content:center;gap:12px;flex-wrap:wrap;">
-          <button onclick="this.closest('.modal')?.remove()" 
-                  class="topbar-btn ghost"
-                  style="min-width:120px;min-height:48px;">
+          <button class="btn-cancelar-instrucciones topbar-btn ghost" style="min-width:120px;min-height:48px;">
             ❌ Cancelar
           </button>
-          <button onclick="features.tareas.comenzarJuego('${tarea.id}');this.closest('.modal')?.remove()" 
-                  class="topbar-btn primary"
-                  style="min-width:150px;min-height:48px;"
-                  autofocus>
+          <button class="btn-comenzar-juego topbar-btn primary" style="min-width:150px;min-height:48px;" autofocus>
             🎮 ¡Comenzar!
           </button>
         </div>
@@ -1017,20 +1047,57 @@ window.features.tareas = {
     `;
     
     document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
     
-    // Enfocar el botón de comenzar para accesibilidad
-    setTimeout(() => {
-      modal.querySelector('.topbar-btn.primary')?.focus();
-    }, 100);
+    // ✅ Configurar listeners para botones
+    const btnCerrar = modal.querySelector('.modal-close');
+    const btnCancelar = modal.querySelector('.btn-cancelar-instrucciones');
+    const btnComenzar = modal.querySelector('.btn-comenzar-juego');
+    const btnHintDinamico = modal.querySelector('#btn-hint-dinamico');
     
-    // Cerrar con Escape
-    const onKeydown = (e) => {
-      if (e.key === 'Escape') {
-        modal.remove();
-        document.removeEventListener('keydown', onKeydown);
+    const cerrarYLimpiar = () => this.cerrarModalInstrucciones(modal, onKeydown);
+    
+    if (btnCerrar) btnCerrar.addEventListener('click', cerrarYLimpiar);
+    if (btnCancelar) btnCancelar.addEventListener('click', cerrarYLimpiar);
+    
+    if (btnComenzar) {
+      btnComenzar.addEventListener('click', () => {
+        cerrarYLimpiar();
+        this.comenzarJuego(tarea.id);
+      });
+    }
+    
+    if (btnHintDinamico && tarea.hint) {
+      btnHintDinamico.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.mostrarHint(tarea.id);
+      });
+    }
+    
+    // ✅ Enfocar botón principal para accesibilidad
+    setTimeout(() => btnComenzar?.focus(), 100);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // HELPER: CERRAR MODAL DE INSTRUCCIONES
+  // ─────────────────────────────────────────────────────────────
+  cerrarModalInstrucciones: function(modal, onKeydownCallback) {
+    if (modal) {
+      modal.classList.remove('active');
+      // Si es un <dialog>, usar close()
+      if (modal.tagName === 'DIALOG' && typeof modal.close === 'function') {
+        modal.close();
       }
-    };
-    document.addEventListener('keydown', onKeydown);
+      // Remover del DOM si es dinámico
+      if (modal.id.includes('dinamico')) {
+        setTimeout(() => modal.remove(), 200);
+      }
+    }
+    if (onKeydownCallback) {
+      document.removeEventListener('keydown', onKeydownCallback);
+    }
+    document.body.style.overflow = '';
+    console.log('📋 Modal de instrucciones cerrado');
   },
   
   // ─────────────────────────────────────────────────────────────
@@ -1291,88 +1358,147 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // MOSTRAR CELEBRACIÓN (CON ANIMACIONES Y CONFETTI)
+  // MOSTRAR CELEBRACIÓN (v3.0 - CON CIERRE FUNCIONAL)
   // ─────────────────────────────────────────────────────────────
   mostrarCelebracion: function(tarea, datos) {
     const { puntuacion, tiempoJugado, exito } = datos;
+    console.log('🎉 Mostrando celebración:', exito ? 'éxito' : 'intento', tarea.titulo);
     
-    // Usar sistema de modales si está disponible
-    if (window.components?.modal?.abrir) {
-      window.components.modal.abrir('modal-celebracion', {
-        exito,
-        titulo: exito ? '¡Excelente trabajo! 🎉' : '¡Casi lo logras! 💪',
-        mensaje: exito 
-          ? `Completaste: ${tarea.titulo}`
-          : `Inténtalo de nuevo: ${tarea.titulo}`,
-        puntuacion,
-        tiempo: tiempoJugado,
-        onContinuar: () => {
-          // Refrescar la vista para mostrar estado actualizado
+    // OPCIÓN A: Usar modal estático si existe en index.html
+    const modalEstatico = document.getElementById('modal-celebracion');
+    
+    if (modalEstatico) {
+      // Llenar contenido dinámico
+      const elTitulo = document.getElementById('modal-celebracion-titulo');
+      const elMensaje = document.getElementById('modal-celebracion-mensaje');
+      const elIcono = document.getElementById('modal-celebracion-icono');
+      const elPuntuacion = document.getElementById('modal-celebracion-puntuacion');
+      const elBonus = document.getElementById('modal-celebracion-bonus');
+      const btnContinuar = document.getElementById('modal-celebracion-continuar');
+      const btnReintentar = document.getElementById('modal-celebracion-reintentar');
+      
+      if (elTitulo) elTitulo.textContent = exito ? '¡Excelente trabajo! 🎉' : '¡Casi lo logras! 💪';
+      if (elMensaje) elMensaje.textContent = exito ? `Completaste: ${tarea.titulo}` : `Inténtalo de nuevo: ${tarea.titulo}`;
+      if (elIcono) elIcono.textContent = exito ? '🎉' : '💪';
+      if (elPuntuacion) elPuntuacion.textContent = puntuacion;
+      
+      // Mostrar bonus por velocidad si aplica
+      if (elBonus) {
+        if (exito && tiempoJugado < tarea.tiempoEstimado) {
+          elBonus.style.display = 'block';
+        } else {
+          elBonus.style.display = 'none';
+        }
+      }
+      
+      // Configurar botón continuar
+      if (btnContinuar) {
+        btnContinuar.onclick = (e) => {
+          e.preventDefault();
+          this.cerrarModalCelebracion(modalEstatico);
           this.renderTareas();
           this.actualizarEstadisticasHeader();
+        };
+      }
+      
+      // Configurar botón reintentar (solo si falló)
+      if (btnReintentar) {
+        if (!exito) {
+          btnReintentar.style.display = 'flex';
+          btnReintentar.onclick = (e) => {
+            e.preventDefault();
+            this.cerrarModalCelebracion(modalEstatico);
+            this.iniciarTarea(tarea.id);
+          };
+        } else {
+          btnReintentar.style.display = 'none';
         }
-      });
+      }
+      
+      // Abrir modal
+      if (window.components?.modal?.abrir) {
+        window.components.modal.abrir('modal-celebracion');
+      } else {
+        modalEstatico.classList.add('active');
+        if (modalEstatico.tagName === 'DIALOG' && typeof modalEstatico.showModal === 'function') {
+          modalEstatico.showModal();
+        }
+        document.body.style.overflow = 'hidden';
+      }
+      
+      // Enfocar botón principal
+      setTimeout(() => btnContinuar?.focus(), 100);
+      
+      // Efecto de confetti si está activo y hubo éxito
+      if (TAREAS_CONFIG.CELEBRACION_CONFETTI && exito) {
+        this.activarConfetti();
+      }
+      
       return;
     }
     
-    // Fallback: modal dinámico
+    // OPCIÓN B: Fallback - crear modal dinámico
+    console.log('⚠️ Modal de celebración estático no encontrado, creando dinámico');
+    
     const modal = document.createElement('div');
     modal.className = 'modal active';
-    modal.id = 'modal-celebracion';
+    modal.id = 'modal-celebracion-dinamico';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     
+    // ✅ Click en overlay para cerrar
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        this.cerrarModalCelebracion(modal);
+        this.renderTareas();
+        this.actualizarEstadisticasHeader();
+      }
+    });
+    
+    // ✅ Cerrar con Escape
+    const onKeydown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.cerrarModalCelebracion(modal);
+        this.renderTareas();
+        this.actualizarEstadisticasHeader();
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
+    
+    // ✅ Template literal CORREGIDO
     modal.innerHTML = `
       <div class="modal-content" style="max-width:420px;text-align:center;" role="document">
         <div class="modal-body" style="padding:32px 24px;">
-          <div style="font-size:72px;margin-bottom:12px;${TAREAS_CONFIG.ANIMACIONES_ACTIVAS ? 'animation:bounce 1s infinite' : ''}" 
-               aria-hidden="true">
+          <div style="font-size:72px;margin-bottom:12px;${TAREAS_CONFIG.ANIMACIONES_ACTIVAS ? 'animation:bounce 1s infinite' : ''}" aria-hidden="true">
             ${exito ? '🎉' : '💪'}
           </div>
-          <h2 style="color:var(--${exito ? 'primary' : 'warning'});font-size:24px;margin-bottom:8px;">
+          <h2 style="color:var(${exito ? '(--primary)' : '(--warning)'});font-size:24px;margin-bottom:8px;">
             ${exito ? '¡Excelente trabajo!' : '¡Casi lo logras!'}
           </h2>
           <p style="color:var(--ink2);font-size:16px;margin-bottom:20px;">
             ${tarea.titulo}
           </p>
-          
           ${exito ? `
-            <div style="background:linear-gradient(135deg,var(--accent-light),var(--accent));
-                       padding:20px;border-radius:var(--radius-lg);margin-bottom:20px;"
-                 role="status"
-                 aria-live="polite">
+            <div style="background:linear-gradient(135deg,var(--accent-light),var(--accent));padding:20px;border-radius:var(--radius-lg);margin-bottom:20px;" role="status" aria-live="polite">
               <div style="font-size:13px;color:rgba(255,255,255,0.9);">⭐ Puntuación:</div>
-              <div style="font-size:42px;font-weight:800;color:white;margin-top:4px;">
-                ${puntuacion}
-              </div>
-              ${tiempoJugado < tarea.tiempoEstimado ? `
-                <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:8px;">
-                  ⚡ ¡Bonus por velocidad!
-                </div>
-              ` : ''}
+              <div style="font-size:42px;font-weight:800;color:white;margin-top:4px;">${puntuacion}</div>
+              ${tiempoJugado < tarea.tiempoEstimado ? `<div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:8px;">⚡ ¡Bonus por velocidad!</div>` : ''}
             </div>
           ` : `
-            <div style="background:var(--warning-l);padding:16px;border-radius:var(--radius-sm);margin-bottom:20px;">
-              <p style="font-size:14px;color:var(--warning);margin:0;">
-                💡 Consejo: Usa las pistas si necesitas ayuda
-              </p>
+            <div style="background:var(--warning-light);padding:16px;border-radius:var(--radius-sm);margin-bottom:20px;">
+              <p style="font-size:14px;color:var(--warning);margin:0;">💡 Consejo: Usa las pistas si necesitas ayuda</p>
             </div>
           `}
-          
-          ${TAREAS_CONFIG.CELEBRACION_CONFETTI && exito ? this.generarConfettiHTML() : ''}
         </div>
         <div class="modal-footer" style="justify-content:center;gap:12px;flex-wrap:wrap;">
           ${!exito ? `
-            <button onclick="features.tareas.iniciarTarea('${tarea.id}');this.closest('.modal')?.remove()" 
-                    class="topbar-btn ghost"
-                    style="min-width:120px;min-height:48px;">
+            <button class="btn-reintentar-celebracion topbar-btn ghost" style="min-width:120px;min-height:48px;">
               🔄 Intentar de nuevo
             </button>
           ` : ''}
-          <button onclick="features.tareas.cerrarCelebracion('${tarea.id}');this.closest('.modal')?.remove()" 
-                  class="topbar-btn primary"
-                  style="min-width:150px;min-height:48px;"
-                  autofocus>
+          <button class="btn-continuar-celebracion topbar-btn primary" style="min-width:150px;min-height:48px;" autofocus>
             ${exito ? '🚀 Siguiente' : 'Entendido'}
           </button>
         </div>
@@ -1380,16 +1506,57 @@ window.features.tareas = {
     `;
     
     document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
     
-    // Enfocar botón principal para accesibilidad
-    setTimeout(() => {
-      modal.querySelector('.topbar-btn.primary')?.focus();
-    }, 100);
+    // ✅ Configurar listeners
+    const btnContinuar = modal.querySelector('.btn-continuar-celebracion');
+    const btnReintentar = modal.querySelector('.btn-reintentar-celebracion');
     
-    // Efecto de confetti si está activo
+    const cerrarYActualizar = () => {
+      this.cerrarModalCelebracion(modal, onKeydown);
+      this.renderTareas();
+      this.actualizarEstadisticasHeader();
+    };
+    
+    if (btnContinuar) {
+      btnContinuar.addEventListener('click', cerrarYActualizar);
+    }
+    
+    if (btnReintentar && !exito) {
+      btnReintentar.style.display = 'flex';
+      btnReintentar.addEventListener('click', () => {
+        cerrarYActualizar();
+        this.iniciarTarea(tarea.id);
+      });
+    }
+    
+    // Enfocar botón principal
+    setTimeout(() => btnContinuar?.focus(), 100);
+    
+    // Efecto de confetti
     if (TAREAS_CONFIG.CELEBRACION_CONFETTI && exito) {
       this.activarConfetti();
     }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // HELPER: CERRAR MODAL DE CELEBRACIÓN
+  // ─────────────────────────────────────────────────────────────
+  cerrarModalCelebracion: function(modal, onKeydownCallback) {
+    if (modal) {
+      modal.classList.remove('active');
+      if (modal.tagName === 'DIALOG' && typeof modal.close === 'function') {
+        modal.close();
+      }
+      if (modal.id.includes('dinamico')) {
+        setTimeout(() => modal.remove(), 200);
+      }
+    }
+    if (onKeydownCallback) {
+      document.removeEventListener('keydown', onKeydownCallback);
+    }
+    document.body.style.overflow = '';
+    console.log('🎉 Modal de celebración cerrado');
   },
   
   // ─────────────────────────────────────────────────────────────
