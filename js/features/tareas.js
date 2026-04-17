@@ -1992,7 +1992,7 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // INICIAR JUEGO DE MEMORIA (IMPLEMENTACIÓN REAL)
+  // INICIAR JUEGO DE MEMORIA (CORREGIDO - CIERRE FUNCIONAL)
   // ─────────────────────────────────────────────────────────────
   iniciarJuegoMemoria: function(tarea) {
     console.log('🧠 Iniciando juego de memoria:', tarea.titulo);
@@ -2012,6 +2012,23 @@ window.features.tareas = {
     juegoContainer.setAttribute('role', 'dialog');
     juegoContainer.setAttribute('aria-modal', 'true');
     juegoContainer.setAttribute('aria-labelledby', 'juego-memoria-title');
+    
+    // ✅ AGREGAR: Click en overlay para cerrar
+    juegoContainer.addEventListener('click', (e) => {
+      if (e.target === juegoContainer) {
+        this.cerrarJuegoMemoria(juegoContainer);
+      }
+    });
+    
+    // ✅ AGREGAR: Cerrar con tecla Escape
+    const onKeydown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.cerrarJuegoMemoria(juegoContainer);
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
     
     // Barajar cartas
     const cartasBarajadas = this.barajarArray([...tarea.cartas]);
@@ -2036,32 +2053,15 @@ window.features.tareas = {
     if (numCartas <= 8) columnas = 4;
     else if (numCartas <= 12) columnas = 4;
     else if (numCartas <= 16) columnas = 4;
-    else columnas = 5;    
+    else columnas = 5;
     
     juegoContainer.innerHTML = `
       <style>
-        .carta-memoria.volteada {
-          background: var(--surface) !important;
-          border-color: var(--border) !important;
-        }
-        .carta-memoria.volteada span {
-          opacity: 1 !important;
-        }
-        .carta-memoria.encontrada {
-          background: var(--success) !important;
-          border-color: var(--success-dark) !important;
-          animation: pulse-success 1s ease;
-        }
-        .carta-memoria.error {
-          background: var(--warning) !important;
-          border-color: var(--warning-dark) !important;
-          animation: shake 0.5s ease;
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
-        }
+        .carta-memoria.volteada { background: var(--surface) !important; border-color: var(--border) !important; }
+        .carta-memoria.volteada span { opacity: 1 !important; }
+        .carta-memoria.encontrada { background: var(--success) !important; border-color: var(--success-dark) !important; animation: pulse-success 1s ease; }
+        .carta-memoria.error { background: var(--warning) !important; border-color: var(--warning-dark) !important; animation: shake 0.5s ease; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
       </style>
       
       <div class="modal-content" style="max-width:600px;" role="document">
@@ -2069,40 +2069,29 @@ window.features.tareas = {
           <h2 id="juego-memoria-title" class="modal-title" style="font-size:18px;">
             🧠 ${tarea.titulo}
           </h2>
-          <button class="modal-close" onclick="features.tareas.cerrarJuegoActivo()" 
-                  aria-label="Cerrar actividad" style="min-width:44px;min-height:44px;">✕</button>
+          <button class="modal-close" aria-label="Cerrar actividad" style="min-width:44px;min-height:44px;">✕</button>
         </div>
         
         <div class="modal-body" style="padding:24px;text-align:center;">
-          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">
-            ${tarea.descripcion}
-          </p>
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">${tarea.descripcion}</p>
           
           <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px;color:var(--ink3);">
             <span>🃏 Cartas: ${tarea.cartas.length / 2} parejas</span>
             <span id="memoria-movimientos">Movimientos: 0</span>
           </div>
           
-          <!-- Grid de cartas -->
           <div id="memoria-grid" 
-               style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
-                      justify-content:center;margin-bottom:20px;"
+               style="display:grid;grid-template-columns:repeat(${columnas},1fr);gap:12px;justify-content:center;margin-bottom:20px;"
                role="grid"
                aria-label="Tablero de memoria">
             ${cartasHTML}
           </div>
           
-          <!-- Feedback -->
-          <div id="memoria-feedback" 
-               style="min-height:24px;font-weight:600;" 
-               aria-live="polite"
-               aria-atomic="true"></div>
+          <div id="memoria-feedback" style="min-height:24px;font-weight:600;" aria-live="polite" aria-atomic="true"></div>
         </div>
         
         <div class="modal-footer" style="justify-content:center;">
-          <button onclick="features.tareas.cerrarJuegoActivo()" 
-                  class="topbar-btn ghost"
-                  style="min-width:120px;min-height:48px;">
+          <button class="btn-salir-memoria topbar-btn ghost" style="min-width:120px;min-height:48px;">
             ❌ Salir
           </button>
         </div>
@@ -2110,6 +2099,16 @@ window.features.tareas = {
     `;
     
     document.body.appendChild(juegoContainer);
+    document.body.style.overflow = 'hidden';
+    
+    // ✅ AGREGAR: Listeners para botones de cerrar
+    const btnCerrarHeader = juegoContainer.querySelector('.modal-close');
+    const btnSalirFooter = juegoContainer.querySelector('.btn-salir-memoria');
+    
+    const cerrarYLimpiar = () => this.cerrarJuegoMemoria(juegoContainer, onKeydown);
+    
+    if (btnCerrarHeader) btnCerrarHeader.addEventListener('click', cerrarYLimpiar);
+    if (btnSalirFooter) btnSalirFooter.addEventListener('click', cerrarYLimpiar);
     
     // Configurar estado del juego
     this.estado.juegoMemoria = {
@@ -2137,106 +2136,21 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // VOLTEAR CARTA (MEMORIA)
+  // HELPER: CERRAR JUEGO DE MEMORIA
   // ─────────────────────────────────────────────────────────────
-  voltearCarta: function(carta, tarea) {
-    // Prevenir si ya está volteada o encontrada
-    if (carta.classList.contains('volteada') || 
-        carta.classList.contains('encontrada') ||
-        this.estado.juegoMemoria.volteadas.length >= 2) {
-      return;
-    }
-    
-    // Voltear carta
-    carta.classList.add('volteada');
-    carta.querySelector('span').style.opacity = '1';
-    
-    // Agregar a volteadas
-    this.estado.juegoMemoria.volteadas.push(carta);
-    
-    // Si hay 2 cartas volteadas, verificar match
-    if (this.estado.juegoMemoria.volteadas.length === 2) {
-      this.estado.juegoMemoria.movimientos++;
-      document.getElementById('memoria-movimientos').textContent = 
-        `Movimientos: ${this.estado.juegoMemoria.movimientos}`;
-      
-      // Verificar después de breve delay
+  cerrarJuegoMemoria: function(modal, onKeydownCallback) {
+    if (modal) {
+      modal.classList.remove('active');
+      // Remover del DOM con delay para animación
       setTimeout(() => {
-        this.verificarMatch(tarea);
-      }, 800);
+        if (modal.parentNode) modal.remove();
+      }, 200);
     }
-  },
-  
-  // ─────────────────────────────────────────────────────────────
-  // VERIFICAR MATCH (MEMORIA)
-  // ─────────────────────────────────────────────────────────────
-  verificarMatch: function(tarea) {
-    const [carta1, carta2] = this.estado.juegoMemoria.volteadas;
-    const emoji1 = carta1.dataset.emoji;
-    const emoji2 = carta2.dataset.emoji;
-    
-    const feedback = document.getElementById('memoria-feedback');
-    
-    if (emoji1 === emoji2) {
-      // Match encontrado
-      carta1.classList.add('encontrada');
-      carta2.classList.add('encontrada');
-      this.estado.juegoMemoria.encontradas.push(carta1, carta2);
-      
-      if (feedback) {
-        feedback.textContent = '¡Pareja encontrada! 🎉';
-        feedback.style.color = 'var(--success)';
-      }
-      
-      // Reproducir sonido
-      this.reproducirSonido('audio/exito.mp3');
-      
-      // Verificar si completó todas las parejas
-      if (this.estado.juegoMemoria.encontradas.length === tarea.cartas.length) {
-        setTimeout(() => {
-          this.completarTarea(tarea.id, { 
-            exito: true, 
-            puntuacion: tarea.recompensa 
-          });
-          this.cerrarJuegoActivo();
-        }, 1000);
-      }
-    } else {
-      // No hay match
-      carta1.classList.add('error');
-      carta2.classList.add('error');
-      
-      if (feedback) {
-        feedback.textContent = 'Casi... intenta de nuevo 💪';
-        feedback.style.color = 'var(--warning)';
-      }
-      
-      // Reproducir sonido de error
-      this.reproducirSonido('audio/error.mp3');
-      
-      // Voltear cartas de nuevo después de delay
-      setTimeout(() => {
-        carta1.classList.remove('volteada', 'error');
-        carta2.classList.remove('volteada', 'error');
-        carta1.querySelector('span').style.opacity = '0';
-        carta2.querySelector('span').style.opacity = '0';
-        if (feedback) feedback.textContent = '';
-      }, 1000);
+    if (onKeydownCallback) {
+      document.removeEventListener('keydown', onKeydownCallback);
     }
-    
-    // Resetear volteadas
-    this.estado.juegoMemoria.volteadas = [];
-  },
-  
-  // ─────────────────────────────────────────────────────────────
-  // BARAJAR ARRAY (UTILIDAD PARA MEMORIA)
-  // ─────────────────────────────────────────────────────────────
-  barajarArray: function(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+    document.body.style.overflow = '';
+    console.log('🧠 Juego de memoria cerrado');
   },
   // ─────────────────────────────────────────────────────────────
   // INICIAR JUEGO DE LETRAS (ABECEDARIO)
