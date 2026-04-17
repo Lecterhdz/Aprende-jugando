@@ -1714,10 +1714,244 @@ window.features.tareas = {
     this.simularCompletado(tarea);
   },
   
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR JUEGO DE MEMORIA (IMPLEMENTACIÓN REAL)
+  // ─────────────────────────────────────────────────────────────
   iniciarJuegoMemoria: function(tarea) {
     console.log('🧠 Iniciando juego de memoria:', tarea.titulo);
-    // Implementar grid de cartas con volteo y matching
-    this.simularCompletado(tarea);
+    
+    // Validar datos
+    if (!tarea.cartas || tarea.cartas.length < 4) {
+      console.error('❌ Juego de memoria sin datos válidos:', tarea.id);
+      window.app?.mostrarToast('⚠️ Actividad no disponible', 'error');
+      this.simularCompletado(tarea);
+      return;
+    }
+    
+    // Crear contenedor de juego
+    const juegoContainer = document.createElement('div');
+    juegoContainer.className = 'modal active';
+    juegoContainer.id = 'modal-juego-memoria';
+    juegoContainer.setAttribute('role', 'dialog');
+    juegoContainer.setAttribute('aria-modal', 'true');
+    juegoContainer.setAttribute('aria-labelledby', 'juego-memoria-title');
+    
+    // Barajar cartas
+    const cartasBarajadas = this.barajarArray([...tarea.cartas]);
+    
+    // Generar grid de cartas
+    const cartasHTML = cartasBarajadas.map((emoji, index) => `
+      <button class="carta-memoria" 
+              data-indice="${index}" 
+              data-emoji="${emoji}"
+              aria-label="Carta ${index + 1}"
+              style="width:70px;height:70px;font-size:32px;background:var(--primary);
+                     border:2px solid var(--primary-dark);border-radius:12px;
+                     cursor:pointer;transition:all 0.3s;
+                     display:flex;align-items:center;justify-content:center;">
+        <span style="opacity:0;transition:opacity 0.3s;">${emoji}</span>
+      </button>
+    `).join('');
+    
+    juegoContainer.innerHTML = `
+      <style>
+        .carta-memoria.volteada {
+          background: var(--surface) !important;
+          border-color: var(--border) !important;
+        }
+        .carta-memoria.volteada span {
+          opacity: 1 !important;
+        }
+        .carta-memoria.encontrada {
+          background: var(--success) !important;
+          border-color: var(--success-dark) !important;
+          animation: pulse-success 1s ease;
+        }
+        .carta-memoria.error {
+          background: var(--warning) !important;
+          border-color: var(--warning-dark) !important;
+          animation: shake 0.5s ease;
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+      </style>
+      
+      <div class="modal-content" style="max-width:600px;" role="document">
+        <div class="modal-header">
+          <h2 id="juego-memoria-title" class="modal-title" style="font-size:18px;">
+            🧠 ${tarea.titulo}
+          </h2>
+          <button class="modal-close" onclick="features.tareas.cerrarJuegoActivo()" 
+                  aria-label="Cerrar actividad" style="min-width:44px;min-height:44px;">✕</button>
+        </div>
+        
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">
+            ${tarea.descripcion}
+          </p>
+          
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px;color:var(--ink3);">
+            <span>🃏 Cartas: ${tarea.cartas.length / 2} parejas</span>
+            <span id="memoria-movimientos">Movimientos: 0</span>
+          </div>
+          
+          <!-- Grid de cartas -->
+          <div id="memoria-grid" 
+               style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+                      justify-content:center;margin-bottom:20px;"
+               role="grid"
+               aria-label="Tablero de memoria">
+            ${cartasHTML}
+          </div>
+          
+          <!-- Feedback -->
+          <div id="memoria-feedback" 
+               style="min-height:24px;font-weight:600;" 
+               aria-live="polite"
+               aria-atomic="true"></div>
+        </div>
+        
+        <div class="modal-footer" style="justify-content:center;">
+          <button onclick="features.tareas.cerrarJuegoActivo()" 
+                  class="topbar-btn ghost"
+                  style="min-width:120px;min-height:48px;">
+            ❌ Salir
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(juegoContainer);
+    
+    // Configurar estado del juego
+    this.estado.juegoMemoria = {
+      modal: juegoContainer,
+      cartas: cartasBarajadas,
+      volteadas: [],
+      encontradas: [],
+      movimientos: 0,
+      tareaId: tarea.id
+    };
+    
+    // Configurar eventos de cartas
+    const cartas = juegoContainer.querySelectorAll('.carta-memoria');
+    cartas.forEach(carta => {
+      carta.addEventListener('click', () => {
+        this.voltearCarta(carta, tarea);
+      });
+    });
+    
+    // Analytics
+    this.registrarEvento('juego_memoria_iniciado', {
+      tareaId: tarea.id,
+      parejas: tarea.cartas.length / 2
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VOLTEAR CARTA (MEMORIA)
+  // ─────────────────────────────────────────────────────────────
+  voltearCarta: function(carta, tarea) {
+    // Prevenir si ya está volteada o encontrada
+    if (carta.classList.contains('volteada') || 
+        carta.classList.contains('encontrada') ||
+        this.estado.juegoMemoria.volteadas.length >= 2) {
+      return;
+    }
+    
+    // Voltear carta
+    carta.classList.add('volteada');
+    carta.querySelector('span').style.opacity = '1';
+    
+    // Agregar a volteadas
+    this.estado.juegoMemoria.volteadas.push(carta);
+    
+    // Si hay 2 cartas volteadas, verificar match
+    if (this.estado.juegoMemoria.volteadas.length === 2) {
+      this.estado.juegoMemoria.movimientos++;
+      document.getElementById('memoria-movimientos').textContent = 
+        `Movimientos: ${this.estado.juegoMemoria.movimientos}`;
+      
+      // Verificar después de breve delay
+      setTimeout(() => {
+        this.verificarMatch(tarea);
+      }, 800);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR MATCH (MEMORIA)
+  // ─────────────────────────────────────────────────────────────
+  verificarMatch: function(tarea) {
+    const [carta1, carta2] = this.estado.juegoMemoria.volteadas;
+    const emoji1 = carta1.dataset.emoji;
+    const emoji2 = carta2.dataset.emoji;
+    
+    const feedback = document.getElementById('memoria-feedback');
+    
+    if (emoji1 === emoji2) {
+      // Match encontrado
+      carta1.classList.add('encontrada');
+      carta2.classList.add('encontrada');
+      this.estado.juegoMemoria.encontradas.push(carta1, carta2);
+      
+      if (feedback) {
+        feedback.textContent = '¡Pareja encontrada! 🎉';
+        feedback.style.color = 'var(--success)';
+      }
+      
+      // Reproducir sonido
+      this.reproducirSonido('audio/exito.mp3');
+      
+      // Verificar si completó todas las parejas
+      if (this.estado.juegoMemoria.encontradas.length === tarea.cartas.length) {
+        setTimeout(() => {
+          this.completarTarea(tarea.id, { 
+            exito: true, 
+            puntuacion: tarea.recompensa 
+          });
+          this.cerrarJuegoActivo();
+        }, 1000);
+      }
+    } else {
+      // No hay match
+      carta1.classList.add('error');
+      carta2.classList.add('error');
+      
+      if (feedback) {
+        feedback.textContent = 'Casi... intenta de nuevo 💪';
+        feedback.style.color = 'var(--warning)';
+      }
+      
+      // Reproducir sonido de error
+      this.reproducirSonido('audio/error.mp3');
+      
+      // Voltear cartas de nuevo después de delay
+      setTimeout(() => {
+        carta1.classList.remove('volteada', 'error');
+        carta2.classList.remove('volteada', 'error');
+        carta1.querySelector('span').style.opacity = '0';
+        carta2.querySelector('span').style.opacity = '0';
+        if (feedback) feedback.textContent = '';
+      }, 1000);
+    }
+    
+    // Resetear volteadas
+    this.estado.juegoMemoria.volteadas = [];
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // BARAJAR ARRAY (UTILIDAD PARA MEMORIA)
+  // ─────────────────────────────────────────────────────────────
+  barajarArray: function(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   },
   // ─────────────────────────────────────────────────────────────
   // INICIAR JUEGO DE LETRAS (ABECEDARIO)
