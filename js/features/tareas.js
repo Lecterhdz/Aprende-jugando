@@ -2134,6 +2134,111 @@ window.features.tareas = {
       parejas: tarea.cartas.length / 2
     });
   },
+
+  // ─────────────────────────────────────────────────────────────
+  // VOLTEAR CARTA (MEMORIA)
+  // ─────────────────────────────────────────────────────────────
+  voltearCarta: function(carta, tarea) {
+    // Prevenir si ya está volteada o encontrada
+    if (carta.classList.contains('volteada') || 
+        carta.classList.contains('encontrada') ||
+        this.estado.juegoMemoria.volteadas.length >= 2) {
+      return;
+    }
+    
+    // Voltear carta
+    carta.classList.add('volteada');
+    carta.querySelector('span').style.opacity = '1';
+    
+    // Agregar a volteadas
+    this.estado.juegoMemoria.volteadas.push(carta);
+    
+    // Si hay 2 cartas volteadas, verificar match
+    if (this.estado.juegoMemoria.volteadas.length === 2) {
+      this.estado.juegoMemoria.movimientos++;
+      document.getElementById('memoria-movimientos').textContent = 
+        `Movimientos: ${this.estado.juegoMemoria.movimientos}`;
+      
+      // Verificar después de breve delay
+      setTimeout(() => {
+        this.verificarMatch(tarea);
+      }, 800);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR MATCH (MEMORIA)
+  // ─────────────────────────────────────────────────────────────
+  verificarMatch: function(tarea) {
+    const [carta1, carta2] = this.estado.juegoMemoria.volteadas;
+    const emoji1 = carta1.dataset.emoji;
+    const emoji2 = carta2.dataset.emoji;
+    
+    const feedback = document.getElementById('memoria-feedback');
+    
+    if (emoji1 === emoji2) {
+      // Match encontrado
+      carta1.classList.add('encontrada');
+      carta2.classList.add('encontrada');
+      this.estado.juegoMemoria.encontradas.push(carta1, carta2);
+      
+      if (feedback) {
+        feedback.textContent = '¡Pareja encontrada! 🎉';
+        feedback.style.color = 'var(--success)';
+      }
+      
+      // Reproducir sonido
+      this.reproducirSonido('audio/exito.mp3');
+      
+      // Verificar si completó todas las parejas
+      if (this.estado.juegoMemoria.encontradas.length === tarea.cartas.length) {
+        setTimeout(() => {
+          this.completarTarea(tarea.id, { 
+            exito: true, 
+            puntuacion: tarea.recompensa 
+          });
+          this.cerrarJuegoActivo();
+        }, 1000);
+      }
+    } else {
+      // No hay match
+      carta1.classList.add('error');
+      carta2.classList.add('error');
+      
+      if (feedback) {
+        feedback.textContent = 'Casi... intenta de nuevo 💪';
+        feedback.style.color = 'var(--warning)';
+      }
+      
+      // Reproducir sonido de error
+      this.reproducirSonido('audio/error.mp3');
+      
+      // Voltear cartas de nuevo después de delay
+      setTimeout(() => {
+        carta1.classList.remove('volteada', 'error');
+        carta2.classList.remove('volteada', 'error');
+        carta1.querySelector('span').style.opacity = '0';
+        carta2.querySelector('span').style.opacity = '0';
+        if (feedback) feedback.textContent = '';
+      }, 1000);
+    }
+    
+    // Resetear volteadas
+    this.estado.juegoMemoria.volteadas = [];
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // BARAJAR ARRAY (UTILIDAD PARA MEMORIA)
+  // ─────────────────────────────────────────────────────────────
+  barajarArray: function(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  },
+
+
   
   // ─────────────────────────────────────────────────────────────
   // HELPER: CERRAR JUEGO DE MEMORIA
