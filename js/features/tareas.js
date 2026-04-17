@@ -443,9 +443,54 @@ window.features.tareas = {
         recompensa: 3,
         tiempoEstimado: 120,
         habilidades: ['memoria', 'concentracion'],
-        nivel: 'facil', // facil: 4 cartas, medio: 6, dificil: 8
+        nivel: 'facil',
         cartas: ['🐶', '🐶', '🐱', '🐱', '🐰', '🐰', '🐸', '🐸'],
         hint: 'Recuerda dónde viste cada animal',
+        audioExito: 'audio/exito-memoria.mp3'
+      },
+      
+      // ✅ NUEVO JUEGO 1: Memoria de Frutas (6 parejas - Fácil)
+      {
+        id: 'm2',
+        titulo: 'Memoria de Frutas 🍎',
+        descripcion: 'Encuentra las parejas de frutas deliciosas',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 90,
+        habilidades: ['memoria', 'reconocimiento-visual'],
+        nivel: 'facil',
+        cartas: ['🍎', '🍎', '🍌', '🍌', '🍇', '🍇', '🍓', '🍓', '🍊', '🍊', '🍋', '🍋'],
+        hint: 'Las frutas del mismo tipo son parejas',
+        audioExito: 'audio/exito-memoria.mp3'
+      },
+      
+      // ✅ NUEVO JUEGO 2: Memoria de Colores y Formas (8 parejas - Medio)
+      {
+        id: 'm3',
+        titulo: 'Memoria de Colores 🎨',
+        descripcion: 'Encuentra las parejas de colores y formas',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 150,
+        habilidades: ['memoria', 'reconocimiento-colores', 'atencion'],
+        nivel: 'medio',
+        cartas: ['🔴', '🔴', '🔵', '🔵', '🟢', '🟢', '🟡', '🟡', '🟣', '🟣', '🟠', '🟠', '⭐', '⭐', '🌙', '🌙'],
+        hint: 'Fíjate en el color y la forma',
+        audioExito: 'audio/exito-memoria.mp3'
+      },
+      
+      // ✅ NUEVO JUEGO 3: Memoria de Emojis Divertidos (10 parejas - Difícil)
+      {
+        id: 'm4',
+        titulo: 'Memoria de Emojis 😊',
+        descripcion: 'Encuentra las parejas de emojis divertidos',
+        dificultad: 3,
+        recompensa: 4,
+        tiempoEstimado: 180,
+        habilidades: ['memoria', 'concentracion', 'atencion'],
+        nivel: 'dificil',
+        cartas: ['😊', '😊', '🤩', '🤩', '🥳', '🥳', '😎', '😎', '🤔', '🤔', '😴', '😴', '🤯', '🤯', '😋', '😋', '🥺', '🥺', '🤪', '🤪'],
+        hint: 'Los emojis iguales son parejas',
         audioExito: 'audio/exito-memoria.mp3'
       }
     ]
