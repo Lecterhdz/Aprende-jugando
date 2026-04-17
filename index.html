@@ -529,6 +529,47 @@
       </div>
     </div>
   </dialog>
+
+  <!-- ══════════════════════════════════════ MODAL CELEBRACIÓN ══════════════════════════════════════ -->
+  <dialog id="modal-celebracion" class="modal" aria-labelledby="modal-celebracion-titulo" aria-modal="true">
+    <div class="modal-content" style="max-width:420px;text-align:center;" role="document">
+      <div class="modal-body" style="padding:32px 24px;">
+        <div style="font-size:72px;margin-bottom:12px;" aria-hidden="true" id="modal-celebracion-icono">🎉</div>
+        <h2 id="modal-celebracion-titulo" style="color:var(--primary);font-size:24px;margin-bottom:8px;">
+          ¡Excelente trabajo!
+        </h2>
+        <p id="modal-celebracion-mensaje" style="color:var(--ink2);font-size:16px;margin-bottom:20px;">
+          Completaste la actividad
+        </p>
+        
+        <div style="background:linear-gradient(135deg,var(--accent-light),var(--accent));
+                   padding:20px;border-radius:var(--radius-lg);margin-bottom:24px;"
+             role="status" aria-live="polite">
+          <div style="font-size:13px;color:rgba(255,255,255,0.9);">⭐ Puntuación:</div>
+          <div style="font-size:42px;font-weight:800;color:white;margin-top:4px;"
+               id="modal-celebracion-puntuacion">
+            0
+          </div>
+          <div id="modal-celebracion-bonus" style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:8px;display:none;">
+            ⚡ ¡Bonus por velocidad!
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:center;gap:12px;flex-wrap:wrap;">
+        <button id="modal-celebracion-reintentar" 
+                class="topbar-btn ghost" 
+                style="min-width:120px;min-height:48px;display:none;">
+          🔄 Intentar de nuevo
+        </button>
+        <button id="modal-celebracion-continuar" 
+                class="topbar-btn primary" 
+                style="min-width:150px;min-height:48px;" autofocus>
+          🚀 Siguiente
+        </button>
+      </div>
+    </div>
+  </dialog>
+  
   <!-- ══════════════════════════════════════ MODAL INSTRUCCIONES TAREA ══════════════════════════════════════ -->
   <dialog id="modal-instrucciones-tarea" class="modal" aria-labelledby="modal-instrucciones-title" aria-modal="true">
     <div class="modal-content" style="max-width:520px;" role="document">
