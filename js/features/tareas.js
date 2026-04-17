@@ -1118,6 +1118,69 @@ window.features.tareas = {
   },
 
   // ─────────────────────────────────────────────────────────────
+  // MOSTRAR PRÓXIMAMENTE (MODAL DE ACTIVIDAD EN DESARROLLO)
+  // ─────────────────────────────────────────────────────────────
+  mostrarProximamente: function(tarea, icono, categoria) {
+    console.log('🚧 Actividad en desarrollo:', tarea.titulo, categoria);
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'modal-proximamente';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width:450px;text-align:center;" role="document">
+        <div class="modal-body" style="padding:40px 24px;">
+          <div style="font-size:72px;margin-bottom:16px;" aria-hidden="true">${icono}</div>
+          <h2 style="color:var(--primary);font-size:22px;margin-bottom:12px;">
+            🚧 En Construcción
+          </h2>
+          <p style="color:var(--ink2);font-size:15px;line-height:1.6;margin-bottom:20px;">
+            <strong>${tarea.titulo}</strong><br>
+            Esta actividad de <strong>${categoria}</strong> está siendo desarrollada con mucho cariño.
+          </p>
+          <div style="background:var(--bg2);padding:16px;border-radius:var(--radius-sm);margin-bottom:24px;">
+            <p style="font-size:13px;color:var(--ink3);margin:0;">
+              📅 Próximamente disponible<br>
+              Mientras tanto, ¡prueba las actividades de 
+              <strong>Conteo</strong>, <strong>Sumas</strong> o <strong>Lectura</strong> que ya están listas! ✨
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer" style="justify-content:center;gap:12px;flex-wrap:wrap;">
+          <button onclick="this.closest('.modal')?.remove()" 
+                  class="topbar-btn ghost"
+                  style="min-width:140px;min-height:48px;">
+            👍 Entendido
+          </button>
+          <button onclick="this.closest('.modal')?.remove();app.mostrarPantalla('tareas-screen')" 
+                  class="topbar-btn primary"
+                  style="min-width:160px;min-height:48px;">
+            🎮 Ver actividades disponibles
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Enfocar botón para accesibilidad
+    setTimeout(() => {
+      modal.querySelector('.topbar-btn.primary')?.focus();
+    }, 100);
+    
+    // Guardar referencia
+    this.estado.juegoActivo = { modal, tipo: 'proximamente', tareaId: tarea.id };
+    
+    // Analytics
+    this.registrarEvento('actividad_proximamente', { 
+      tareaId: tarea.id, 
+      categoria: categoria 
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
   // SIMULAR COMPLETADO (FALLBACK)
   // ─────────────────────────────────────────────────────────────
   simularCompletado: function(tarea) {
