@@ -431,7 +431,136 @@ window.features.tareas = {
         audioExito: 'audio/exito-logica.mp3'
       },
       { id: 'p2', titulo: 'Completa: 🔴🔴🔵🔵___', descripcion: '¿Qué sigue?', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica', 'reconocimiento-patrones'], secuencia: ['🔴', '🔵', '🔴', '🔵'], opciones: ['🔴', '🔵', '🟡', '🟢'], respuestaCorrecta: '🔴', hint: 'Mira: rojo, azul, rojo, azul... ¿qué toca?', completada: false, mejorPuntuacion: 0 },
-      { id: 'p3', titulo: 'Completa: 🟢🟡🟡🟢___', descripcion: 'Sigue el patrón', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica'], secuencia: ['🟡', '🟢', '🟡', '🟢'], opciones: ['🟡', '🟢', '🔴', '🔵'], respuestaCorrecta: '🟡', hint: 'Amarillo, verde, amarillo, verde...', completada: false, mejorPuntuacion: 0 }
+      { id: 'p3', titulo: 'Completa: 🟢🟡🟡🟢___', descripcion: 'Sigue el patrón', dificultad: 1, recompensa: 2, tiempoEstimado: 40, habilidades: ['logica'], secuencia: ['🟡', '🟢', '🟡', '🟢'], opciones: ['🟡', '🟢', '🔴', '🔵'], respuestaCorrecta: '🟡', hint: 'Amarillo, verde, amarillo, verde...', completada: false, mejorPuntuacion: 0 },
+      {
+        id: 'p4',
+        titulo: 'Sigue el Patrón',
+        descripcion: '⭐⭐ 🌙🌙 ___ ¿Qué sigue?',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 40,
+        habilidades: ['logica', 'reconocimiento-formas'],
+        secuencia: ['⭐', '⭐', '🌙', '🌙'],
+        opciones: ['⭐', '🌙', '☀️', '🌟'],
+        respuestaCorrecta: '⭐',
+        hint: 'Dos estrellas, dos lunas... se repite',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      
+      // ─────────────────────────────────────────────────────────────
+      // PATRÓN 5: ABCABC (Animales) - MEDIO
+      // ─────────────────────────────────────────────────────────────
+      {
+        id: 'p5',
+        titulo: '¿Qué Sigue?',
+        descripcion: '🐶 🐱 🐰 🐶 🐱 ___',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 50,
+        habilidades: ['logica', 'secuenciacion', 'memoria'],
+        secuencia: ['🐶', '🐱', '🐰', '🐶', '🐱'],
+        opciones: ['🐶', '🐱', '🐰', '🐸'],
+        respuestaCorrecta: '🐰',
+        hint: 'Perro, gato, conejo... se repite el grupo',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      
+      // ─────────────────────────────────────────────────────────────
+      // PATRÓN 6: Colores con Frutas - MEDIO
+      // ─────────────────────────────────────────────────────────────
+      {
+        id: 'p6',
+        titulo: 'Patrón de Frutas',
+        descripcion: '🍎 🍌 🍇 🍎 🍌 ___',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 50,
+        habilidades: ['logica', 'reconocimiento-visual'],
+        secuencia: ['🍎', '🍌', '🍇', '🍎', '🍌'],
+        opciones: ['🍎', '🍌', '🍇', '🍊'],
+        respuestaCorrecta: '🍇',
+        hint: 'Manzana, plátano, uva... ¿qué sigue?',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      
+      // ─────────────────────────────────────────────────────────────
+      // PATRÓN 7: Creciente (Números) - DIFÍCIL
+      // ─────────────────────────────────────────────────────────────
+      {
+        id: 'p7',
+        titulo: 'Patrón Creciente',
+        descripcion: '1️⃣ 1️⃣2️⃣ 1️⃣2️⃣3️⃣ ___',
+        dificultad: 3,
+        recompensa: 4,
+        tiempoEstimado: 60,
+        habilidades: ['logica', 'matematicas', 'secuenciacion'],
+        secuencia: ['1️⃣', '1️⃣2️⃣', '1️⃣2️⃣3️⃣'],
+        opciones: ['1️⃣2️⃣3️⃣4️⃣', '1️⃣2️⃣3️⃣', '4️⃣', '1️⃣'],
+        respuestaCorrecta: '1️⃣2️⃣3️⃣4️⃣',
+        hint: 'Cada vez hay un número más',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      
+      // ─────────────────────────────────────────────────────────────
+      // PATRÓN 8: Emociones - FÁCIL
+      // ─────────────────────────────────────────────────────────────
+      {
+        id: 'p8',
+        titulo: 'Patrón de Emojis',
+        descripcion: '😊 😢 😊 😢 ___',
+        dificultad: 1,
+        recompensa: 2,
+        tiempoEstimado: 40,
+        habilidades: ['logica', 'reconocimiento-emociones'],
+        secuencia: ['😊', '😢', '😊', '😢'],
+        opciones: ['😊', '😢', '😄', '😮'],
+        respuestaCorrecta: '😊',
+        hint: 'Feliz, triste, feliz, triste...',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      
+      // ─────────────────────────────────────────────────────────────
+      // PATRÓN 9: Transporte - MEDIO
+      // ─────────────────────────────────────────────────────────────
+      {
+        id: 'p9',
+        titulo: 'Vehículos en Patrón',
+        descripcion: '🚗 🚕 🚙 🚗 🚕 ___',
+        dificultad: 2,
+        recompensa: 3,
+        tiempoEstimado: 50,
+        habilidades: ['logica', 'reconocimiento-visual'],
+        secuencia: ['🚗', '🚕', '🚙', '🚗', '🚕'],
+        opciones: ['🚗', '🚕', '🚙', '🚌'],
+        respuestaCorrecta: '🚙',
+        hint: 'Auto, taxi, SUV... se repite',
+        completada: false,
+        mejorPuntuacion: 0
+      },
+      
+      // ─────────────────────────────────────────────────────────────
+      // PATRÓN 10: Naturaleza - DIFÍCIL
+      // ─────────────────────────────────────────────────────────────
+      {
+        id: 'p10',
+        titulo: 'Patrón Natural',
+        descripcion: '🌞 🌧️ ⛈️ 🌞 🌧️ ___',
+        dificultad: 3,
+        recompensa: 4,
+        tiempoEstimado: 60,
+        habilidades: ['logica', 'ciencias', 'secuenciacion'],
+        secuencia: ['🌞', '🌧️', '⛈️', '🌞', '🌧️'],
+        opciones: ['🌞', '🌧️', '⛈️', '🌈'],
+        respuestaCorrecta: '⛈️',
+        hint: 'Sol, lluvia, tormenta... ¿qué sigue?',
+        completada: false,
+        mejorPuntuacion: 0
+      }
     ],
     
     memoria: [
@@ -1172,6 +1301,8 @@ window.features.tareas = {
       case 'trazo':
       case 'colorear':
       case 'patrones':
+        this.iniciarJuegoPatrones(tarea);  // ← ¡Ahora llama al juego real!
+        break;
       case 'memoria':
         this.iniciarJuegoMemoria(tarea);
         break;
@@ -1985,10 +2116,411 @@ window.features.tareas = {
     this.simularCompletado(tarea);
   },
   
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR JUEGO DE PATRONES (IMPLEMENTACIÓN REAL COMPLETA)
+  // ─────────────────────────────────────────────────────────────
   iniciarJuegoPatrones: function(tarea) {
     console.log('🧩 Iniciando juego de patrones:', tarea.titulo);
-    // Implementar interfaz de arrastrar y soltar para completar secuencia
-    this.simularCompletado(tarea);
+    
+    // Validar datos mínimos
+    if (!tarea.secuencia || !tarea.opciones || tarea.respuestaCorrecta === undefined) {
+      console.error('❌ Juego de patrones sin datos válidos:', tarea.id);
+      window.app?.mostrarToast('⚠️ Actividad no disponible', 'error');
+      this.simularCompletado(tarea);
+      return;
+    }
+    
+    // Crear contenedor de juego
+    const juegoContainer = document.createElement('div');
+    juegoContainer.className = 'modal active';
+    juegoContainer.id = 'modal-juego-patrones';
+    juegoContainer.setAttribute('role', 'dialog');
+    juegoContainer.setAttribute('aria-modal', 'true');
+    juegoContainer.setAttribute('aria-labelledby', 'juego-patrones-title');
+    
+    // ✅ Click en overlay para cerrar
+    juegoContainer.addEventListener('click', (e) => {
+      if (e.target === juegoContainer) {
+        this.cerrarJuegoPatrones(juegoContainer);
+      }
+    });
+    
+    // ✅ Cerrar con Escape
+    const onKeydown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.cerrarJuegoPatrones(juegoContainer);
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
+    
+    // Generar visualización de la secuencia
+    const secuenciaHTML = tarea.secuencia.map((item, i) => `
+      <span style="font-size:40px;margin:0 4px;animation:popIn 0.3s ease ${i * 0.1}s forwards;opacity:0;"
+            aria-hidden="true">${item}</span>
+    `).join('');
+    
+    // Generar botón para el espacio vacío
+    const espacioVacio = `<span style="font-size:40px;margin:0 4px;color:var(--ink3);border:2px dashed var(--border);border-radius:8px;padding:4px 12px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;">?</span>`;
+    
+    // Generar botones de opciones
+    const opcionesHTML = tarea.opciones.map(opcion => `
+      <button class="opcion-patron-btn" 
+              data-respuesta="${opcion}"
+              style="min-width:60px;min-height:60px;font-size:32px;font-weight:700;
+                     background:var(--surface);border:2px solid var(--border);
+                     border-radius:var(--radius-sm);cursor:pointer;
+                     transition:all 0.2s ease;"
+              aria-label="Opción ${opcion}">
+        ${opcion}
+      </button>
+    `).join('');
+    
+    juegoContainer.innerHTML = `
+      <style>
+        @keyframes popIn {
+          0% { transform: scale(0); opacity: 0; }
+          70% { transform: scale(1.1); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes pulse-success {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(149, 225, 211, 0.7); }
+          50% { box-shadow: 0 0 0 12px rgba(149, 225, 211, 0); }
+        }
+        @keyframes pulse-error {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(243, 129, 129, 0.7); }
+          50% { box-shadow: 0 0 0 12px rgba(243, 129, 129, 0); }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .opcion-patron-btn.correcta {
+          background: var(--success) !important;
+          border-color: var(--success-dark) !important;
+          color: white !important;
+          animation: pulse-success 1s ease;
+        }
+        .opcion-patron-btn.incorrecta {
+          background: var(--warning) !important;
+          border-color: var(--warning-dark) !important;
+          color: white !important;
+          animation: pulse-error 1s ease;
+        }
+        .opcion-patron-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none !important;
+        }
+      </style>
+      
+      <div class="modal-content" style="max-width:550px;" role="document">
+        <div class="modal-header">
+          <h2 id="juego-patrones-title" class="modal-title" style="font-size:18px;">
+            🧩 ${tarea.titulo}
+          </h2>
+          <button class="modal-close" aria-label="Cerrar actividad" style="min-width:44px;min-height:44px;">✕</button>
+        </div>
+        
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:20px;">
+            ${tarea.descripcion}
+          </p>
+          
+          <!-- Secuencia visual -->
+          <div style="background:var(--bg2);padding:20px;border-radius:var(--radius-lg);margin-bottom:24px;"
+               aria-label="Secuencia de patrón">
+            <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;font-size:40px;">
+              ${secuenciaHTML}${espacioVacio}
+            </div>
+          </div>
+          
+          <p style="font-size:16px;font-weight:600;margin-bottom:16px;color:var(--ink);">
+            ¿Qué elemento sigue? 👇
+          </p>
+          
+          <!-- Opciones de respuesta -->
+          <div id="patrones-opciones" 
+               style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:20px;"
+               role="radiogroup"
+               aria-label="Selecciona el elemento que continúa el patrón">
+            ${opcionesHTML}
+          </div>
+          
+          <!-- Feedback -->
+          <div id="patrones-feedback" 
+               style="min-height:24px;font-weight:600;" 
+               aria-live="polite"
+               aria-atomic="true"></div>
+          
+          <!-- Pista -->
+          ${tarea.hint ? `
+            <button id="btn-hint-patrones" 
+                    class="topbar-btn ghost" 
+                    style="margin-top:12px;min-height:44px;"
+                    aria-label="Obtener pista">
+              💡 ¿Necesitas ayuda?
+            </button>
+          ` : ''}
+        </div>
+        
+        <div class="modal-footer" style="justify-content:center;">
+          <button class="btn-salir-patrones topbar-btn ghost" style="min-width:120px;min-height:48px;">
+            ❌ Salir
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(juegoContainer);
+    document.body.style.overflow = 'hidden';
+    
+    // ✅ Configurar listeners para botones de cerrar
+    const btnCerrarHeader = juegoContainer.querySelector('.modal-close');
+    const btnSalirFooter = juegoContainer.querySelector('.btn-salir-patrones');
+    
+    const cerrarYLimpiar = () => this.cerrarJuegoPatrones(juegoContainer, onKeydown);
+    
+    if (btnCerrarHeader) btnCerrarHeader.addEventListener('click', cerrarYLimpiar);
+    if (btnSalirFooter) btnSalirFooter.addEventListener('click', cerrarYLimpiar);
+    
+    // Configurar eventos de las opciones
+    const opciones = juegoContainer.querySelectorAll('.opcion-patron-btn');
+    opciones.forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.verificarRespuestaPatron(btn, tarea);
+      });
+      
+      // Accesibilidad: Enter/Space para seleccionar
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.verificarRespuestaPatron(btn, tarea);
+        }
+      });
+      
+      // Accesibilidad: role y tabindex
+      btn.setAttribute('role', 'radio');
+      btn.setAttribute('tabindex', '0');
+    });
+    
+    // Enfocar primera opción para accesibilidad
+    setTimeout(() => {
+      opciones[0]?.focus();
+    }, 100);
+    
+    // Configurar botón de hint si existe
+    const btnHint = juegoContainer.querySelector('#btn-hint-patrones');
+    if (btnHint && tarea.hint) {
+      btnHint.addEventListener('click', () => {
+        this.mostrarHintPatrones(tarea);
+      });
+    }
+    
+    // Guardar estado del juego
+    this.estado.juegoPatrones = {
+      modal: juegoContainer,
+      tareaId: tarea.id,
+      intentos: 0,
+      respondido: false
+    };
+    
+    // Analytics
+    this.registrarEvento('juego_patrones_iniciado', {
+      tareaId: tarea.id,
+      secuenciaLength: tarea.secuencia.length,
+      opcionesCount: tarea.opciones.length
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR RESPUESTA - PATRONES
+  // ─────────────────────────────────────────────────────────────
+  verificarRespuestaPatron: function(btnSeleccionado, tarea) {
+    // Prevenir múltiples clics
+    if (this.estado.juegoPatrones?.respondido) return;
+    this.estado.juegoPatrones.respondido = true;
+    
+    const respuestaUsuario = btnSeleccionado.dataset.respuesta;
+    const esCorrecta = respuestaUsuario === tarea.respuestaCorrecta;
+    
+    const feedback = document.getElementById('patrones-feedback');
+    
+    if (esCorrecta) {
+      // ✅ Respuesta correcta
+      btnSeleccionado.classList.add('correcta');
+      btnSeleccionado.setAttribute('aria-checked', 'true');
+      
+      if (feedback) {
+        feedback.textContent = '¡Correcto! 🎉 ¡El patrón continúa!';
+        feedback.style.color = 'var(--success)';
+      }
+      
+      // Sonido de éxito
+      this.reproducirSonido('audio/exito.mp3');
+      
+      // Deshabilitar otras opciones
+      document.querySelectorAll('.opcion-patron-btn').forEach(btn => {
+        if (btn !== btnSeleccionado) {
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+        }
+      });
+      
+      // Analytics
+      this.registrarEvento('respuesta_correcta_patron', {
+        tareaId: tarea.id,
+        intentos: this.estado.juegoPatrones?.intentos || 0
+      });
+      
+      // Completar tarea después de breve delay
+      setTimeout(() => {
+        this.completarTarea(tarea.id, { 
+          exito: true, 
+          puntuacion: tarea.recompensa 
+        });
+        this.cerrarJuegoPatrones(this.estado.juegoPatrones?.modal);
+      }, 1500);
+      
+    } else {
+      // ❌ Respuesta incorrecta
+      btnSeleccionado.classList.add('incorrecta');
+      
+      if (feedback) {
+        feedback.textContent = 'Casi... observa el patrón de nuevo 💪';
+        feedback.style.color = 'var(--warning)';
+      }
+      
+      // Sonido de error suave
+      this.reproducirSonido('audio/error.mp3');
+      
+      // Incrementar intentos
+      if (this.estado.juegoPatrones) {
+        this.estado.juegoPatrones.intentos = (this.estado.juegoPatrones.intentos || 0) + 1;
+      }
+      
+      // Permitir reintentar después de delay
+      setTimeout(() => {
+        this.estado.juegoPatrones.respondido = false;
+        
+        // Remover clases de feedback
+        btnSeleccionado.classList.remove('incorrecta');
+        if (feedback) feedback.textContent = '';
+        
+        // Si llegó al máximo de intentos, mostrar respuesta correcta
+        if (this.estado.juegoPatrones?.intentos >= TAREAS_CONFIG.MAX_INTENTOS) {
+          this.mostrarRespuestaCorrectaPatron(tarea);
+        }
+      }, 1200);
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // MOSTRAR RESPUESTA CORRECTA - PATRONES (DESPUÉS DE MÁX. INTENTOS)
+  // ─────────────────────────────────────────────────────────────
+  mostrarRespuestaCorrectaPatron: function(tarea) {
+    const feedback = document.getElementById('patrones-feedback');
+    if (feedback) {
+      feedback.innerHTML = `
+        <span style="color:var(--primary);font-size:16px;">
+          La respuesta era: <strong>${tarea.respuestaCorrecta}</strong> ✨<br>
+          <small style="color:var(--ink3);">El patrón se repite: ${tarea.secuencia.join(' ')}...</small>
+        </span>
+      `;
+    }
+    
+    // Deshabilitar todas las opciones
+    document.querySelectorAll('.opcion-patron-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      
+      // Resaltar la correcta
+      if (btn.dataset.respuesta === tarea.respuestaCorrecta) {
+        btn.classList.add('correcta');
+      }
+    });
+    
+    // Botón para continuar
+    setTimeout(() => {
+      const footer = document.querySelector('#modal-juego-patrones .modal-footer');
+      if (footer && !footer.querySelector('.btn-continuar')) {
+        const btnContinuar = document.createElement('button');
+        btnContinuar.className = 'topbar-btn primary btn-continuar';
+        btnContinuar.textContent = '✅ Entendido, continuar';
+        btnContinuar.style.minHeight = '48px';
+        btnContinuar.style.minWidth = '180px';
+        btnContinuar.onclick = () => {
+          // Completar con puntuación reducida por intentos
+          const puntuacion = Math.max(1, Math.round(tarea.recompensa * 0.5));
+          this.completarTarea(tarea.id, { exito: true, puntuacion });
+          this.cerrarJuegoPatrones(this.estado.juegoPatrones?.modal);
+        };
+        footer.appendChild(btnContinuar);
+        btnContinuar.focus();
+      }
+    }, 2000);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // MOSTRAR HINT - PATRONES
+  // ─────────────────────────────────────────────────────────────
+  mostrarHintPatrones: function(tarea) {
+    if (!tarea.hint) return;
+    
+    // Limitar hints
+    if (this.estado.hintsUsados >= TAREAS_CONFIG.HINTS_DISPONIBLES) {
+      window.app?.mostrarToast('💡 Ya usaste todas las pistas', 'info');
+      return;
+    }
+    
+    this.estado.hintsUsados++;
+    
+    // Mostrar hint en el feedback
+    const feedback = document.getElementById('patrones-feedback');
+    if (feedback) {
+      feedback.innerHTML = `
+        <span style="color:var(--accent);font-size:14px;">
+          💡 ${tarea.hint}
+        </span>
+      `;
+    }
+    
+    // Deshabilitar botón de hint
+    const btnHint = document.getElementById('btn-hint-patrones');
+    if (btnHint) {
+      btnHint.disabled = true;
+      btnHint.style.opacity = '0.5';
+      btnHint.textContent = '✓ Pista usada';
+    }
+    
+    // Sonido de hint
+    this.reproducirSonido('audio/hint.mp3');
+    
+    // Analytics
+    this.registrarEvento('hint_usado_patrones', { 
+      tareaId: tarea.id,
+      hintNumero: this.estado.hintsUsados 
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // HELPER: CERRAR JUEGO DE PATRONES
+  // ─────────────────────────────────────────────────────────────
+  cerrarJuegoPatrones: function(modal, onKeydownCallback) {
+    if (modal) {
+      modal.classList.remove('active');
+      // Remover del DOM con delay para animación
+      setTimeout(() => {
+        if (modal.parentNode) modal.remove();
+      }, 200);
+    }
+    if (onKeydownCallback) {
+      document.removeEventListener('keydown', onKeydownCallback);
+    }
+    document.body.style.overflow = '';
+    console.log('🧩 Juego de patrones cerrado');
   },
   
   // ─────────────────────────────────────────────────────────────
