@@ -1915,38 +1915,169 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // REPRODUCIR SONIDO (CON VERIFICACIÓN DE PREFERENCIAS)
+  // REPRODUCIR SONIDO (CORREGIDO - CON FALLBACK WEB SPEECH)
   // ─────────────────────────────────────────────────────────────
   reproducirSonido: function(rutaAudio) {
+    // Verificar preferencias del usuario
     if (!this.estado.sonidosActivos) return;
     
+    // Intentar reproducir archivo de audio
     try {
       const audio = new Audio(rutaAudio);
-      audio.volume = 0.3; // Volumen bajo para no molestar
-      audio.play().catch(() => {
-        // Silenciar si el navegador bloquea autoplay
-        this.estado.sonidosActivos = false;
-        localStorage.setItem(TAREAS_CONFIG.SOUND_ENABLED_KEY, 'false');
-      });
+      audio.volume = 0.4;
+      
+      // Reproducir solo después de interacción del usuario
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          // Fallback: si no hay archivo o está bloqueado, usar Web Speech
+          console.log('🔊 Fallback a Web Speech para:', rutaAudio);
+          this.reproducirConVoz(rutaAudio);
+        });
+      }
     } catch (error) {
-      console.warn('⚠️ Error reproduciendo sonido:', error);
+      console.warn('⚠️ Error con archivo de audio, usando voz:', error);
+      this.reproducirConVoz(rutaAudio);
     }
   },
   
   // ─────────────────────────────────────────────────────────────
-  // TOGGLE SONIDOS
+  // REPRODUCIR CON VOZ (WEB SPEECH API - SIN ARCHIVOS)
+  // ─────────────────────────────────────────────────────────────
+  reproducirConVoz: function(rutaAudio) {
+    if (!this.estado.sonidosActivos) return;
+    if (!('speechSynthesis' in window)) return;
+    
+    // Mapear rutas de audio a frases en español
+    const frasesPorAudio = {
+      'audio/exito.mp3': '¡Excelente trabajo!',
+      'audio/exito-conteo.mp3': '¡Muy bien contado!',
+      'audio/exito-letra.mp3': '¡Perfecta letra!',
+      'audio/exito-numeros.mp3': '¡Números perfectos!',
+      'audio/exito-matematicas.mp3': '¡Genial en matemáticas!',
+      'audio/exito-colorear.mp3': '¡Qué bonito coloreaste!',
+      'audio/exito-logica.mp3': '¡Muy lógico!',
+      'audio/exito-memoria.mp3': '¡Excelente memoria!',
+      'audio/error-suave.mp3': 'Casi lo logras, intenta de nuevo',
+      'audio/error.mp3': 'No te rindas, sigue practicando',
+      'audio/hint.mp3': 'Aquí tienes una pista',
+      'audio/click-categoria.mp3': '', // Sin voz para clicks UI
+      'audio/modal-close.mp3': '' // Sin voz para cerrar modal
+    };
+    
+    const frase = frasesPorAudio[rutaAudio];
+    if (!frase) return; // Sin voz para este audio
+    
+    // Cancelar cualquier audio previo
+    window.speechSynthesis.cancel();
+    
+    // Crear utterance
+    const utterance = new SpeechSynthesisUtterance(frase);
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.9; // Ligeramente más lento para niños
+    utterance.pitch = 1.1; // Un poco más agudo, más amigable
+    utterance.volume = 1;
+    
+    // Seleccionar voz en español de México si está disponible
+    const voces = window.speechSynthesis.getVoices();
+    const vozMexico = voces.find(v => 
+      v.lang.includes('es-MX') || 
+      v.name.includes('Spanish (Mexico)') ||
+      v.name.includes('Sabina') ||
+      v.name.includes('Raul')
+    );
+    
+    if (vozMexico) {
+      utterance.voice = vozMexico;
+    }
+    
+    // Reproducir
+    window.speechSynthesis.speak(utterance);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // LEER FEEDBACK DE ÉXITO (PARA JUEGOS)
+  // ─────────────────────────────────────────────────────────────
+  leerFeedbackExito: function(tarea) {
+    if (!this.estado.sonidosActivos) return;
+    if (!('speechSynthesis' in window)) return;
+    
+    const frases = [
+      `¡Excelente! Completaste ${tarea.titulo}`,
+      `¡Muy bien! Terminaste ${tarea.titulo}`,
+      `¡Fantástico! ${tarea.titulo} completada`,
+      `¡Increíble! Lo lograste`
+    ];
+    
+    const frase = frases[Math.floor(Math.random() * frases.length)];
+    this.reproducirTexto(frase);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // LEER FEEDBACK DE ÁNIMO (CUANDO FALLA)
+  // ─────────────────────────────────────────────────────────────
+  leerFeedbackAnimo: function() {
+    if (!this.estado.sonidosActivos) return;
+    if (!('speechSynthesis' in window)) return;
+    
+    const frases = [
+      'Casi lo logras, intenta de nuevo',
+      'Tú puedes, sigue practicando',
+      'No te rindas, inténtalo otra vez',
+      'Muy cerca, vamos por más'
+    ];
+    
+    const frase = frases[Math.floor(Math.random() * frases.length)];
+    this.reproducirTexto(frase);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // REPRODUCIR TEXTO GENÉRICO (HELPER)
+  // ─────────────────────────────────────────────────────────────
+  reproducirTexto: function(texto) {
+    if (!this.estado.sonidosActivos) return;
+    if (!('speechSynthesis' in window)) return;
+    
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    utterance.volume = 1;
+    
+    // Seleccionar voz en español
+    const voces = window.speechSynthesis.getVoices();
+    const vozEspanol = voces.find(v => v.lang.includes('es'));
+    if (vozEspanol) utterance.voice = vozEspanol;
+    
+    window.speechSynthesis.speak(utterance);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // TOGGLE SONIDOS (ACTUALIZADO)
   // ─────────────────────────────────────────────────────────────
   toggleSonidos: function() {
     this.estado.sonidosActivos = !this.estado.sonidosActivos;
     localStorage.setItem(TAREAS_CONFIG.SOUND_ENABLED_KEY, JSON.stringify(this.estado.sonidosActivos));
     
-    window.app?.mostrarToast(
-      this.estado.sonidosActivos ? '🔊 Sonidos activados' : '🔇 Sonidos desactivados', 
-      'info'
-    );
+    const mensaje = this.estado.sonidosActivos 
+      ? '🔊 Sonidos y voz activados' 
+      : '🔇 Sonidos y voz desactivados';
+    
+    window.app?.mostrarToast(mensaje, 'info');
+    
+    // Si se activan, probar con un sonido de test
+    if (this.estado.sonidosActivos) {
+      setTimeout(() => {
+        this.reproducirTexto('Sonidos activados');
+      }, 300);
+    }
     
     this.registrarEvento('sonidos_toggle', { activado: this.estado.sonidosActivos });
   },
+
   
   // ─────────────────────────────────────────────────────────────
   // REGISTRAR EVENTO PARA ANALYTICS (PLACEHOLDER)
