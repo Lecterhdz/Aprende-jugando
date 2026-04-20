@@ -847,64 +847,6 @@ window.features.tareas = {
   },
 
   // ─────────────────────────────────────────────────────────────
-  // LEER TEXTO EN VOZ ALTA (WEB SPEECH API)
-  // ─────────────────────────────────────────────────────────────
-  leerTextoEnVozAlta: function(texto, idioma = 'es-MX') {
-    // Verificar soporte del navegador
-    if (!('speechSynthesis' in window)) {
-      console.warn('⚠️ Web Speech API no soportada en este navegador');
-      return false;
-    }
-    
-    // Cancelar cualquier audio previo
-    window.speechSynthesis.cancel();
-    
-    // Crear utterance (mensaje de voz)
-    const utterance = new SpeechSynthesisUtterance(texto);
-    
-    // Configurar propiedades
-    utterance.lang = idioma;  // 'es-MX', 'es-ES', 'en-US', etc.
-    utterance.rate = 0.9;     // Velocidad (0.1 a 10, 1 es normal)
-    utterance.pitch = 1.1;    // Tono (0 a 2, 1 es normal)
-    utterance.volume = 1;     // Volumen (0 a 1)
-    
-    // Seleccionar voz en español si está disponible
-    const voces = window.speechSynthesis.getVoices();
-    const vozEspanol = voces.find(voz => voz.lang.includes('es'));
-    if (vozEspanol) {
-      utterance.voice = vozEspanol;
-    }
-    
-    // Eventos opcionales
-    utterance.onstart = () => {
-      console.log('🗣️ Leyendo:', texto);
-    };
-    
-    utterance.onend = () => {
-      console.log('✅ Lectura completada');
-    };
-    
-    utterance.onerror = (e) => {
-      console.warn('❌ Error en lectura de voz:', e.error);
-    };
-    
-    // Reproducir
-    window.speechSynthesis.speak(utterance);
-    
-    return true;
-  },
-  
-  // ─────────────────────────────────────────────────────────────
-  // LEER INSTRUCCIONES DE TAREA (WRAPPER)
-  // ─────────────────────────────────────────────────────────────
-  leerInstruccionesTarea: function(tarea) {
-    const texto = `${tarea.titulo}. ${tarea.instruccionesDetalladas || tarea.descripcion}. 
-                   Recompensa: ${tarea.recompensa} estrellas.`;
-    
-    return this.leerTextoEnVozAlta(texto);
-  },
-  
-  // ─────────────────────────────────────────────────────────────
   // RENDERIZAR TAREAS (CON ESTADO Y ACCESIBILIDAD)
   // ─────────────────────────────────────────────────────────────
   renderTareas: function() {
@@ -1231,6 +1173,12 @@ window.features.tareas = {
               💡 ¿Necesitas una pista?
             </button>
           ` : ''}
+        <!-- ✅ AGREGA ESTE BOTÓN NUEVO -->
+        <button class="topbar-btn ghost" 
+                onclick="features.tareas.leerInstruccionesTarea(features.tareas.estado.tareaActiva)"
+                style="width:100%;min-height:44px;margin-bottom:12px;">
+          🔊 Escuchar instrucciones
+        </button>
         </div>
         <div class="modal-footer" style="justify-content:center;gap:12px;flex-wrap:wrap;">
           <button class="btn-cancelar-instrucciones topbar-btn ghost" style="min-width:120px;min-height:48px;">
@@ -1325,6 +1273,144 @@ window.features.tareas = {
     
     // Analytics
     this.registrarEvento('hint_usado', { tareaId, hintNumero: this.estado.hintsUsados });
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // WEB SPEECH API - TEXTO A VOZ (SIN ARCHIVOS DE AUDIO)
+  // ─────────────────────────────────────────────────────────────
+  leerTextoEnVozAlta: function(texto, idioma = 'es-MX') {
+    // Verificar soporte del navegador
+    if (!('speechSynthesis' in window)) {
+      console.warn('⚠️ Web Speech API no soportada en este navegador');
+      return false;
+    }
+    
+    // Cancelar cualquier audio previo
+    window.speechSynthesis.cancel();
+    
+    // Crear utterance (mensaje de voz)
+    const utterance = new SpeechSynthesisUtterance(texto);
+    
+    // Configurar propiedades
+    utterance.lang = idioma;  // 'es-MX' para México
+    utterance.rate = 0.85;    // Velocidad más lenta para niños (0.1 a 10)
+    utterance.pitch = 1.1;    // Tono ligeramente más agudo (0 a 2)
+    utterance.volume = 1;     // Volumen máximo (0 a 1)
+    
+    // ✅ Seleccionar mejor voz en español de México
+    const voces = window.speechSynthesis.getVoices();
+    const vozMexico = voces.find(voz => 
+      voz.lang.includes('es-MX') || 
+      voz.lang.includes('es-US') ||
+      voz.name.includes('Spanish (Mexico)') ||
+      voz.name.includes('español de Estados Unidos')
+    );
+    
+    if (vozMexico) {
+      utterance.voice = vozMexico;
+      console.log('🎤 Usando voz:', vozMexico.name);
+    } else {
+      // Fallback a cualquier voz en español
+      const vozEspanol = voces.find(voz => voz.lang.includes('es'));
+      if (vozEspanol) {
+        utterance.voice = vozEspanol;
+        console.log('🎤 Usando voz española:', vozEspanol.name);
+      }
+    }
+    
+    // Eventos opcionales
+    utterance.onstart = () => {
+      console.log('🗣️ Leyendo:', texto.substring(0, 50) + '...');
+    };
+    
+    utterance.onend = () => {
+      console.log('✅ Lectura completada');
+    };
+    
+    utterance.onerror = (e) => {
+      console.warn('❌ Error en lectura de voz:', e.error);
+    };
+    
+    // Reproducir
+    window.speechSynthesis.speak(utterance);
+    
+    return true;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // LEER INSTRUCCIONES DE TAREA (WRAPPER)
+  // ─────────────────────────────────────────────────────────────
+  leerInstruccionesTarea: function(tarea) {
+    const texto = `${tarea.titulo}. ${tarea.instruccionesDetalladas || tarea.descripcion}. 
+                   Recompensa: ${tarea.recompensa} estrellas.`;
+    
+    return this.leerTextoEnVozAlta(texto);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // LEER FEEDBACK DE ÉXITO
+  // ─────────────────────────────────────────────────────────────
+  leerFeedbackExito: function(tarea) {
+    const frases = [
+      `¡Excelente trabajo! Completaste ${tarea.titulo}`,
+      `¡Muy bien! Terminaste ${tarea.titulo}`,
+      `¡Fantástico! ${tarea.titulo} completada`,
+      `¡Increíble! Lograste ${tarea.titulo}`
+    ];
+    
+    const fraseAleatoria = frases[Math.floor(Math.random() * frases.length)];
+    return this.leerTextoEnVozAlta(fraseAleatoria);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // LEER FEEDBACK DE ÁNIMO (CUANDO FALLA)
+  // ─────────────────────────────────────────────────────────────
+  leerFeedbackAnimo: function() {
+    const frases = [
+      'Casi lo logras, intenta de nuevo',
+      'Tú puedes, sigue practicando',
+      'No te rindas, inténtalo otra vez',
+      'Muy cerca, vamos por más'
+    ];
+    
+    const fraseAleatoria = frases[Math.floor(Math.random() * frases.length)];
+    return this.leerTextoEnVozAlta(fraseAleatoria);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // DETENER LECTURA ACTUAL
+  // ─────────────────────────────────────────────────────────────
+  detenerLectura: function() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      console.log('🔇 Lectura detenida');
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // VERIFICAR SI ESTÁ HABLANDO
+  // ─────────────────────────────────────────────────────────────
+  estaHablando: function() {
+    if ('speechSynthesis' in window) {
+      return window.speechSynthesis.speaking;
+    }
+    return false;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // TOGGLE SONIDOS (ACTUALIZADO PARA INCLUIR VOZ)
+  // ─────────────────────────────────────────────────────────────
+  toggleSonidos: function() {
+    this.estado.sonidosActivos = !this.estado.sonidosActivos;
+    localStorage.setItem(TAREAS_CONFIG.SOUND_ENABLED_KEY, JSON.stringify(this.estado.sonidosActivos));
+    
+    const mensaje = this.estado.sonidosActivos 
+      ? '🔊 Sonidos y voz activados' 
+      : '🔇 Sonidos y voz desactivados';
+    
+    window.app?.mostrarToast(mensaje, 'info');
+    
+    this.registrarEvento('sonidos_toggle', { activado: this.estado.sonidosActivos });
   },
   
   // ─────────────────────────────────────────────────────────────
@@ -2544,6 +2630,12 @@ window.features.tareas = {
     `;
     
     document.body.appendChild(juegoContainer);
+
+    setTimeout(() => {
+      if (this.estado.sonidosActivos) {
+        this.leerTextoEnVozAlta(tarea.descripcion);
+      }
+    }, 500);
     
     // Configurar eventos de las opciones
     const opciones = juegoContainer.querySelectorAll('.opcion-btn');
@@ -4020,7 +4112,7 @@ window.features.tareas = {
     }
   },
   // ─────────────────────────────────────────────────────────────
-  // VERIFICAR RESPUESTA EN JUEGO DE CONTEO
+  // VERIFICAR RESPUESTA EN JUEGO DE CONTEO (CORREGIDO)
   // ─────────────────────────────────────────────────────────────
   verificarRespuestaConteo: function(btnSeleccionado, tarea) {
     // Prevenir múltiples clics
@@ -4030,19 +4122,25 @@ window.features.tareas = {
     const respuestaUsuario = parseInt(btnSeleccionado.dataset.respuesta);
     const esCorrecta = respuestaUsuario === tarea.respuestaCorrecta;
     
-    // Feedback visual inmediato
+    const feedback = document.getElementById('conteo-feedback');
+    
+    // ✅ CASO 1: RESPUESTA CORRECTA
     if (esCorrecta) {
       btnSeleccionado.classList.add('correcta');
       btnSeleccionado.setAttribute('aria-checked', 'true');
       
-      // Sonido de éxito
-      this.reproducirSonido('audio/exito-conteo.mp3');
-      
-      // Feedback textual
-      const feedback = document.getElementById('conteo-feedback');
+      // Feedback visual
       if (feedback) {
         feedback.textContent = '¡Correcto! 🎉';
         feedback.style.color = 'var(--success)';
+      }
+      
+      // 🔊 Sonido de éxito
+      this.reproducirSonido('audio/exito-conteo.mp3');
+      
+      // 🔊 Web Speech API: leer feedback de éxito
+      if (this.estado.sonidosActivos && typeof this.leerFeedbackExito === 'function') {
+        this.leerFeedbackExito(tarea);
       }
       
       // Analytics
@@ -4051,7 +4149,7 @@ window.features.tareas = {
         intentos: this.estado.juegoActivo?.intentos || 0
       });
       
-      // Completar tarea después de breve delay para que vea el feedback
+      // Completar tarea después de breve delay
       setTimeout(() => {
         this.completarTarea(tarea.id, { 
           exito: true, 
@@ -4060,14 +4158,19 @@ window.features.tareas = {
         this.cerrarJuegoActivo();
       }, 1500);
       
+    // ✅ CASO 2: RESPUESTA INCORRECTA
     } else {
       btnSeleccionado.classList.add('incorrecta');
       
-      // Sonido de error suave
+      // 🔊 Sonido de error suave
       this.reproducirSonido('audio/error-suave.mp3');
       
-      // Feedback textual
-      const feedback = document.getElementById('conteo-feedback');
+      // 🔊 Web Speech API: leer feedback de ánimo
+      if (this.estado.sonidosActivos && typeof this.leerFeedbackAnimo === 'function') {
+        this.leerFeedbackAnimo();
+      }
+      
+      // Feedback visual
       if (feedback) {
         feedback.textContent = 'Casi... intenta de nuevo 💪';
         feedback.style.color = 'var(--warning)';
