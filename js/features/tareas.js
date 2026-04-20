@@ -1286,7 +1286,6 @@ window.features.tareas = {
       case 'sumas':
         this.iniciarJuegoSumas(tarea);
         break;
-      
       case 'lectura':
         if (tarea.imagen) {
           this.iniciarJuegoLecturaImagen(tarea);
@@ -1296,9 +1295,11 @@ window.features.tareas = {
           this.iniciarJuegoLeerPalabra(tarea);
         }
         break;
-      
-      // Para las demás categorías: mostrar "Próximamente"
       case 'trazo':
+        this.iniciarJuegoTrazo(tarea);  // ← ¡Ahora llama al juego real!
+        break;
+      // Para las demás categorías: mostrar "Próximamente" 
+        
       case 'colorear':
       case 'patrones':
         this.iniciarJuegoPatrones(tarea);  // ← ¡Ahora llama al juego real!
@@ -1924,12 +1925,390 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // MÉTODOS ESPECÍFICOS POR TIPO DE JUEGO (PLACEHOLDERS)
+  // INICIAR JUEGO DE TRAZO (IMPLEMENTACIÓN REAL COMPLETA)
   // ─────────────────────────────────────────────────────────────
   iniciarJuegoTrazo: function(tarea) {
     console.log('✏️ Iniciando juego de trazo:', tarea.titulo);
-    // Implementar canvas para trazo con detección de gestos
-    this.simularCompletado(tarea);
+    
+    // Validar datos mínimos
+    if (!tarea.instruccionesDetalladas && !tarea.descripcion) {
+      console.error('❌ Juego de trazo sin datos válidos:', tarea.id);
+      window.app?.mostrarToast('⚠️ Actividad no disponible', 'error');
+      this.simularCompletado(tarea);
+      return;
+    }
+    
+    // Crear contenedor de juego
+    const juegoContainer = document.createElement('div');
+    juegoContainer.className = 'modal active';
+    juegoContainer.id = 'modal-juego-trazo';
+    juegoContainer.setAttribute('role', 'dialog');
+    juegoContainer.setAttribute('aria-modal', 'true');
+    juegoContainer.setAttribute('aria-labelledby', 'juego-trazo-title');
+    
+    // ✅ Click en overlay para cerrar
+    juegoContainer.addEventListener('click', (e) => {
+      if (e.target === juegoContainer) {
+        this.cerrarJuegoTrazo(juegoContainer);
+      }
+    });
+    
+    // ✅ Cerrar con Escape
+    const onKeydown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.cerrarJuegoTrazo(juegoContainer);
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
+    
+    // Determinar qué trazar (letra, número, forma)
+    const tipoTrazo = this.determinarTipoTrazo(tarea.titulo);
+    
+    juegoContainer.innerHTML = `
+      <style>
+        #canvas-trazo {
+          border: 3px dashed var(--border);
+          border-radius: var(--radius-lg);
+          background: var(--surface);
+          cursor: crosshair;
+          touch-action: none;
+        }
+        #canvas-trazo.dibujando {
+          border-color: var(--primary);
+        }
+        #canvas-trazo.completado {
+          border-color: var(--success);
+          border-style: solid;
+        }
+        .trazo-guia {
+          position: absolute;
+          pointer-events: none;
+          opacity: 0.3;
+          font-size: 200px;
+          font-weight: 800;
+          color: var(--primary);
+          font-family: 'Nunito', 'Quicksand', sans-serif;
+        }
+        @keyframes pulse-success {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(149, 225, 211, 0.7); }
+          50% { box-shadow: 0 0 0 12px rgba(149, 225, 211, 0); }
+        }
+      </style>
+      
+      <div class="modal-content" style="max-width:650px;" role="document">
+        <div class="modal-header">
+          <h2 id="juego-trazo-title" class="modal-title" style="font-size:18px;">
+            ✏️ ${tarea.titulo}
+          </h2>
+          <button class="modal-close" aria-label="Cerrar actividad" style="min-width:44px;min-height:44px;">✕</button>
+        </div>
+        
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:16px;">
+            ${tarea.instruccionesDetalladas || tarea.descripcion}
+          </p>
+          
+          <div style="position:relative;display:inline-block;margin-bottom:16px;">
+            <canvas id="canvas-trazo" 
+                    width="400" 
+                    height="400"
+                    aria-label="Área de trazo"
+                    role="img">
+            </canvas>
+            <div id="trazo-guia" class="trazo-guia" style="top:50%;left:50%;transform:translate(-50%, -50%);">
+              ${tipoTrazo.caracter}
+            </div>
+          </div>
+          
+          <div style="display:flex;justify-content:center;gap:12px;margin-bottom:16px;">
+            <button id="btn-limpiar-trazo" class="topbar-btn ghost" style="min-height:44px;">
+              🗑️ Limpiar
+            </button>
+            <button id="btn-ayuda-trazo" class="topbar-btn ghost" style="min-height:44px;">
+              💡 Mostrar guía
+            </button>
+          </div>
+          
+          <!-- Feedback -->
+          <div id="trazo-feedback" 
+               style="min-height:24px;font-weight:600;" 
+               aria-live="polite"
+               aria-atomic="true"></div>
+          
+          <!-- Barra de progreso de completado -->
+          <div style="margin-top:16px;">
+            <div style="font-size:13px;color:var(--ink3);margin-bottom:8px;">Progreso del trazo:</div>
+            <div style="background:var(--bg2);border-radius:10px;height:12px;overflow:hidden;">
+              <div id="trazo-progress-bar" 
+                   style="background:linear-gradient(90deg,var(--primary),var(--secondary));
+                          width:0%;height:100%;transition:width 0.3s ease;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer" style="justify-content:center;gap:12px;">
+          <button class="btn-salir-trazo topbar-btn ghost" style="min-width:120px;min-height:48px;">
+            ❌ Salir
+          </button>
+          <button id="btn-terminar-trazo" 
+                  class="topbar-btn primary" 
+                  style="min-width:150px;min-height:48px;" 
+                  disabled>
+            ✅ ¡Terminé!
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(juegoContainer);
+    document.body.style.overflow = 'hidden';
+    
+    // ✅ Configurar listeners para botones de cerrar
+    const btnCerrarHeader = juegoContainer.querySelector('.modal-close');
+    const btnSalirFooter = juegoContainer.querySelector('.btn-salir-trazo');
+    
+    const cerrarYLimpiar = () => this.cerrarJuegoTrazo(juegoContainer, onKeydown);
+    
+    if (btnCerrarHeader) btnCerrarHeader.addEventListener('click', cerrarYLimpiar);
+    if (btnSalirFooter) btnSalirFooter.addEventListener('click', cerrarYLimpiar);
+    
+    // Inicializar canvas
+    const canvas = document.getElementById('canvas-trazo');
+    const ctx = canvas.getContext('2d');
+    const guia = document.getElementById('trazo-guia');
+    const feedback = document.getElementById('trazo-feedback');
+    const progressBar = document.getElementById('trazo-progress-bar');
+    const btnTerminar = document.getElementById('btn-terminar-trazo');
+    const btnLimpiar = document.getElementById('btn-limpiar-trazo');
+    const btnAyuda = document.getElementById('btn-ayuda-trazo');
+    
+    // Configurar contexto del canvas
+    ctx.strokeStyle = tipoTrazo.color;
+    ctx.lineWidth = 12;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    // Estado del trazo
+    const estadoTrazo = {
+      dibujando: false,
+      puntos: [],
+      completado: false,
+      canvas: canvas,
+      ctx: ctx
+    };
+    
+    // ✅ Eventos para mouse
+    canvas.addEventListener('mousedown', (e) => iniciarTrazo(e));
+    canvas.addEventListener('mousemove', (e) => dibujarTrazo(e));
+    canvas.addEventListener('mouseup', finalizarTrazo);
+    canvas.addEventListener('mouseleave', finalizarTrazo);
+    
+    // ✅ Eventos para touch (móvil)
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      iniciarTrazo(e.touches[0]);
+    }, { passive: false });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      dibujarTrazo(e.touches[0]);
+    }, { passive: false });
+    
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      finalizarTrazo();
+    });
+    
+    // Funciones de dibujo
+    function getPosicion(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+    
+    function iniciarTrazo(e) {
+      estadoTrazo.dibujando = true;
+      const pos = getPosicion(e);
+      estadoTrazo.puntos.push(pos);
+      
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      
+      canvas.classList.add('dibujando');
+      
+      // Sonido de inicio (opcional)
+      // this.reproducirSonido('audio/lapiz.mp3');
+    }
+    
+    function dibujarTrazo(e) {
+      if (!estadoTrazo.dibujando) return;
+      
+      const pos = getPosicion(e);
+      estadoTrazo.puntos.push(pos);
+      
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      
+      // Verificar progreso
+      verificarProgresoTrazo();
+    }
+    
+    function finalizarTrazo() {
+      if (!estadoTrazo.dibujando) return;
+      
+      estadoTrazo.dibujando = false;
+      ctx.closePath();
+      canvas.classList.remove('dibujando');
+      
+      // Verificar si completó suficiente
+      verificarCompletadoTrazo();
+    }
+    
+    function verificarProgresoTrazo() {
+      // Calcular porcentaje basado en puntos dibujados
+      const areaDibujada = estadoTrazo.puntos.length;
+      const areaTotal = 500; // Aproximado para una letra
+      const porcentaje = Math.min(100, Math.round((areaDibujada / areaTotal) * 100));
+      
+      if (progressBar) {
+        progressBar.style.width = `${porcentaje}%`;
+      }
+      
+      // Habilitar botón terminar si hay suficiente trazo
+      if (btnTerminar && porcentaje > 30) {
+        btnTerminar.disabled = false;
+      }
+    }
+    
+    function verificarCompletadoTrazo() {
+      const areaDibujada = estadoTrazo.puntos.length;
+      
+      if (areaDibujada > 400 && !estadoTrazo.completado) {
+        estadoTrazo.completado = true;
+        
+        if (feedback) {
+          feedback.textContent = '¡Excelente trazo! 🎉';
+          feedback.style.color = 'var(--success)';
+        }
+        
+        canvas.classList.add('completado');
+        
+        // Sonido de éxito
+        // this.reproducirSonido('audio/exito-trazo.mp3');
+        
+        // Auto-habilitar botón terminar
+        if (btnTerminar) {
+          btnTerminar.disabled = false;
+          btnTerminar.textContent = '✅ ¡Terminé!';
+        }
+      }
+    }
+    
+    // ✅ Botón Limpiar
+    if (btnLimpiar) {
+      btnLimpiar.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        estadoTrazo.puntos = [];
+        estadoTrazo.completado = false;
+        canvas.classList.remove('completado');
+        
+        if (feedback) feedback.textContent = '';
+        if (progressBar) progressBar.style.width = '0%';
+        if (btnTerminar) btnTerminar.disabled = true;
+        
+        // Sonido de limpiar (opcional)
+      });
+    }
+    
+    // ✅ Botón Ayuda (mostrar/ocultar guía)
+    if (btnAyuda) {
+      btnAyuda.addEventListener('click', () => {
+        if (guia.style.opacity === '0') {
+          guia.style.opacity = '0.3';
+          btnAyuda.textContent = '💡 Ocultar guía';
+        } else {
+          guia.style.opacity = '0';
+          btnAyuda.textContent = '💡 Mostrar guía';
+        }
+      });
+    }
+    
+    // ✅ Botón Terminar
+    if (btnTerminar) {
+      btnTerminar.addEventListener('click', () => {
+        if (estadoTrazo.puntos.length > 100) {
+          // Completar tarea
+          this.completarTarea(tarea.id, { 
+            exito: true, 
+            puntuacion: tarea.recompensa 
+          });
+          this.cerrarJuegoTrazo(juegoContainer, onKeydown);
+        } else {
+          if (feedback) {
+            feedback.textContent = 'Dibuja un poco más 💪';
+            feedback.style.color = 'var(--warning)';
+          }
+        }
+      });
+    }
+    
+    // Ocultar guía inicialmente
+    if (guia) {
+      guia.style.opacity = '0.3'; // Visible pero tenue
+    }
+    
+    // Guardar estado del juego
+    this.estado.juegoTrazo = {
+      modal: juegoContainer,
+      tareaId: tarea.id,
+      estado: estadoTrazo
+    };
+    
+    // Analytics
+    this.registrarEvento('juego_trazo_iniciado', {
+      tareaId: tarea.id,
+      tipo: tipoTrazo.tipo
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // HELPER: DETERMINAR TIPO DE TRAZO
+  // ─────────────────────────────────────────────────────────────
+  determinarTipoTrazo: function(titulo) {
+    const tituloLower = titulo.toLowerCase();
+    
+    if (tituloLower.includes('a') || tituloLower.includes('letra')) {
+      return { caracter: 'A', color: '#FF6B9D', tipo: 'letra' };
+    } else if (tituloLower.includes('b')) {
+      return { caracter: 'B', color: '#4ECDC4', tipo: 'letra' };
+    } else if (tituloLower.includes('1') || tituloLower.includes('número')) {
+      return { caracter: '1', color: '#FFE66D', tipo: 'numero' };
+    } else if (tituloLower.includes('círculo') || tituloLower.includes('circulo')) {
+      return { caracter: '○', color: '#95E1D3', tipo: 'forma' };
+    } else {
+      return { caracter: '✏️', color: '#FF6B9D', tipo: 'general' };
+    }
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // HELPER: CERRAR JUEGO DE TRAZO
+  // ─────────────────────────────────────────────────────────────
+  cerrarJuegoTrazo: function(modal, onKeydownCallback) {
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        if (modal.parentNode) modal.remove();
+      }, 200);
+    }
+    if (onKeydownCallback) {
+      document.removeEventListener('keydown', onKeydownCallback);
+    }
+    document.body.style.overflow = '';
+    console.log('✏️ Juego de trazo cerrado');
   },
   
   // ─────────────────────────────────────────────────────────────
