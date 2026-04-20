@@ -845,6 +845,64 @@ window.features.tareas = {
     
     console.log(`✏️ Categoría cambiada a: ${categoria}`);
   },
+
+  // ─────────────────────────────────────────────────────────────
+  // LEER TEXTO EN VOZ ALTA (WEB SPEECH API)
+  // ─────────────────────────────────────────────────────────────
+  leerTextoEnVozAlta: function(texto, idioma = 'es-MX') {
+    // Verificar soporte del navegador
+    if (!('speechSynthesis' in window)) {
+      console.warn('⚠️ Web Speech API no soportada en este navegador');
+      return false;
+    }
+    
+    // Cancelar cualquier audio previo
+    window.speechSynthesis.cancel();
+    
+    // Crear utterance (mensaje de voz)
+    const utterance = new SpeechSynthesisUtterance(texto);
+    
+    // Configurar propiedades
+    utterance.lang = idioma;  // 'es-MX', 'es-ES', 'en-US', etc.
+    utterance.rate = 0.9;     // Velocidad (0.1 a 10, 1 es normal)
+    utterance.pitch = 1.1;    // Tono (0 a 2, 1 es normal)
+    utterance.volume = 1;     // Volumen (0 a 1)
+    
+    // Seleccionar voz en español si está disponible
+    const voces = window.speechSynthesis.getVoices();
+    const vozEspanol = voces.find(voz => voz.lang.includes('es'));
+    if (vozEspanol) {
+      utterance.voice = vozEspanol;
+    }
+    
+    // Eventos opcionales
+    utterance.onstart = () => {
+      console.log('🗣️ Leyendo:', texto);
+    };
+    
+    utterance.onend = () => {
+      console.log('✅ Lectura completada');
+    };
+    
+    utterance.onerror = (e) => {
+      console.warn('❌ Error en lectura de voz:', e.error);
+    };
+    
+    // Reproducir
+    window.speechSynthesis.speak(utterance);
+    
+    return true;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // LEER INSTRUCCIONES DE TAREA (WRAPPER)
+  // ─────────────────────────────────────────────────────────────
+  leerInstruccionesTarea: function(tarea) {
+    const texto = `${tarea.titulo}. ${tarea.instruccionesDetalladas || tarea.descripcion}. 
+                   Recompensa: ${tarea.recompensa} estrellas.`;
+    
+    return this.leerTextoEnVozAlta(texto);
+  },
   
   // ─────────────────────────────────────────────────────────────
   // RENDERIZAR TAREAS (CON ESTADO Y ACCESIBILIDAD)
@@ -1152,6 +1210,16 @@ window.features.tareas = {
           <p style="color:var(--ink2);font-size:15px;line-height:1.6;white-space:pre-line;margin-bottom:20px;">
             ${tarea.instruccionesDetalladas || tarea.descripcion}
           </p>
+
+          ${tarea.instruccionesDetalladas || tarea.descripcion ? `
+            <button id="btn-leer-instrucciones" 
+                    class="topbar-btn ghost" 
+                    style="width:100%;min-height:44px;margin-bottom:12px;"
+                    aria-label="Escuchar instrucciones en voz alta">
+              🔊 Escuchar instrucciones
+            </button>
+          ` : ''}
+          
           <div style="background:var(--bg2);padding:14px;border-radius:var(--radius-sm);margin-bottom:20px;" role="note">
             <div style="font-size:13px;color:var(--ink3);">⭐ Recompensa:</div>
             <div style="font-size:28px;font-weight:800;color:var(--accent);margin-top:4px;">
@@ -1183,7 +1251,12 @@ window.features.tareas = {
     const btnCancelar = modal.querySelector('.btn-cancelar-instrucciones');
     const btnComenzar = modal.querySelector('.btn-comenzar-juego');
     const btnHintDinamico = modal.querySelector('#btn-hint-dinamico');
-    
+    const btnLeerInstrucciones = modal.querySelector('#btn-leer-instrucciones');
+    if (btnLeerInstrucciones) {
+      btnLeerInstrucciones.addEventListener('click', () => {
+        this.leerInstruccionesTarea(tarea);
+      });
+    }   
     const cerrarYLimpiar = () => this.cerrarModalInstrucciones(modal, onKeydown);
     
     if (btnCerrar) btnCerrar.addEventListener('click', cerrarYLimpiar);
@@ -1925,10 +1998,10 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // INICIAR JUEGO DE TRAZO (IMPLEMENTACIÓN REAL COMPLETA)
+  // INICIAR JUEGO DE TRAZO (CORREGIDO v3.0)
   // ─────────────────────────────────────────────────────────────
   iniciarJuegoTrazo: function(tarea) {
-    console.log('✏️ Iniciando juego de trazo:', tarea.titulo);
+    console.log('✏️ Iniciando juego de trazo:', tarea.titulo, tarea.id);
     
     // Validar datos mínimos
     if (!tarea.instruccionesDetalladas && !tarea.descripcion) {
@@ -1941,10 +2014,9 @@ window.features.tareas = {
     // Crear contenedor de juego
     const juegoContainer = document.createElement('div');
     juegoContainer.className = 'modal active';
-    juegoContainer.id = 'modal-juego-trazo';
+    juegoContainer.id = 'modal-juego-trazo-' + tarea.id;  // ← ID único por tarea
     juegoContainer.setAttribute('role', 'dialog');
     juegoContainer.setAttribute('aria-modal', 'true');
-    juegoContainer.setAttribute('aria-labelledby', 'juego-trazo-title');
     
     // ✅ Click en overlay para cerrar
     juegoContainer.addEventListener('click', (e) => {
@@ -1963,22 +2035,24 @@ window.features.tareas = {
     };
     document.addEventListener('keydown', onKeydown);
     
-    // Determinar qué trazar (letra, número, forma)
-    const tipoTrazo = this.determinarTipoTrazo(tarea.titulo);
+    // ✅ Determinar qué trazar (MEJORADO)
+    const tipoTrazo = this.determinarTipoTrazo(tarea);
+    
+    console.log('🔤 Tipo de trazo detectado:', tipoTrazo);
     
     juegoContainer.innerHTML = `
       <style>
-        #canvas-trazo {
+        #canvas-trazo-${tarea.id} {
           border: 3px dashed var(--border);
           border-radius: var(--radius-lg);
           background: var(--surface);
           cursor: crosshair;
           touch-action: none;
         }
-        #canvas-trazo.dibujando {
+        #canvas-trazo-${tarea.id}.dibujando {
           border-color: var(--primary);
         }
-        #canvas-trazo.completado {
+        #canvas-trazo-${tarea.id}.completado {
           border-color: var(--success);
           border-style: solid;
         }
@@ -1990,6 +2064,7 @@ window.features.tareas = {
           font-weight: 800;
           color: var(--primary);
           font-family: 'Nunito', 'Quicksand', sans-serif;
+          user-select: none;
         }
         @keyframes pulse-success {
           0%, 100% { box-shadow: 0 0 0 0 rgba(149, 225, 211, 0.7); }
@@ -2011,28 +2086,31 @@ window.features.tareas = {
           </p>
           
           <div style="position:relative;display:inline-block;margin-bottom:16px;">
-            <canvas id="canvas-trazo" 
+            <canvas id="canvas-trazo-${tarea.id}" 
                     width="400" 
                     height="400"
                     aria-label="Área de trazo"
                     role="img">
             </canvas>
-            <div id="trazo-guia" class="trazo-guia" style="top:50%;left:50%;transform:translate(-50%, -50%);">
+            <div id="trazo-guia-${tarea.id}" 
+                 class="trazo-guia" 
+                 style="top:50%;left:50%;transform:translate(-50%, -50%);"
+                 aria-hidden="true">
               ${tipoTrazo.caracter}
             </div>
           </div>
           
           <div style="display:flex;justify-content:center;gap:12px;margin-bottom:16px;">
-            <button id="btn-limpiar-trazo" class="topbar-btn ghost" style="min-height:44px;">
+            <button id="btn-limpiar-trazo-${tarea.id}" class="topbar-btn ghost" style="min-height:44px;">
               🗑️ Limpiar
             </button>
-            <button id="btn-ayuda-trazo" class="topbar-btn ghost" style="min-height:44px;">
+            <button id="btn-ayuda-trazo-${tarea.id}" class="topbar-btn ghost" style="min-height:44px;">
               💡 Mostrar guía
             </button>
           </div>
           
           <!-- Feedback -->
-          <div id="trazo-feedback" 
+          <div id="trazo-feedback-${tarea.id}" 
                style="min-height:24px;font-weight:600;" 
                aria-live="polite"
                aria-atomic="true"></div>
@@ -2041,7 +2119,7 @@ window.features.tareas = {
           <div style="margin-top:16px;">
             <div style="font-size:13px;color:var(--ink3);margin-bottom:8px;">Progreso del trazo:</div>
             <div style="background:var(--bg2);border-radius:10px;height:12px;overflow:hidden;">
-              <div id="trazo-progress-bar" 
+              <div id="trazo-progress-bar-${tarea.id}" 
                    style="background:linear-gradient(90deg,var(--primary),var(--secondary));
                           width:0%;height:100%;transition:width 0.3s ease;"></div>
             </div>
@@ -2049,10 +2127,10 @@ window.features.tareas = {
         </div>
         
         <div class="modal-footer" style="justify-content:center;gap:12px;">
-          <button class="btn-salir-trazo topbar-btn ghost" style="min-width:120px;min-height:48px;">
+          <button id="btn-salir-trazo-${tarea.id}" class="topbar-btn ghost" style="min-width:120px;min-height:48px;">
             ❌ Salir
           </button>
-          <button id="btn-terminar-trazo" 
+          <button id="btn-terminar-trazo-${tarea.id}" 
                   class="topbar-btn primary" 
                   style="min-width:150px;min-height:48px;" 
                   disabled>
@@ -2065,24 +2143,30 @@ window.features.tareas = {
     document.body.appendChild(juegoContainer);
     document.body.style.overflow = 'hidden';
     
-    // ✅ Configurar listeners para botones de cerrar
+    // ✅ Configurar listeners para botones de cerrar (DESPUÉS de innerHTML)
     const btnCerrarHeader = juegoContainer.querySelector('.modal-close');
-    const btnSalirFooter = juegoContainer.querySelector('.btn-salir-trazo');
+    const btnSalirFooter = document.getElementById(`btn-salir-trazo-${tarea.id}`);
     
     const cerrarYLimpiar = () => this.cerrarJuegoTrazo(juegoContainer, onKeydown);
     
     if (btnCerrarHeader) btnCerrarHeader.addEventListener('click', cerrarYLimpiar);
     if (btnSalirFooter) btnSalirFooter.addEventListener('click', cerrarYLimpiar);
     
-    // Inicializar canvas
-    const canvas = document.getElementById('canvas-trazo');
+    // ✅ Inicializar canvas (CON ID ÚNICO)
+    const canvas = document.getElementById(`canvas-trazo-${tarea.id}`);
     const ctx = canvas.getContext('2d');
-    const guia = document.getElementById('trazo-guia');
-    const feedback = document.getElementById('trazo-feedback');
-    const progressBar = document.getElementById('trazo-progress-bar');
-    const btnTerminar = document.getElementById('btn-terminar-trazo');
-    const btnLimpiar = document.getElementById('btn-limpiar-trazo');
-    const btnAyuda = document.getElementById('btn-ayuda-trazo');
+    const guia = document.getElementById(`trazo-guia-${tarea.id}`);
+    const feedback = document.getElementById(`trazo-feedback-${tarea.id}`);
+    const progressBar = document.getElementById(`trazo-progress-bar-${tarea.id}`);
+    const btnTerminar = document.getElementById(`btn-terminar-trazo-${tarea.id}`);
+    const btnLimpiar = document.getElementById(`btn-limpiar-trazo-${tarea.id}`);
+    const btnAyuda = document.getElementById(`btn-ayuda-trazo-${tarea.id}`);
+    
+    // Verificar que todos los elementos existen
+    if (!canvas || !ctx) {
+      console.error('❌ No se pudo inicializar el canvas');
+      return;
+    }
     
     // Configurar contexto del canvas
     ctx.strokeStyle = tipoTrazo.color;
@@ -2090,38 +2174,17 @@ window.features.tareas = {
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     
-    // Estado del trazo
+    // ✅ Estado del trazo (ÚNICO por instancia)
     const estadoTrazo = {
       dibujando: false,
       puntos: [],
       completado: false,
       canvas: canvas,
-      ctx: ctx
+      ctx: ctx,
+      tareaId: tarea.id
     };
     
-    // ✅ Eventos para mouse
-    canvas.addEventListener('mousedown', (e) => iniciarTrazo(e));
-    canvas.addEventListener('mousemove', (e) => dibujarTrazo(e));
-    canvas.addEventListener('mouseup', finalizarTrazo);
-    canvas.addEventListener('mouseleave', finalizarTrazo);
-    
-    // ✅ Eventos para touch (móvil)
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      iniciarTrazo(e.touches[0]);
-    }, { passive: false });
-    
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      dibujarTrazo(e.touches[0]);
-    }, { passive: false });
-    
-    canvas.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      finalizarTrazo();
-    });
-    
-    // Funciones de dibujo
+    // ✅ Funciones de dibujo (CON CIERRE CORRECTO)
     function getPosicion(e) {
       const rect = canvas.getBoundingClientRect();
       return {
@@ -2139,9 +2202,6 @@ window.features.tareas = {
       ctx.moveTo(pos.x, pos.y);
       
       canvas.classList.add('dibujando');
-      
-      // Sonido de inicio (opcional)
-      // this.reproducirSonido('audio/lapiz.mp3');
     }
     
     function dibujarTrazo(e) {
@@ -2171,7 +2231,7 @@ window.features.tareas = {
     function verificarProgresoTrazo() {
       // Calcular porcentaje basado en puntos dibujados
       const areaDibujada = estadoTrazo.puntos.length;
-      const areaTotal = 500; // Aproximado para una letra
+      const areaTotal = 500;
       const porcentaje = Math.min(100, Math.round((areaDibujada / areaTotal) * 100));
       
       if (progressBar) {
@@ -2197,16 +2257,34 @@ window.features.tareas = {
         
         canvas.classList.add('completado');
         
-        // Sonido de éxito
-        // this.reproducirSonido('audio/exito-trazo.mp3');
-        
-        // Auto-habilitar botón terminar
         if (btnTerminar) {
           btnTerminar.disabled = false;
           btnTerminar.textContent = '✅ ¡Terminé!';
         }
       }
     }
+    
+    // ✅ Eventos para mouse
+    canvas.addEventListener('mousedown', (e) => iniciarTrazo(e));
+    canvas.addEventListener('mousemove', (e) => dibujarTrazo(e));
+    canvas.addEventListener('mouseup', finalizarTrazo);
+    canvas.addEventListener('mouseleave', finalizarTrazo);
+    
+    // ✅ Eventos para touch (móvil)
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      iniciarTrazo(e.touches[0]);
+    }, { passive: false });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      dibujarTrazo(e.touches[0]);
+    }, { passive: false });
+    
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      finalizarTrazo();
+    });
     
     // ✅ Botón Limpiar
     if (btnLimpiar) {
@@ -2219,20 +2297,20 @@ window.features.tareas = {
         if (feedback) feedback.textContent = '';
         if (progressBar) progressBar.style.width = '0%';
         if (btnTerminar) btnTerminar.disabled = true;
-        
-        // Sonido de limpiar (opcional)
       });
     }
     
     // ✅ Botón Ayuda (mostrar/ocultar guía)
     if (btnAyuda) {
       btnAyuda.addEventListener('click', () => {
-        if (guia.style.opacity === '0') {
-          guia.style.opacity = '0.3';
-          btnAyuda.textContent = '💡 Ocultar guía';
-        } else {
-          guia.style.opacity = '0';
-          btnAyuda.textContent = '💡 Mostrar guía';
+        if (guia) {
+          if (guia.style.opacity === '0' || guia.style.opacity === '0.1') {
+            guia.style.opacity = '0.3';
+            btnAyuda.textContent = '💡 Ocultar guía';
+          } else {
+            guia.style.opacity = '0';
+            btnAyuda.textContent = '💡 Mostrar guía';
+          }
         }
       });
     }
@@ -2241,7 +2319,6 @@ window.features.tareas = {
     if (btnTerminar) {
       btnTerminar.addEventListener('click', () => {
         if (estadoTrazo.puntos.length > 100) {
-          // Completar tarea
           this.completarTarea(tarea.id, { 
             exito: true, 
             puntuacion: tarea.recompensa 
@@ -2256,12 +2333,12 @@ window.features.tareas = {
       });
     }
     
-    // Ocultar guía inicialmente
+    // Mostrar guía inicialmente
     if (guia) {
-      guia.style.opacity = '0.3'; // Visible pero tenue
+      guia.style.opacity = '0.3';
     }
     
-    // Guardar estado del juego
+    // ✅ Guardar estado del juego (ÚNICO por instancia)
     this.estado.juegoTrazo = {
       modal: juegoContainer,
       tareaId: tarea.id,
@@ -2276,22 +2353,43 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // HELPER: DETERMINAR TIPO DE TRAZO
+  // HELPER: DETERMINAR TIPO DE TRAZO (MEJORADO)
   // ─────────────────────────────────────────────────────────────
-  determinarTipoTrazo: function(titulo) {
-    const tituloLower = titulo.toLowerCase();
+  determinarTipoTrazo: function(tarea) {
+    const titulo = tarea.titulo.toLowerCase();
+    const descripcion = tarea.descripcion ? tarea.descripcion.toLowerCase() : '';
+    const textoCompleto = titulo + ' ' + descripcion;
     
-    if (tituloLower.includes('a') || tituloLower.includes('letra')) {
-      return { caracter: 'A', color: '#FF6B9D', tipo: 'letra' };
-    } else if (tituloLower.includes('b')) {
-      return { caracter: 'B', color: '#4ECDC4', tipo: 'letra' };
-    } else if (tituloLower.includes('1') || tituloLower.includes('número')) {
-      return { caracter: '1', color: '#FFE66D', tipo: 'numero' };
-    } else if (tituloLower.includes('círculo') || tituloLower.includes('circulo')) {
-      return { caracter: '○', color: '#95E1D3', tipo: 'forma' };
-    } else {
-      return { caracter: '✏️', color: '#FF6B9D', tipo: 'general' };
+    console.log('🔍 Detectando tipo de trazo para:', tarea.titulo);
+    
+    // ✅ Detectar por ID primero (más confiable)
+    if (tarea.id) {
+      if (tarea.id.includes('t1') || tarea.id === 't1') {
+        return { caracter: 'A', color: '#FF6B9D', tipo: 'letra' };
+      } else if (tarea.id.includes('t2') || tarea.id === 't2') {
+        return { caracter: 'B', color: '#4ECDC4', tipo: 'letra' };
+      } else if (tarea.id.includes('t3') || tarea.id === 't3') {
+        return { caracter: '1', color: '#FFE66D', tipo: 'numero' };
+      }
     }
+    
+    // ✅ Detectar por título/descripción
+    if (textoCompleto.includes('a') && !textoCompleto.includes('b')) {
+      return { caracter: 'A', color: '#FF6B9D', tipo: 'letra' };
+    } else if (textoCompleto.includes('b')) {
+      return { caracter: 'B', color: '#4ECDC4', tipo: 'letra' };
+    } else if (textoCompleto.includes('1') || textoCompleto.includes('número') || textoCompleto.includes('numero')) {
+      return { caracter: '1', color: '#FFE66D', tipo: 'numero' };
+    } else if (textoCompleto.includes('círculo') || textoCompleto.includes('circulo') || textoCompleto.includes('o')) {
+      return { caracter: '○', color: '#95E1D3', tipo: 'forma' };
+    } else if (textoCompleto.includes('2')) {
+      return { caracter: '2', color: '#C780E8', tipo: 'numero' };
+    } else if (textoCompleto.includes('3')) {
+      return { caracter: '3', color: '#F38181', tipo: 'numero' };
+    }
+    
+    // ✅ Default: mostrar título de la tarea
+    return { caracter: '✏️', color: '#FF6B9D', tipo: 'general' };
   },
   
   // ─────────────────────────────────────────────────────────────
