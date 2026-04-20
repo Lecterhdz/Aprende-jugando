@@ -1297,10 +1297,10 @@ window.features.tareas = {
         break;
       case 'trazo':
         this.iniciarJuegoTrazo(tarea);  // ← ¡Ahora llama al juego real!
-        break;
-      // Para las demás categorías: mostrar "Próximamente" 
-        
+        break;        
       case 'colorear':
+        this.iniciarJuegoColorear(tarea);  // ← ¡Ahora llama al juego real!
+        break;       
       case 'patrones':
         this.iniciarJuegoPatrones(tarea);  // ← ¡Ahora llama al juego real!
         break;
@@ -2489,10 +2489,366 @@ window.features.tareas = {
     });
   },
   
+  // ─────────────────────────────────────────────────────────────
+  // INICIAR JUEGO DE COLOREAR (IMPLEMENTACIÓN REAL COMPLETA)
+  // ─────────────────────────────────────────────────────────────
   iniciarJuegoColorear: function(tarea) {
     console.log('🎨 Iniciando juego de colorear:', tarea.titulo);
-    // Implementar canvas interactivo con paleta de colores
-    this.simularCompletado(tarea);
+    
+    // Validar datos mínimos
+    if (!tarea.palette || !tarea.colorCorrecto) {
+      console.error('❌ Juego de colorear sin datos válidos:', tarea.id);
+      window.app?.mostrarToast('⚠️ Actividad no disponible', 'error');
+      this.simularCompletado(tarea);
+      return;
+    }
+    
+    // Crear contenedor de juego
+    const juegoContainer = document.createElement('div');
+    juegoContainer.className = 'modal active';
+    juegoContainer.id = 'modal-juego-colorear';
+    juegoContainer.setAttribute('role', 'dialog');
+    juegoContainer.setAttribute('aria-modal', 'true');
+    
+    // ✅ Click en overlay para cerrar
+    juegoContainer.addEventListener('click', (e) => {
+      if (e.target === juegoContainer) {
+        this.cerrarJuegoColorear(juegoContainer);
+      }
+    });
+    
+    // ✅ Cerrar con Escape
+    const onKeydown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.cerrarJuegoColorear(juegoContainer);
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
+    
+    // Generar botones de la paleta de colores
+    const paletteHTML = tarea.palette.map(color => `
+      <button class="btn-color-palette" 
+              data-color="${color}"
+              style="width:50px;height:50px;background:${color};
+                     border:3px solid transparent;border-radius:50%;
+                     cursor:pointer;transition:all 0.2s;
+                     box-shadow:0 2px 8px rgba(0,0,0,0.2);"
+              aria-label="Seleccionar color ${color}">
+      </button>
+    `).join('');
+    
+    juegoContainer.innerHTML = `
+      <style>
+        #canvas-colorear {
+          border: 3px solid var(--border);
+          border-radius: var(--radius-lg);
+          background: white;
+          cursor: crosshair;
+          touch-action: none;
+        }
+        #canvas-colorear.dibujando {
+          border-color: var(--primary);
+        }
+        .btn-color-palette.selected {
+          border-color: var(--ink) !important;
+          transform: scale(1.15);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .btn-color-palette:hover {
+          transform: scale(1.1);
+        }
+      </style>
+      
+      <div class="modal-content" style="max-width:650px;" role="document">
+        <div class="modal-header">
+          <h2 id="juego-colorear-title" class="modal-title" style="font-size:18px;">
+            🎨 ${tarea.titulo}
+          </h2>
+          <button class="modal-close" aria-label="Cerrar actividad" style="min-width:44px;min-height:44px;">✕</button>
+        </div>
+        
+        <div class="modal-body" style="padding:24px;text-align:center;">
+          <p style="color:var(--ink2);font-size:15px;margin-bottom:16px;">
+            ${tarea.descripcion}
+          </p>
+          
+          <!-- Área de dibujo -->
+          <div style="position:relative;display:inline-block;margin-bottom:16px;">
+            <canvas id="canvas-colorear" 
+                    width="400" 
+                    height="400"
+                    aria-label="Área para colorear"
+                    role="img">
+            </canvas>
+            <!-- Imagen de guía superpuesta (opcional) -->
+            <div id="colorear-guia" style="position:absolute;top:0;left:0;pointer-events:none;
+                   opacity:0.2;font-size:200px;display:flex;align-items:center;justify-content:center;
+                   width:400px;height:400px;color:var(--ink);" aria-hidden="true">
+              ☀️
+            </div>
+          </div>
+          
+          <!-- Paleta de colores -->
+          <div style="margin-bottom:16px;">
+            <p style="font-size:14px;color:var(--ink3);margin-bottom:8px;">Selecciona un color:</p>
+            <div id="palette-container" 
+                 style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;">
+              ${paletteHTML}
+            </div>
+          </div>
+          
+          <!-- Herramientas -->
+          <div style="display:flex;justify-content:center;gap:12px;margin-bottom:16px;">
+            <button id="btn-limpiar-colorear" class="topbar-btn ghost" style="min-height:44px;">
+              🗑️ Limpiar
+            </button>
+            <button id="btn-guia-colorear" class="topbar-btn ghost" style="min-height:44px;">
+              👁️ Mostrar guía
+            </button>
+          </div>
+          
+          <!-- Feedback -->
+          <div id="colorear-feedback" 
+               style="min-height:24px;font-weight:600;" 
+               aria-live="polite"
+               aria-atomic="true"></div>
+          
+          <!-- Barra de progreso -->
+          <div style="margin-top:16px;">
+            <div style="font-size:13px;color:var(--ink3);margin-bottom:8px;">Progreso:</div>
+            <div style="background:var(--bg2);border-radius:10px;height:12px;overflow:hidden;">
+              <div id="colorear-progress-bar" 
+                   style="background:linear-gradient(90deg,var(--primary),var(--secondary));
+                          width:0%;height:100%;transition:width 0.3s ease;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer" style="justify-content:center;gap:12px;">
+          <button class="btn-salir-colorear topbar-btn ghost" style="min-width:120px;min-height:48px;">
+            ❌ Salir
+          </button>
+          <button id="btn-terminar-colorear" 
+                  class="topbar-btn primary" 
+                  style="min-width:150px;min-height:48px;" 
+                  disabled>
+            ✅ ¡Terminé!
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(juegoContainer);
+    document.body.style.overflow = 'hidden';
+    
+    // ✅ Configurar listeners para botones de cerrar
+    const btnCerrarHeader = juegoContainer.querySelector('.modal-close');
+    const btnSalirFooter = juegoContainer.querySelector('.btn-salir-colorear');
+    
+    const cerrarYLimpiar = () => this.cerrarJuegoColorear(juegoContainer, onKeydown);
+    
+    if (btnCerrarHeader) btnCerrarHeader.addEventListener('click', cerrarYLimpiar);
+    if (btnSalirFooter) btnSalirFooter.addEventListener('click', cerrarYLimpiar);
+    
+    // Inicializar canvas
+    const canvas = document.getElementById('canvas-colorear');
+    const ctx = canvas.getContext('2d');
+    const guia = document.getElementById('colorear-guia');
+    const feedback = document.getElementById('colorear-feedback');
+    const progressBar = document.getElementById('colorear-progress-bar');
+    const btnTerminar = document.getElementById('btn-terminar-colorear');
+    const btnLimpiar = document.getElementById('btn-limpiar-colorear');
+    const btnGuia = document.getElementById('btn-guia-colorear');
+    
+    // Estado del juego
+    const estadoColorear = {
+      colorActual: tarea.palette[0],
+      dibujando: false,
+      areasPintadas: 0,
+      canvas: canvas,
+      ctx: ctx
+    };
+    
+    // Configurar contexto del canvas
+    ctx.fillStyle = estadoColorear.colorActual;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 20;
+    
+    // ✅ Configurar paleta de colores
+    const botonesColor = juegoContainer.querySelectorAll('.btn-color-palette');
+    botonesColor.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remover selección previa
+        botonesColor.forEach(b => b.classList.remove('selected'));
+        // Seleccionar nuevo color
+        btn.classList.add('selected');
+        estadoColorear.colorActual = btn.dataset.color;
+        ctx.fillStyle = estadoColorear.colorActual;
+        
+        // Sonido de selección (opcional)
+        // this.reproducirSonido('audio/click.mp3');
+      });
+    });
+    
+    // Seleccionar primer color por defecto
+    if (botonesColor.length > 0) {
+      botonesColor[0].classList.add('selected');
+    }
+    
+    // ✅ Eventos para mouse
+    canvas.addEventListener('mousedown', (e) => iniciarColorear(e));
+    canvas.addEventListener('mousemove', (e) => colorear(e));
+    canvas.addEventListener('mouseup', finalizarColorear);
+    canvas.addEventListener('mouseleave', finalizarColorear);
+    
+    // ✅ Eventos para touch (móvil)
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      iniciarColorear(e.touches[0]);
+    }, { passive: false });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      colorear(e.touches[0]);
+    }, { passive: false });
+    
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      finalizarColorear();
+    });
+    
+    // Funciones de dibujo
+    function getPosicion(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+    
+    function iniciarColorear(e) {
+      estadoColorear.dibujando = true;
+      const pos = getPosicion(e);
+      
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      
+      canvas.classList.add('dibujando');
+    }
+    
+    function colorear(e) {
+      if (!estadoColorear.dibujando) return;
+      
+      const pos = getPosicion(e);
+      estadoColorear.areasPintadas++;
+      
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      
+      // Verificar progreso
+      verificarProgresoColorear();
+    }
+    
+    function finalizarColorear() {
+      if (!estadoColorear.dibujando) return;
+      
+      estadoColorear.dibujando = false;
+      ctx.closePath();
+      canvas.classList.remove('dibujando');
+    }
+    
+    function verificarProgresoColorear() {
+      // Calcular porcentaje basado en áreas pintadas
+      const areaPintada = estadoColorear.areasPintadas;
+      const areaTotal = 800; // Aproximado para un dibujo completo
+      const porcentaje = Math.min(100, Math.round((areaPintada / areaTotal) * 100));
+      
+      if (progressBar) {
+        progressBar.style.width = `${porcentaje}%`;
+      }
+      
+      // Habilitar botón terminar si hay suficiente color
+      if (btnTerminar && porcentaje > 40) {
+        btnTerminar.disabled = false;
+      }
+    }
+    
+    // ✅ Botón Limpiar
+    if (btnLimpiar) {
+      btnLimpiar.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        estadoColorear.areasPintadas = 0;
+        
+        if (feedback) feedback.textContent = '';
+        if (progressBar) progressBar.style.width = '0%';
+        if (btnTerminar) btnTerminar.disabled = true;
+      });
+    }
+    
+    // ✅ Botón Mostrar/Ocultar Guía
+    if (btnGuia) {
+      btnGuia.addEventListener('click', () => {
+        if (guia.style.opacity === '0.2') {
+          guia.style.opacity = '0.6';
+          btnGuia.textContent = '🙈 Ocultar guía';
+        } else {
+          guia.style.opacity = '0.2';
+          btnGuia.textContent = '👁️ Mostrar guía';
+        }
+      });
+    }
+    
+    // ✅ Botón Terminar
+    if (btnTerminar) {
+      btnTerminar.addEventListener('click', () => {
+        if (estadoColorear.areasPintadas > 200) {
+          // Completar tarea
+          this.completarTarea(tarea.id, { 
+            exito: true, 
+            puntuacion: tarea.recompensa 
+          });
+          this.cerrarJuegoColorear(juegoContainer, onKeydown);
+        } else {
+          if (feedback) {
+            feedback.textContent = '¡Colorea un poco más! 🎨';
+            feedback.style.color = 'var(--warning)';
+          }
+        }
+      });
+    }
+    
+    // Guardar estado del juego
+    this.estado.juegoColorear = {
+      modal: juegoContainer,
+      tareaId: tarea.id,
+      estado: estadoColorear
+    };
+    
+    // Analytics
+    this.registrarEvento('juego_colorear_iniciado', {
+      tareaId: tarea.id,
+      coloresDisponibles: tarea.palette.length
+    });
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // HELPER: CERRAR JUEGO DE COLOREAR
+  // ─────────────────────────────────────────────────────────────
+  cerrarJuegoColorear: function(modal, onKeydownCallback) {
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        if (modal.parentNode) modal.remove();
+      }, 200);
+    }
+    if (onKeydownCallback) {
+      document.removeEventListener('keydown', onKeydownCallback);
+    }
+    document.body.style.overflow = '';
+    console.log('🎨 Juego de colorear cerrado');
   },
   
   // ─────────────────────────────────────────────────────────────
