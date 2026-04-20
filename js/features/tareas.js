@@ -1276,63 +1276,81 @@ window.features.tareas = {
   },
 
   // ─────────────────────────────────────────────────────────────
-  // WEB SPEECH API - TEXTO A VOZ (SIN ARCHIVOS DE AUDIO)
+  // LEER TEXTO EN VOZ ALTA (CON ESPERA DE VOCES)
   // ─────────────────────────────────────────────────────────────
   leerTextoEnVozAlta: function(texto, idioma = 'es-MX') {
-    // Verificar soporte del navegador
+    // Verificar soporte
     if (!('speechSynthesis' in window)) {
-      console.warn('⚠️ Web Speech API no soportada en este navegador');
+      console.warn('⚠️ Web Speech API no soportada');
       return false;
     }
     
-    // Cancelar cualquier audio previo
-    window.speechSynthesis.cancel();
-    
-    // Crear utterance (mensaje de voz)
-    const utterance = new SpeechSynthesisUtterance(texto);
-    
-    // Configurar propiedades
-    utterance.lang = idioma;  // 'es-MX' para México
-    utterance.rate = 0.85;    // Velocidad más lenta para niños (0.1 a 10)
-    utterance.pitch = 1.1;    // Tono ligeramente más agudo (0 a 2)
-    utterance.volume = 1;     // Volumen máximo (0 a 1)
-    
-    // ✅ Seleccionar mejor voz en español de México
-    const voces = window.speechSynthesis.getVoices();
-    const vozMexico = voces.find(voz => 
-      voz.lang.includes('es-MX') || 
-      voz.lang.includes('es-US') ||
-      voz.name.includes('Spanish (Mexico)') ||
-      voz.name.includes('español de Estados Unidos')
-    );
-    
-    if (vozMexico) {
-      utterance.voice = vozMexico;
-      console.log('🎤 Usando voz:', vozMexico.name);
-    } else {
-      // Fallback a cualquier voz en español
-      const vozEspanol = voces.find(voz => voz.lang.includes('es'));
+    // Función interna para hablar
+    const hablar = () => {
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = idioma;
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.volume = 1;
+      
+      // Buscar voz en español
+      const voces = window.speechSynthesis.getVoices();
+      const vozEspanol = voces.find(v => 
+        v.lang.includes('es-MX') || 
+        v.lang.includes('es-ES') || 
+        v.lang.includes('es-US') ||
+        v.name.toLowerCase().includes('spanish') ||
+        v.name.toLowerCase().includes('español')
+      );
+      
       if (vozEspanol) {
         utterance.voice = vozEspanol;
-        console.log('🎤 Usando voz española:', vozEspanol.name);
+        console.log('🎤 Usando voz:', vozEspanol.name);
+      } else {
+        // Fallback: usar cualquier voz disponible
+        if (voces.length > 0) {
+          utterance.voice = voces[0];
+          utterance.lang = 'en-US'; // Cambiar a inglés si no hay español
+          console.log('⚠️ Sin voz en español, usando:', voces[0].name, '(en-US)');
+        } else {
+          console.warn('❌ No hay voces disponibles');
+          return false;
+        }
       }
+      
+      // Eventos
+      utterance.onstart = () => console.log('🗣️ Leyendo:', texto.substring(0, 30) + '...');
+      utterance.onend = () => console.log('✅ Lectura completada');
+      utterance.onerror = (e) => console.warn('❌ Error:', e.error);
+      
+      window.speechSynthesis.speak(utterance);
+      return true;
+    };
+    
+    // Verificar si las voces ya están cargadas
+    const voces = window.speechSynthesis.getVoices();
+    if (voces.length > 0) {
+      return hablar();
     }
     
-    // Eventos opcionales
-    utterance.onstart = () => {
-      console.log('🗣️ Leyendo:', texto.substring(0, 50) + '...');
+    // Si no, esperar a que se carguen
+    console.log('⏳ Esperando voces...');
+    window.speechSynthesis.onvoiceschanged = () => {
+      console.log('✅ Voces cargadas:', window.speechSynthesis.getVoices().length);
+      hablar();
+      window.speechSynthesis.onvoiceschanged = null; // Limpiar listener
     };
     
-    utterance.onend = () => {
-      console.log('✅ Lectura completada');
-    };
-    
-    utterance.onerror = (e) => {
-      console.warn('❌ Error en lectura de voz:', e.error);
-    };
-    
-    // Reproducir
-    window.speechSynthesis.speak(utterance);
+    // Timeout de seguridad (5 segundos)
+    setTimeout(() => {
+      if (window.speechSynthesis.getVoices().length === 0) {
+        console.warn('⚠️ Timeout: sin voces después de 5s');
+        // Fallback: mostrar toast visual
+        window.app?.mostrarToast('🔊 ' + texto, 'info');
+      }
+    }, 5000);
     
     return true;
   },
