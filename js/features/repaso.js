@@ -180,7 +180,7 @@ window.features.repaso = {
       });
     }
     
-    // Delegación para categorías
+    // Delegación para categorías y items
     const container = document.getElementById('repaso-content');
     if (container) {
       container.addEventListener('click', (e) => {
@@ -745,6 +745,30 @@ window.features.repaso = {
     // Eventos
     utterance.onstart = () => console.log('🗣️ Leyendo:', texto.substring(0, 30) + '...');
     utterance.onend = () => console.log('✅ Lectura completada');
+    
+    window.speechSynthesis.speak(utterance);
+    return true;
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // REPRODUCIR TEXTO GENÉRICO (HELPER PARA FEEDBACK)
+  // ─────────────────────────────────────────────────────────────
+  reproducirTexto: function(texto) {
+    if (!this.estado.sonidosActivos) return false;
+    if (!('speechSynthesis' in window)) return false;
+    
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    utterance.volume = 1;
+    
+    // Seleccionar voz en español
+    const voces = window.speechSynthesis.getVoices();
+    const vozEspanol = voces.find(v => v.lang.includes('es'));
+    if (vozEspanol) utterance.voice = vozEspanol;
     
     window.speechSynthesis.speak(utterance);
     return true;
