@@ -687,19 +687,24 @@
     });
   </script>
   <!-- ══════════════════════════════════════ AUDIO UNLOCK PARA WEB SPEECH ══════════════════════════════════════ -->
+
   <script>
-  // Desbloquear Web Speech API al primer click/touch del usuario
+  // Desbloquear audio al primer click/touch del usuario
   document.addEventListener('click', function unlockSpeech() {
-    if ('speechSynthesis' in window && typeof features?.tareas?.desbloquearAudio === 'function') {
-      features.tareas.desbloquearAudio();
+    if ('speechSynthesis' in window) {
+      const silent = new SpeechSynthesisUtterance('');
+      silent.volume = 0;
+      window.speechSynthesis.speak(silent);
       document.removeEventListener('click', unlockSpeech);
+      console.log('🔓 Audio de voz desbloqueado');
     }
   }, { once: true });
   
-  // También para touch en móvil
   document.addEventListener('touchstart', function unlockSpeechTouch() {
-    if ('speechSynthesis' in window && typeof features?.tareas?.desbloquearAudio === 'function') {
-      features.tareas.desbloquearAudio();
+    if ('speechSynthesis' in window) {
+      const silent = new SpeechSynthesisUtterance('');
+      silent.volume = 0;
+      window.speechSynthesis.speak(silent);
       document.removeEventListener('touchstart', unlockSpeechTouch);
     }
   }, { once: true });
