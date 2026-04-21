@@ -1,8 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
-// APRENDE-JUGANDO - PROYECTOS CREATIVOS
+// APRENDE-JUGANDO - PROYECTOS CREATIVOS (CORREGIDO v2.0)
 // ═══════════════════════════════════════════════════════════════
 
 console.log('🛠️ proyectos.js cargado');
+
+// Variable temporal para guardar el proyecto actual
+let proyectoActualId = null;
 
 window.features.proyectos = {
   
@@ -87,7 +90,7 @@ window.features.proyectos = {
     console.log('🛠️ Proyectos inicializados');
     
     window.addEventListener('screen-change', (e) => {
-      if (e.detail.pantalla === 'proyectos-screen') {
+      if (e.detail?.pantalla === 'proyectos-screen') {
         this.cargar();
       }
     });
@@ -112,7 +115,7 @@ window.features.proyectos = {
     const grado = localStorage.getItem('aprende_jugando_grado') || 'kinder1';
     const proyectos = this.proyectos[grado] || this.proyectos.kinder1;
     
-    if (proyectos.length === 0) {
+    if (!proyectos || proyectos.length === 0) {
       container.innerHTML = `
         <div style="text-align:center;padding:40px;color:var(--ink3);">
           <div style="font-size:64px;margin-bottom:16px;">🎨</div>
@@ -126,9 +129,7 @@ window.features.proyectos = {
     container.innerHTML = `
       <div class="proyectos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
         ${proyectos.map(proyecto => `
-          <div class="card proyecto-card" style="border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:all 0.3s;"
-               onmouseover="this.style.borderColor='var(--secondary)';this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow)'"
-               onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow-sm)'">
+          <div class="card proyecto-card" style="border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:all 0.3s;">
             <div class="card-header" style="background:linear-gradient(135deg,var(--secondary-light),var(--primary-light));padding:20px;">
               <div class="card-title" style="color:var(--secondary);font-size:18px;">
                 🛠️ ${proyecto.titulo}
@@ -164,50 +165,142 @@ window.features.proyectos = {
         `).join('')}
       </div>
     `;
+    
+    // Agregar efectos hover con JS (más confiable que inline onmouseover)
+    container.querySelectorAll('.proyecto-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.borderColor = 'var(--secondary)';
+        card.style.transform = 'translateY(-4px)';
+        card.style.boxShadow = 'var(--shadow)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.borderColor = 'var(--border)';
+        card.style.transform = 'translateY(0)';
+        card.style.boxShadow = 'var(--shadow-sm)';
+      });
+    });
   },
   
   // ─────────────────────────────────────────────────────────────
-  // VER INSTRUCTIVO
+  // VER INSTRUCTIVO (CORREGIDO)
   // ─────────────────────────────────────────────────────────────
   verInstructivo: function(proyectoId) {
+    console.log('📋 Ver instructivo:', proyectoId);
+    
     const grado = localStorage.getItem('aprende_jugando_grado') || 'kinder1';
-    const proyecto = this.proyectos[grado].find(p => p.id === proyectoId);
-    if (!proyecto) return;
+    const proyecto = this.proyectos[grado]?.find(p => p.id === proyectoId);
     
-    window.modal?.abrir('modal-instructivo', {
-      titulo: proyecto.titulo,
-      materiales: proyecto.materiales,
-      pasos: proyecto.pasos
-    });
+    if (!proyecto) {
+      console.error('❌ Proyecto no encontrado:', proyectoId);
+      window.app?.mostrarToast('⚠️ Proyecto no disponible', 'error');
+      return;
+    }
     
-    // Guardar que vio el instructivo
+    // Guardar ID para usar en marcarCompletado
+    proyectoActualId = proyectoId;
+    
+    // Generar HTML del instructivo
+    const instruccionHTML = `
+      <div style="text-align:left;">
+        <p style="margin-bottom:16px;color:var(--ink2);font-size:15px;">${proyecto.descripcion}</p>
+        
+        <h4 style="color:var(--primary);margin:16px 0 8px 0;font-size:16px;">📦 Materiales:</h4>
+        <ul style="margin-bottom:16px;padding-left:20px;color:var(--ink2);line-height:1.8;">
+          ${proyecto.materiales.map(m => `<li>${m}</li>`).join('')}
+        </ul>
+        
+        <h4 style="color:var(--primary);margin:16px 0 8px 0;font-size:16px;">📋 Pasos:</h4>
+        <ol style="padding-left:20px;color:var(--ink2);line-height:1.8;">
+          ${proyecto.pasos.map((p, i) => `<li style="margin-bottom:8px;"><strong style="color:var(--secondary);">Paso ${i+1}:</strong> ${p}</li>`).join('')}
+        </ol>
+        
+        <div style="background:var(--bg2);padding:12px;border-radius:var(--radius-sm);margin-top:16px;">
+          <div style="font-size:13px;color:var(--ink3);">⭐ Al completar:</div>
+          <div style="font-size:24px;font-weight:700;color:var(--accent);margin-top:4px;">+${proyecto.recompensa} estrellas</div>
+        </div>
+      </div>
+    `;
+    
+    // Abrir modal con datos CORRECTOS
+    if (window.components?.modal?.abrir) {
+      window.components.modal.abrir('modal-instructivo', {
+        titulo: `🛠️ ${proyecto.titulo}`,
+        instruccion: instruccionHTML
+      });
+    } else {
+      // Fallback: abrir modal manualmente
+      const modal = document.getElementById('modal-instructivo');
+      if (modal) {
+        document.getElementById('modal-instructivo-titulo').textContent = `🛠️ ${proyecto.titulo}`;
+        document.getElementById('modal-instructivo-body').innerHTML = instruccionHTML;
+        modal.classList.add('active');
+        if (modal.tagName === 'DIALOG' && typeof modal.showModal === 'function') {
+          modal.showModal();
+        }
+        document.body.style.overflow = 'hidden';
+      }
+    }
+    
+    // Registrar vista
     this.registrarVista(proyectoId);
   },
   
   // ─────────────────────────────────────────────────────────────
-  // MARCAR COMPLETADO
+  // MARCAR COMPLETADO (CORREGIDO - USA VARIABLE GLOBAL)
   // ─────────────────────────────────────────────────────────────
-  marcarCompletado: function(proyectoId) {
+  marcarCompletado: function() {
+    // Usar la variable global proyectoActualId
+    if (!proyectoActualId) {
+      console.warn('⚠️ No hay proyecto activo para marcar como completado');
+      return;
+    }
+    
     const grado = localStorage.getItem('aprende_jugando_grado') || 'kinder1';
-    const proyecto = this.proyectos[grado].find(p => p.id === proyectoId);
-    if (!proyecto) return;
+    const proyecto = this.proyectos[grado]?.find(p => p.id === proyectoActualId);
+    
+    if (!proyecto) {
+      console.error('❌ Proyecto no encontrado:', proyectoActualId);
+      return;
+    }
     
     // Guardar progreso
     const progreso = JSON.parse(localStorage.getItem('aprende_jugando_progreso') || '{}');
     if (!progreso.proyectos) progreso.proyectos = [];
-    if (!progreso.proyectos.includes(proyectoId)) {
-      progreso.proyectos.push(proyectoId);
+    
+    if (!progreso.proyectos.includes(proyectoActualId)) {
+      progreso.proyectos.push(proyectoActualId);
       localStorage.setItem('aprende_jugando_progreso', JSON.stringify(progreso));
       
       // Dar recompensa
-      if (window.features.progreso) {
-        window.features.progreso.agregarEstrellas(proyecto.recompensa, `Proyecto: ${proyecto.titulo}`);
+      if (window.features?.progreso?.agregarEstrellas) {
+        window.features.progreso.agregarEstrellas(
+          proyecto.recompensa, 
+          `Proyecto: ${proyecto.titulo}`
+        );
       }
       
-      window.app?.mostrarToast(`✅ ${proyecto.titulo} completado`, 'success');
+      window.app?.mostrarToast(`✅ ${proyecto.titulo} completado +${proyecto.recompensa}⭐`, 'success');
     }
     
-    window.modal?.cerrar('modal-instructivo');
+    // Cerrar modal
+    if (window.components?.modal?.cerrar) {
+      window.components.modal.cerrar('modal-instructivo');
+    } else {
+      const modal = document.getElementById('modal-instructivo');
+      if (modal) {
+        modal.classList.remove('active');
+        if (modal.tagName === 'DIALOG' && typeof modal.close === 'function') {
+          modal.close();
+        }
+        document.body.style.overflow = '';
+      }
+    }
+    
+    // Resetear variable
+    proyectoActualId = null;
+    
+    // Refrescar UI
+    this.renderProyectos();
   },
   
   // ─────────────────────────────────────────────────────────────
