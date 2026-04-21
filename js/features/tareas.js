@@ -1368,109 +1368,55 @@ window.features.tareas = {
     return this.leerTextoEnVozAlta(texto);
   },
   
-// ─────────────────────────────────────────────────────────────
-// WEB SPEECH API - FUNCIONES DE FEEDBACK (FALTANTES)
-// ─────────────────────────────────────────────────────────────
-
-// Leer feedback de éxito
-leerFeedbackExito: function(tarea) {
-  if (!this.estado.sonidosActivos) return;
-  if (!('speechSynthesis' in window)) return;
-  
-  const frases = [
-    `¡Excelente! Completaste ${tarea.titulo}`,
-    `¡Muy bien! Terminaste ${tarea.titulo}`,
-    `¡Fantástico! ${tarea.titulo} completada`,
-    `¡Increíble! Lo lograste`
-  ];
-  
-  const frase = frases[Math.floor(Math.random() * frases.length)];
-  this.leerTextoEnVozAlta(frase);
-},
-
-// Leer feedback de ánimo
-leerFeedbackAnimo: function() {
-  if (!this.estado.sonidosActivos) return;
-  if (!('speechSynthesis' in window)) return;
-  
-  const frases = [
-    'Casi lo logras, intenta de nuevo',
-    'Tú puedes, sigue practicando',
-    'No te rindas, inténtalo otra vez',
-    'Muy cerca, vamos por más'
-  ];
-  
-  const frase = frases[Math.floor(Math.random() * frases.length)];
-  this.leerTextoEnVozAlta(frase);
-},
-
-// Leer texto genérico (con espera de voces)
-leerTextoEnVozAlta: function(texto, idioma = 'es-MX') {
-  if (!('speechSynthesis' in window)) return false;
-  
-  const hablar = () => {
-    window.speechSynthesis.cancel();
+  // ─────────────────────────────────────────────────────────────
+  // LEER FEEDBACK DE ÉXITO (PARA JUEGOS)
+  // ─────────────────────────────────────────────────────────────
+  leerFeedbackExito: function(tarea) {
+    if (!this.estado.sonidosActivos) return;
+    if (!('speechSynthesis' in window)) return;
     
-    const utterance = new SpeechSynthesisUtterance(texto);
-    utterance.lang = idioma;
-    utterance.rate = 0.9;
-    utterance.pitch = 1.1;
-    utterance.volume = 1;
+    const frases = [
+      `¡Excelente! Completaste ${tarea.titulo}`,
+      `¡Muy bien! Terminaste ${tarea.titulo}`,
+      `¡Fantástico! ${tarea.titulo} completada`,
+      `¡Increíble! Lo lograste`
+    ];
     
-    // Buscar voz en español
-    const voces = window.speechSynthesis.getVoices();
-    const vozEspanol = voces.find(v => 
-      v.lang.includes('es-MX') || 
-      v.lang.includes('es-ES') || 
-      v.lang.includes('es-US') ||
-      v.name.toLowerCase().includes('spanish') ||
-      v.name.toLowerCase().includes('español')
-    );
+    const frase = frases[Math.floor(Math.random() * frases.length)];
+    return this.leerTextoEnVozAlta(frase);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // LEER FEEDBACK DE ÁNIMO (CUANDO FALLA)
+  // ─────────────────────────────────────────────────────────────
+  leerFeedbackAnimo: function() {
+    if (!this.estado.sonidosActivos) return;
+    if (!('speechSynthesis' in window)) return;
     
-    if (vozEspanol) {
-      utterance.voice = vozEspanol;
-    } else if (voces.length > 0) {
-      utterance.voice = voces[0];
-      utterance.lang = 'en-US';
-    }
+    const frases = [
+      'Casi lo logras, intenta de nuevo',
+      'Tú puedes, sigue practicando',
+      'No te rindas, inténtalo otra vez',
+      'Muy cerca, vamos por más'
+    ];
     
-    utterance.onstart = () => console.log('🗣️ Leyendo:', texto.substring(0, 30) + '...');
-    utterance.onend = () => console.log('✅ Lectura completada');
+    const frase = frases[Math.floor(Math.random() * frases.length)];
+    return this.leerTextoEnVozAlta(frase);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // DESBLOQUEAR AUDIO AL PRIMER CLICK (PARA AUTOPOLICY)
+  // ─────────────────────────────────────────────────────────────
+  desbloquearAudio: function() {
+    if (!('speechSynthesis' in window)) return;
     
-    window.speechSynthesis.speak(utterance);
-    return true;
-  };
-  
-  // Verificar si las voces ya están cargadas
-  const voces = window.speechSynthesis.getVoices();
-  if (voces.length > 0) {
-    return hablar();
-  }
-  
-  // Esperar a que se carguen
-  window.speechSynthesis.onvoiceschanged = () => {
-    hablar();
-    window.speechSynthesis.onvoiceschanged = null;
-  };
-  
-  // Fallback visual
-  setTimeout(() => {
-    if (window.app?.mostrarToast) {
-      window.app.mostrarToast('🔊 ' + texto, 'info');
-    }
-  }, 100);
-  
-  return true;
-},
-
-// Desbloquear audio al primer click (para autoplay policy)
-desbloquearAudio: function() {
-  if (!('speechSynthesis' in window)) return;
-  const silent = new SpeechSynthesisUtterance('');
-  silent.volume = 0;
-  window.speechSynthesis.speak(silent);
-  console.log('🔓 Audio de voz desbloqueado');
-}
+    // Crear utterance silencioso para "desbloquear" el motor de voz
+    const silent = new SpeechSynthesisUtterance('');
+    silent.volume = 0;
+    window.speechSynthesis.speak(silent);
+    
+    console.log('🔓 Audio de voz desbloqueado');
+  },
   
   // ─────────────────────────────────────────────────────────────
   // DETENER LECTURA ACTUAL
@@ -4342,70 +4288,86 @@ desbloquearAudio: function() {
     }
   },
   // ─────────────────────────────────────────────────────────────
-  // VERIFICAR RESPUESTA EN JUEGO DE CONTEO (CON VOZ)
+  // VERIFICAR RESPUESTA EN JUEGO DE CONTEO (CORREGIDO)
   // ─────────────────────────────────────────────────────────────
   verificarRespuestaConteo: function(btnSeleccionado, tarea) {
+    // Prevenir múltiples clics
     if (this.estado.juegoRespondido) return;
     this.estado.juegoRespondido = true;
     
     const respuestaUsuario = parseInt(btnSeleccionado.dataset.respuesta);
     const esCorrecta = respuestaUsuario === tarea.respuestaCorrecta;
+    
     const feedback = document.getElementById('conteo-feedback');
     
+    // ✅ CASO 1: RESPUESTA CORRECTA
     if (esCorrecta) {
-      // ✅ Respuesta correcta
       btnSeleccionado.classList.add('correcta');
       btnSeleccionado.setAttribute('aria-checked', 'true');
       
+      // Feedback visual
       if (feedback) {
         feedback.textContent = '¡Correcto! 🎉';
         feedback.style.color = 'var(--success)';
       }
       
-      // 🔊 Sonido de éxito (MP3)
+      // 🔊 Sonido de éxito
       this.reproducirSonido('audio/exito-conteo.mp3');
       
-      // 🔊 Web Speech: leer feedback de éxito
+      // 🔊 Web Speech API: leer feedback de éxito
       if (this.estado.sonidosActivos && typeof this.leerFeedbackExito === 'function') {
         this.leerFeedbackExito(tarea);
       }
       
+      // Analytics
       this.registrarEvento('respuesta_correcta', {
         tareaId: tarea.id,
         intentos: this.estado.juegoActivo?.intentos || 0
       });
       
+      // Completar tarea después de breve delay
       setTimeout(() => {
-        this.completarTarea(tarea.id, { exito: true, puntuacion: tarea.recompensa });
+        this.completarTarea(tarea.id, { 
+          exito: true, 
+          puntuacion: tarea.recompensa 
+        });
         this.cerrarJuegoActivo();
       }, 1500);
       
+    // ✅ CASO 2: RESPUESTA INCORRECTA
     } else {
-      // ❌ Respuesta incorrecta
       btnSeleccionado.classList.add('incorrecta');
       
-      // 🔊 Sonido de error (MP3)
+      // 🔊 Sonido de error suave
       this.reproducirSonido('audio/error-suave.mp3');
       
-      // 🔊 Web Speech: leer feedback de ánimo
+      // 🔊 Web Speech API: leer feedback de ánimo
       if (this.estado.sonidosActivos && typeof this.leerFeedbackAnimo === 'function') {
         this.leerFeedbackAnimo();
       }
       
+      // Feedback visual
       if (feedback) {
         feedback.textContent = 'Casi... intenta de nuevo 💪';
         feedback.style.color = 'var(--warning)';
       }
       
+      // Incrementar intentos
       if (this.estado.juegoActivo) {
         this.estado.juegoActivo.intentos = (this.estado.juegoActivo.intentos || 0) + 1;
       }
       
+      // Permitir reintentar después de delay
       setTimeout(() => {
         this.estado.juegoRespondido = false;
-        btnSeleccionado.classList.remove('incorrecta');
-        if (feedback) feedback.textContent = '';
         
+        // Remover clases de feedback
+        btnSeleccionado.classList.remove('incorrecta');
+        if (feedback) {
+          feedback.textContent = '';
+        }
+        
+        // Si llegó al máximo de intentos, mostrar respuesta correcta
         if (this.estado.juegoActivo?.intentos >= TAREAS_CONFIG.MAX_INTENTOS) {
           this.mostrarRespuestaCorrecta(tarea);
         }
