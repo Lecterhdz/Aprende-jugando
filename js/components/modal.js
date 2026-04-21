@@ -30,10 +30,12 @@ window.modal = {
     });
   },
   
-  // ─────────────────────────────────────────────────────────────
-  // ABRIR MODAL (FLEXIBLE PARA MÚLTIPLES MODALES)
-  // ─────────────────────────────────────────────────────────────
-  abrir: function(modalId, datos) {
+// ─────────────────────────────────────────────────────────────
+// ABRIR MODAL (FLEXIBLE PARA MÚLTIPLES MODALES)
+// ─────────────────────────────────────────────────────────────
+abrir: function(modalId, datos) {
+  // Esperar un tick para asegurar que el DOM está listo
+  setTimeout(() => {
     const modal = document.getElementById(modalId);
     if (!modal) {
       console.error('❌ Modal no encontrado:', modalId);
@@ -42,44 +44,52 @@ window.modal = {
     
     // Llenar contenido según el tipo de modal
     if (datos) {
-      // Para modal-instructivo (proyectos)
+      // 🔧 Para modal-instructivo (PROYECTOS)
       if (modalId === 'modal-instructivo') {
-        if (datos.titulo) modal.querySelector('.modal-title')?.textContent = datos.titulo;
-        if (datos.instruccion) modal.querySelector('#modal-instructivo-body')?.innerHTML = datos.instruccion;
+        if (datos.titulo) {
+          const tituloEl = modal.querySelector('.modal-title');
+          if (tituloEl) tituloEl.textContent = datos.titulo;
+        }
+        if (datos.instruccion) {
+          const bodyEl = document.getElementById('modal-instructivo-body');
+          if (bodyEl) bodyEl.innerHTML = datos.instruccion;
+        }
       }
       
-      // Para modal-instrucciones-tarea (tareas)
+      // 🔧 Para modal-instrucciones-tarea (TAREAS)
       if (modalId === 'modal-instrucciones-tarea') {
-        if (datos.titulo) document.getElementById('modal-instrucciones-title')?.textContent = datos.titulo;
-        if (datos.icono) document.getElementById('modal-instrucciones-icono')?.textContent = datos.icono;
-        if (datos.instruccion) document.getElementById('modal-instrucciones-texto')?.textContent = datos.instruccion;
-        if (datos.recompensa) document.getElementById('modal-instrucciones-recompensa')?.textContent = `${datos.recompensa} estrellas`;
-        
-        // Configurar hint si existe
-        const btnHint = document.getElementById('modal-instrucciones-hint');
-        if (datos.hint && btnHint) {
-          btnHint.style.display = 'flex';
-          btnHint.onclick = datos.onHint || null;
-        } else if (btnHint) {
-          btnHint.style.display = 'none';
+        if (datos.titulo) {
+          const el = document.getElementById('modal-instrucciones-titulo');
+          if (el) el.textContent = datos.titulo;
         }
-        
-        // Configurar botón comenzar
-        const btnComenzar = document.getElementById('modal-instrucciones-comenzar');
-        if (btnComenzar && datos.onConfirmar) {
-          btnComenzar.onclick = (e) => {
-            e.preventDefault();
-            components.modal.cerrar(modalId);
-            datos.onConfirmar();
-          };
+        if (datos.icono) {
+          const el = document.getElementById('modal-instrucciones-icono');
+          if (el) el.textContent = datos.icono;
+        }
+        if (datos.instruccion) {
+          const el = document.getElementById('modal-instrucciones-texto');
+          if (el) el.textContent = datos.instruccion;
+        }
+        if (datos.recompensa) {
+          const el = document.getElementById('modal-instrucciones-recompensa');
+          if (el) el.textContent = `${datos.recompensa} estrellas`;
         }
       }
       
-      // Para modal-celebracion
+      // 🔧 Para modal-celebracion
       if (modalId === 'modal-celebracion') {
-        if (datos.titulo) document.getElementById('modal-celebracion-titulo')?.textContent = datos.titulo;
-        if (datos.mensaje) document.getElementById('modal-celebracion-mensaje')?.textContent = datos.mensaje;
-        if (datos.puntuacion) document.getElementById('modal-celebracion-puntuacion')?.textContent = datos.puntuacion;
+        if (datos.titulo) {
+          const el = document.getElementById('modal-celebracion-titulo');
+          if (el) el.textContent = datos.titulo;
+        }
+        if (datos.mensaje) {
+          const el = document.getElementById('modal-celebracion-mensaje');
+          if (el) el.textContent = datos.mensaje;
+        }
+        if (datos.puntuacion !== undefined) {
+          const el = document.getElementById('modal-celebracion-puntuacion');
+          if (el) el.textContent = datos.puntuacion;
+        }
       }
     }
     
@@ -91,37 +101,24 @@ window.modal = {
     document.body.style.overflow = 'hidden';
     
     console.log('🪟 Modal abierto:', modalId);
-  },
+  }, 50); // Pequeño delay para asegurar DOM ready
+},
+
+// ─────────────────────────────────────────────────────────────
+// CERRAR MODAL
+// ─────────────────────────────────────────────────────────────
+cerrar: function(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
   
-  // ─────────────────────────────────────────────────────────────
-  // CERRAR MODAL
-  // ─────────────────────────────────────────────────────────────
-  cerrar: function(modalId) {
-    const modal = document.getElementById(modalId);
-    if (!modal) return false;
-    
-    // Disparar evento antes de cerrar
-    window.dispatchEvent(new CustomEvent('modal-before-close', { 
-      detail: { modalId } 
-    }));
-    
-    // Ocultar modal
-    modal.classList.remove('active');
-    
-    // Restaurar scroll si no hay más modales
-    if (this.modalesAbiertos.length <= 1) {
-      document.body.style.overflow = '';
-    }
-    
-    // Remover del stack
-    const index = this.modalesAbiertos.indexOf(modalId);
-    if (index > -1) {
-      this.modalesAbiertos.splice(index, 1);
-    }
-    
-    console.log('🪟 Modal cerrado:', modalId);
-    return true;
-  },
+  modal.classList.remove('active');
+  if (modal.tagName === 'DIALOG' && typeof modal.close === 'function') {
+    modal.close();
+  }
+  document.body.style.overflow = '';
+  
+  console.log('🪟 Modal cerrado:', modalId);
+},
   
   // ─────────────────────────────────────────────────────────────
   // CARGAR DATOS EN MODAL (CORREGIDO - scope de modal)
