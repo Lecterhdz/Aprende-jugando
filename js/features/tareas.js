@@ -1366,24 +1366,30 @@ window.features.tareas = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // LEER FEEDBACK DE ÉXITO
+  // LEER FEEDBACK DE ÉXITO (PARA JUEGOS)
   // ─────────────────────────────────────────────────────────────
   leerFeedbackExito: function(tarea) {
+    if (!this.estado.sonidosActivos) return;
+    if (!('speechSynthesis' in window)) return;
+    
     const frases = [
-      `¡Excelente trabajo! Completaste ${tarea.titulo}`,
+      `¡Excelente! Completaste ${tarea.titulo}`,
       `¡Muy bien! Terminaste ${tarea.titulo}`,
       `¡Fantástico! ${tarea.titulo} completada`,
-      `¡Increíble! Lograste ${tarea.titulo}`
+      `¡Increíble! Lo lograste`
     ];
     
-    const fraseAleatoria = frases[Math.floor(Math.random() * frases.length)];
-    return this.leerTextoEnVozAlta(fraseAleatoria);
+    const frase = frases[Math.floor(Math.random() * frases.length)];
+    return this.leerTextoEnVozAlta(frase);
   },
   
   // ─────────────────────────────────────────────────────────────
   // LEER FEEDBACK DE ÁNIMO (CUANDO FALLA)
   // ─────────────────────────────────────────────────────────────
   leerFeedbackAnimo: function() {
+    if (!this.estado.sonidosActivos) return;
+    if (!('speechSynthesis' in window)) return;
+    
     const frases = [
       'Casi lo logras, intenta de nuevo',
       'Tú puedes, sigue practicando',
@@ -1391,8 +1397,22 @@ window.features.tareas = {
       'Muy cerca, vamos por más'
     ];
     
-    const fraseAleatoria = frases[Math.floor(Math.random() * frases.length)];
-    return this.leerTextoEnVozAlta(fraseAleatoria);
+    const frase = frases[Math.floor(Math.random() * frases.length)];
+    return this.leerTextoEnVozAlta(frase);
+  },
+  
+  // ─────────────────────────────────────────────────────────────
+  // DESBLOQUEAR AUDIO AL PRIMER CLICK (PARA AUTOPOLICY)
+  // ─────────────────────────────────────────────────────────────
+  desbloquearAudio: function() {
+    if (!('speechSynthesis' in window)) return;
+    
+    // Crear utterance silencioso para "desbloquear" el motor de voz
+    const silent = new SpeechSynthesisUtterance('');
+    silent.volume = 0;
+    window.speechSynthesis.speak(silent);
+    
+    console.log('🔓 Audio de voz desbloqueado');
   },
   
   // ─────────────────────────────────────────────────────────────
