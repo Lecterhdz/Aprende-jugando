@@ -1368,55 +1368,109 @@ window.features.tareas = {
     return this.leerTextoEnVozAlta(texto);
   },
   
-  // ─────────────────────────────────────────────────────────────
-  // LEER FEEDBACK DE ÉXITO (PARA JUEGOS)
-  // ─────────────────────────────────────────────────────────────
-  leerFeedbackExito: function(tarea) {
-    if (!this.estado.sonidosActivos) return;
-    if (!('speechSynthesis' in window)) return;
-    
-    const frases = [
-      `¡Excelente! Completaste ${tarea.titulo}`,
-      `¡Muy bien! Terminaste ${tarea.titulo}`,
-      `¡Fantástico! ${tarea.titulo} completada`,
-      `¡Increíble! Lo lograste`
-    ];
-    
-    const frase = frases[Math.floor(Math.random() * frases.length)];
-    return this.leerTextoEnVozAlta(frase);
-  },
+// ─────────────────────────────────────────────────────────────
+// WEB SPEECH API - FUNCIONES DE FEEDBACK (FALTANTES)
+// ─────────────────────────────────────────────────────────────
+
+// Leer feedback de éxito
+leerFeedbackExito: function(tarea) {
+  if (!this.estado.sonidosActivos) return;
+  if (!('speechSynthesis' in window)) return;
   
-  // ─────────────────────────────────────────────────────────────
-  // LEER FEEDBACK DE ÁNIMO (CUANDO FALLA)
-  // ─────────────────────────────────────────────────────────────
-  leerFeedbackAnimo: function() {
-    if (!this.estado.sonidosActivos) return;
-    if (!('speechSynthesis' in window)) return;
-    
-    const frases = [
-      'Casi lo logras, intenta de nuevo',
-      'Tú puedes, sigue practicando',
-      'No te rindas, inténtalo otra vez',
-      'Muy cerca, vamos por más'
-    ];
-    
-    const frase = frases[Math.floor(Math.random() * frases.length)];
-    return this.leerTextoEnVozAlta(frase);
-  },
+  const frases = [
+    `¡Excelente! Completaste ${tarea.titulo}`,
+    `¡Muy bien! Terminaste ${tarea.titulo}`,
+    `¡Fantástico! ${tarea.titulo} completada`,
+    `¡Increíble! Lo lograste`
+  ];
   
-  // ─────────────────────────────────────────────────────────────
-  // DESBLOQUEAR AUDIO AL PRIMER CLICK (PARA AUTOPOLICY)
-  // ─────────────────────────────────────────────────────────────
-  desbloquearAudio: function() {
-    if (!('speechSynthesis' in window)) return;
+  const frase = frases[Math.floor(Math.random() * frases.length)];
+  this.leerTextoEnVozAlta(frase);
+},
+
+// Leer feedback de ánimo
+leerFeedbackAnimo: function() {
+  if (!this.estado.sonidosActivos) return;
+  if (!('speechSynthesis' in window)) return;
+  
+  const frases = [
+    'Casi lo logras, intenta de nuevo',
+    'Tú puedes, sigue practicando',
+    'No te rindas, inténtalo otra vez',
+    'Muy cerca, vamos por más'
+  ];
+  
+  const frase = frases[Math.floor(Math.random() * frases.length)];
+  this.leerTextoEnVozAlta(frase);
+},
+
+// Leer texto genérico (con espera de voces)
+leerTextoEnVozAlta: function(texto, idioma = 'es-MX') {
+  if (!('speechSynthesis' in window)) return false;
+  
+  const hablar = () => {
+    window.speechSynthesis.cancel();
     
-    // Crear utterance silencioso para "desbloquear" el motor de voz
-    const silent = new SpeechSynthesisUtterance('');
-    silent.volume = 0;
-    window.speechSynthesis.speak(silent);
+    const utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = idioma;
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    utterance.volume = 1;
     
-    console.log('🔓 Audio de voz desbloqueado');
-  },
+    // Buscar voz en español
+    const voces = window.speechSynthesis.getVoices();
+    const vozEspanol = voces.find(v => 
+      v.lang.includes('es-MX') || 
+      v.lang.includes('es-ES') || 
+      v.lang.includes('es-US') ||
+      v.name.toLowerCase().includes('spanish') ||
+      v.name.toLowerCase().includes('español')
+    );
+    
+    if (vozEspanol) {
+      utterance.voice = vozEspanol;
+    } else if (voces.length > 0) {
+      utterance.voice = voces[0];
+      utterance.lang = 'en-US';
+    }
+    
+    utterance.onstart = () => console.log('🗣️ Leyendo:', texto.substring(0, 30) + '...');
+    utterance.onend = () => console.log('✅ Lectura completada');
+    
+    window.speechSynthesis.speak(utterance);
+    return true;
+  };
+  
+  // Verificar si las voces ya están cargadas
+  const voces = window.speechSynthesis.getVoices();
+  if (voces.length > 0) {
+    return hablar();
+  }
+  
+  // Esperar a que se carguen
+  window.speechSynthesis.onvoiceschanged = () => {
+    hablar();
+    window.speechSynthesis.onvoiceschanged = null;
+  };
+  
+  // Fallback visual
+  setTimeout(() => {
+    if (window.app?.mostrarToast) {
+      window.app.mostrarToast('🔊 ' + texto, 'info');
+    }
+  }, 100);
+  
+  return true;
+},
+
+// Desbloquear audio al primer click (para autoplay policy)
+desbloquearAudio: function() {
+  if (!('speechSynthesis' in window)) return;
+  const silent = new SpeechSynthesisUtterance('');
+  silent.volume = 0;
+  window.speechSynthesis.speak(silent);
+  console.log('🔓 Audio de voz desbloqueado');
+}
   
   // ─────────────────────────────────────────────────────────────
   // DETENER LECTURA ACTUAL
