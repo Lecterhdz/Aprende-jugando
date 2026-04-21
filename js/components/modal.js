@@ -31,34 +31,66 @@ window.modal = {
   },
   
   // ─────────────────────────────────────────────────────────────
-  // ABRIR MODAL
+  // ABRIR MODAL (FLEXIBLE PARA MÚLTIPLES MODALES)
   // ─────────────────────────────────────────────────────────────
-  abrir: function(modalId, datos = null) {
+  abrir: function(modalId, datos) {
     const modal = document.getElementById(modalId);
     if (!modal) {
       console.error('❌ Modal no encontrado:', modalId);
-      return false;
+      return;
     }
     
-    // Disparar evento antes de abrir
-    window.dispatchEvent(new CustomEvent('modal-before-open', { 
-      detail: { modalId, datos } 
-    }));
+    // Llenar contenido según el tipo de modal
+    if (datos) {
+      // Para modal-instructivo (proyectos)
+      if (modalId === 'modal-instructivo') {
+        if (datos.titulo) modal.querySelector('.modal-title')?.textContent = datos.titulo;
+        if (datos.instruccion) modal.querySelector('#modal-instructivo-body')?.innerHTML = datos.instruccion;
+      }
+      
+      // Para modal-instrucciones-tarea (tareas)
+      if (modalId === 'modal-instrucciones-tarea') {
+        if (datos.titulo) document.getElementById('modal-instrucciones-title')?.textContent = datos.titulo;
+        if (datos.icono) document.getElementById('modal-instrucciones-icono')?.textContent = datos.icono;
+        if (datos.instruccion) document.getElementById('modal-instrucciones-texto')?.textContent = datos.instruccion;
+        if (datos.recompensa) document.getElementById('modal-instrucciones-recompensa')?.textContent = `${datos.recompensa} estrellas`;
+        
+        // Configurar hint si existe
+        const btnHint = document.getElementById('modal-instrucciones-hint');
+        if (datos.hint && btnHint) {
+          btnHint.style.display = 'flex';
+          btnHint.onclick = datos.onHint || null;
+        } else if (btnHint) {
+          btnHint.style.display = 'none';
+        }
+        
+        // Configurar botón comenzar
+        const btnComenzar = document.getElementById('modal-instrucciones-comenzar');
+        if (btnComenzar && datos.onConfirmar) {
+          btnComenzar.onclick = (e) => {
+            e.preventDefault();
+            components.modal.cerrar(modalId);
+            datos.onConfirmar();
+          };
+        }
+      }
+      
+      // Para modal-celebracion
+      if (modalId === 'modal-celebracion') {
+        if (datos.titulo) document.getElementById('modal-celebracion-titulo')?.textContent = datos.titulo;
+        if (datos.mensaje) document.getElementById('modal-celebracion-mensaje')?.textContent = datos.mensaje;
+        if (datos.puntuacion) document.getElementById('modal-celebracion-puntuacion')?.textContent = datos.puntuacion;
+      }
+    }
     
-    // Mostrar modal
+    // Abrir modal
     modal.classList.add('active');
+    if (modal.tagName === 'DIALOG' && typeof modal.showModal === 'function') {
+      modal.showModal();
+    }
     document.body.style.overflow = 'hidden';
     
-    // Guardar en stack
-    this.modalesAbiertos.push(modalId);
-    
-    // Cargar datos si se proporcionan
-    if (datos) {
-      this.cargarDatos(modalId, datos);
-    }
-    
     console.log('🪟 Modal abierto:', modalId);
-    return true;
   },
   
   // ─────────────────────────────────────────────────────────────
