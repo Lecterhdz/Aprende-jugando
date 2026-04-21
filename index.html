@@ -689,7 +689,7 @@
   <!-- ══════════════════════════════════════ AUDIO UNLOCK PARA WEB SPEECH ══════════════════════════════════════ -->
 
   <script>
-  // Desbloquear audio al primer click/touch del usuario
+  // Desbloquear Web Speech API al primer click/touch del usuario
   document.addEventListener('click', function unlockSpeech() {
     if ('speechSynthesis' in window) {
       const silent = new SpeechSynthesisUtterance('');
