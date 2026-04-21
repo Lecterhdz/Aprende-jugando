@@ -686,5 +686,20 @@
       }, 200);
     });
   </script>
+  <!-- Audio Unlock para Web Speech API -->
+  <script>
+  // Desbloquear audio al primer click del usuario
+  document.addEventListener('click', function unlockAudio() {
+    if ('speechSynthesis' in window) {
+      // Crear utterance silencioso para "desbloquear"
+      const silent = new SpeechSynthesisUtterance('');
+      silent.volume = 0;
+      window.speechSynthesis.speak(silent);
+      // Remover listener después de primera ejecución
+      document.removeEventListener('click', unlockAudio);
+      console.log('🔓 Audio desbloqueado');
+    }
+  }, { once: true });
+  </script>
 </body>
 </html>
