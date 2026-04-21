@@ -686,18 +686,21 @@
       }, 200);
     });
   </script>
-  <!-- Audio Unlock para Web Speech API -->
+  <!-- ══════════════════════════════════════ AUDIO UNLOCK PARA WEB SPEECH ══════════════════════════════════════ -->
   <script>
-  // Desbloquear audio al primer click del usuario
-  document.addEventListener('click', function unlockAudio() {
-    if ('speechSynthesis' in window) {
-      // Crear utterance silencioso para "desbloquear"
-      const silent = new SpeechSynthesisUtterance('');
-      silent.volume = 0;
-      window.speechSynthesis.speak(silent);
-      // Remover listener después de primera ejecución
-      document.removeEventListener('click', unlockAudio);
-      console.log('🔓 Audio desbloqueado');
+  // Desbloquear Web Speech API al primer click/touch del usuario
+  document.addEventListener('click', function unlockSpeech() {
+    if ('speechSynthesis' in window && typeof features?.tareas?.desbloquearAudio === 'function') {
+      features.tareas.desbloquearAudio();
+      document.removeEventListener('click', unlockSpeech);
+    }
+  }, { once: true });
+  
+  // También para touch en móvil
+  document.addEventListener('touchstart', function unlockSpeechTouch() {
+    if ('speechSynthesis' in window && typeof features?.tareas?.desbloquearAudio === 'function') {
+      features.tareas.desbloquearAudio();
+      document.removeEventListener('touchstart', unlockSpeechTouch);
     }
   }, { once: true });
   </script>
