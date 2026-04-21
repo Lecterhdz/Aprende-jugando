@@ -4288,86 +4288,70 @@ window.features.tareas = {
     }
   },
   // ─────────────────────────────────────────────────────────────
-  // VERIFICAR RESPUESTA EN JUEGO DE CONTEO (CORREGIDO)
+  // VERIFICAR RESPUESTA EN JUEGO DE CONTEO (CON VOZ)
   // ─────────────────────────────────────────────────────────────
   verificarRespuestaConteo: function(btnSeleccionado, tarea) {
-    // Prevenir múltiples clics
     if (this.estado.juegoRespondido) return;
     this.estado.juegoRespondido = true;
     
     const respuestaUsuario = parseInt(btnSeleccionado.dataset.respuesta);
     const esCorrecta = respuestaUsuario === tarea.respuestaCorrecta;
-    
     const feedback = document.getElementById('conteo-feedback');
     
-    // ✅ CASO 1: RESPUESTA CORRECTA
     if (esCorrecta) {
+      // ✅ Respuesta correcta
       btnSeleccionado.classList.add('correcta');
       btnSeleccionado.setAttribute('aria-checked', 'true');
       
-      // Feedback visual
       if (feedback) {
         feedback.textContent = '¡Correcto! 🎉';
         feedback.style.color = 'var(--success)';
       }
       
-      // 🔊 Sonido de éxito
+      // 🔊 Sonido de éxito (MP3)
       this.reproducirSonido('audio/exito-conteo.mp3');
       
-      // 🔊 Web Speech API: leer feedback de éxito
+      // 🔊 Web Speech: leer feedback de éxito
       if (this.estado.sonidosActivos && typeof this.leerFeedbackExito === 'function') {
         this.leerFeedbackExito(tarea);
       }
       
-      // Analytics
       this.registrarEvento('respuesta_correcta', {
         tareaId: tarea.id,
         intentos: this.estado.juegoActivo?.intentos || 0
       });
       
-      // Completar tarea después de breve delay
       setTimeout(() => {
-        this.completarTarea(tarea.id, { 
-          exito: true, 
-          puntuacion: tarea.recompensa 
-        });
+        this.completarTarea(tarea.id, { exito: true, puntuacion: tarea.recompensa });
         this.cerrarJuegoActivo();
       }, 1500);
       
-    // ✅ CASO 2: RESPUESTA INCORRECTA
     } else {
+      // ❌ Respuesta incorrecta
       btnSeleccionado.classList.add('incorrecta');
       
-      // 🔊 Sonido de error suave
+      // 🔊 Sonido de error (MP3)
       this.reproducirSonido('audio/error-suave.mp3');
       
-      // 🔊 Web Speech API: leer feedback de ánimo
+      // 🔊 Web Speech: leer feedback de ánimo
       if (this.estado.sonidosActivos && typeof this.leerFeedbackAnimo === 'function') {
         this.leerFeedbackAnimo();
       }
       
-      // Feedback visual
       if (feedback) {
         feedback.textContent = 'Casi... intenta de nuevo 💪';
         feedback.style.color = 'var(--warning)';
       }
       
-      // Incrementar intentos
       if (this.estado.juegoActivo) {
         this.estado.juegoActivo.intentos = (this.estado.juegoActivo.intentos || 0) + 1;
       }
       
-      // Permitir reintentar después de delay
       setTimeout(() => {
         this.estado.juegoRespondido = false;
-        
-        // Remover clases de feedback
         btnSeleccionado.classList.remove('incorrecta');
-        if (feedback) {
-          feedback.textContent = '';
-        }
+        if (feedback) feedback.textContent = '';
         
-        // Si llegó al máximo de intentos, mostrar respuesta correcta
         if (this.estado.juegoActivo?.intentos >= TAREAS_CONFIG.MAX_INTENTOS) {
           this.mostrarRespuestaCorrecta(tarea);
         }
