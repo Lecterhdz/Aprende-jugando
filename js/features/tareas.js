@@ -1192,6 +1192,9 @@ window.features.tareas = {
     `;
     
     document.body.appendChild(modal);
+    if (typeof this.desbloquearAudio === 'function') {
+      this.desbloquearAudio();
+    }
     document.body.style.overflow = 'hidden';
     
     // ✅ Configurar listeners para botones
@@ -2396,6 +2399,10 @@ window.features.tareas = {
     `;
     
     document.body.appendChild(juegoContainer);
+
+    if (typeof this.desbloquearAudio === 'function') {
+      this.desbloquearAudio();
+    }
     document.body.style.overflow = 'hidden';
     
     // ✅ Configurar listeners para botones de cerrar (DESPUÉS de innerHTML)
