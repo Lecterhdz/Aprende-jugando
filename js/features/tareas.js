@@ -1361,6 +1361,44 @@ window.features.tareas = {
     return this.reproducirTexto(frase);  // ← Ahora usa la función correcta
   },
 
+  // ─────────────────────────────────────────────────────────────
+  // REPRODUCIR TEXTO GENÉRICO (HELPER - FUNCIÓN FALTANTE)
+  // ─────────────────────────────────────────────────────────────
+  reproducirTexto: function(texto) {
+    if (!this.estado.sonidosActivos) return false;
+    if (!('speechSynthesis' in window)) return false;
+    
+    // Cancelar cualquier audio previo
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.85;  // ← MÁS LENTO para niños
+    utterance.pitch = 1.1;  // ← Un poco más agudo, más amigable
+    utterance.volume = 1;
+    
+    // Seleccionar voz en español
+    const voces = window.speechSynthesis.getVoices();
+    const vozEspanol = voces.find(v => 
+      v.lang.includes('es-MX') || 
+      v.lang.includes('es-ES') ||
+      v.name.toLowerCase().includes('spanish') ||
+      v.name.toLowerCase().includes('español')
+    );
+    
+    if (vozEspanol) {
+      utterance.voice = vozEspanol;
+      console.log('🎤 Usando voz:', vozEspanol.name);
+    }
+    
+    // Eventos de debug
+    utterance.onstart = () => console.log('🗣️ Leyendo:', texto.substring(0, 30) + '...');
+    utterance.onend = () => console.log('✅ Lectura completada');
+    utterance.onerror = (e) => console.warn('❌ Error de voz:', e.error);
+    
+    window.speechSynthesis.speak(utterance);
+    return true;
+  },
   
   // ─────────────────────────────────────────────────────────────
   // DESBLOQUEAR AUDIO AL PRIMER CLICK (PARA AUTOPOLICY)
